@@ -33,7 +33,7 @@ const { subtitle, hideLinks, additional } = Astro.props;
   <body class="min-h-screen bg-gray-200">
     <GridBackgrounded />
     <div class="z-1 relative">
-      <Header subtitle={subtitle} hideLinks={hideLinks} additional={additional}>
+      <Header hideLinks={hideLinks} additional={additional}>
         <slot name="header-navbar" />
       </Header>
       <section class="mt-6">
