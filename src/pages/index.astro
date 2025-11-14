@@ -1,27 +1,433 @@
 ---
-import "../styles/index.css";
-import Header from "../components/landing/Header";
-import Hero from "../components/landing/Hero";
-import Vision from "../components/landing/Vision";
-import HowItWorks from "../components/landing/HowItWorks";
-import Features from "../components/landing/Features";
-import Pricing from "../components/landing/Pricing";
-import JoinUs from "../components/landing/JoinUs";
-import Team from "../components/landing/Team";
-import Footer from "../components/landing/Footer";
-import Layout from "../layouts/Layout.astro";
+export const prerender = true;
+import V2Layout from "@/layouts/LandingLayout.astro";
+import { ItemName } from "@/components/utilitified_decorations/LandingNavbar.astro";
+import HeroSection from "@/layouts/sections/HeroSection.astro";
+import Section from "@/layouts/sections/BaseSection.astro";
+import { BgType } from "@/types/eventTypes";
+import type { SectionProps } from "@/types/eventTypes";
+import { getIcon } from "@/components/icon";
+import Badge from "@/components/badge/Badge";
+import Link from "@/components/custom-ui/Link";
+import ReactComponentImporter from "@/components/ReactComponentImporter";
+
+const heroSection: SectionProps = {
+  title: "The first platform for maintainers to grow PRs and support",
+  subtitle:
+    "Turning open-source development into a recognized, collaborative, and financially sustainable pursuit.",
+  actions: [
+    { variant: "primary", children: "Get Started", uri: "/login/" },
+    {
+      variant: "secondary",
+      children: "Learn More",
+      uri: "/#vision",
+    },
+  ],
+  bg: {
+    sectionBgType: BgType.heroSection,
+    overlay: "circles",
+  },
+};
+
+const visionSection: SectionProps = {
+  title: "From celebrity culture to creator culture",
+  subtitle: [
+    "Open-source developers build the tools and ideas millions rely on —",
+    "yet most remain unseen, underpaid, and disconnected from the public.",
+  ],
+
+  bg: {
+    sectionBgType: BgType.heroToSocialization,
+    overlay: "rectangles",
+  },
+};
+
+const socializationSection: SectionProps = {
+  title: "How does CascadeFund work?",
+  bg: {
+    sectionBgType: BgType.blueToPurple,
+    overlay: "circles",
+  },
+};
+
+const gamificationSection: SectionProps = {
+  title: "Gamified collaboration",
+  bg: {
+    sectionBgType: BgType.normalSection,
+    overlay: "rectangles",
+  },
+};
+
+const timeSavedSection: SectionProps = {
+  title: "Time-Saved Project Management",
+  bg: {
+    sectionBgType: BgType.infoToInfoViaBlue,
+    overlay: "circles",
+  },
+};
+
+const paywallSection: SectionProps = {
+  title: "Efficiency Through Paywalls",
+  bg: {
+    sectionBgType: BgType.infoToInfoViaBlue,
+  },
+};
+
+const interconnectedSection: SectionProps = {
+  title: "Interconnected for Maintainers",
+  bg: {
+    sectionBgType: BgType.tealToRedViaLime,
+  },
+};
+
+const fundingSection: SectionProps = {
+  title: "No Pricing?",
+  bg: {
+    sectionBgType: BgType.tealToRedViaLime,
+    overlay: "circles",
+  },
+};
+
+const earlyStageSection: SectionProps = {
+  title: "Join Us",
+  icon: getIcon("energy"),
+  bg: {
+    sectionBgType: BgType.redToPurpleViaLime,
+    overlay: "rectangles",
+  },
+};
+
+const teamSection: SectionProps = {
+  title: "Our Team",
+  bg: {
+    sectionBgType: BgType.redToPurpleViaLime,
+    overlay: "rectangles",
+  },
+};
 ---
 
-<Layout>
-  <Header client:load />
-  <main>
-    <Hero client:load />
-    <Vision client:load />
-    <HowItWorks client:load />
-    <Features client:load />
-    <Pricing client:load />
-    <JoinUs client:load />
-    <Team client:load />
-  </main>
-  <Footer client:load />
-</Layout>
+<V2Layout
+  subtitle="For Open Source Maintainers"
+  active={ItemName.MaintainerLanding}
+>
+  <HeroSection {...heroSection}>
+    {heroSection.children}
+  </HeroSection>
+
+  <div id="vision">
+    <HeroSection {...visionSection}>
+      <div
+        class="absolute top-0 left-10 -mt-10 flex items-center space-x-2 md:w-full lg:justify-start md:justify-center"
+      >
+        <Badge variant="default">It's more than just a platform</Badge>
+        <Badge variant="success">Users make a positive social impact</Badge>
+      </div>
+      <div class="max-w-4xl mx-auto">
+        <p class="text-lg md:text-xl leading-relaxed mt-6">
+          As CascadeFund grows, developers will become as recognizable as
+          today's internet influencers.
+        </p>
+        <p class="text-lg md:text-xl leading-relaxed mt-2">
+          In a decade, when the world celebrates the creators behind what it
+          uses every day, it will be thanks to the users of CascadeFund.
+        </p>
+      </div>
+    </HeroSection>
+  </div>
+
+  <Section {...socializationSection}>
+    <div
+      class="absolute top-0 left-10 -mt-10 flex items-center space-x-2 md:w-full lg:justify-start md:justify-center"
+    >
+      <Badge variant="default"
+        ><span class="h-6 pt-1"
+          >Okay, how does CascadeFund make this happen?</span
+        ></Badge
+      >
+      <Badge variant="info" active={true}
+        ><Badge>1</Badge><span class="ml-1">Collaboration platform</span></Badge
+      >
+    </div>
+    <div class="max-w-4xl mx-auto space-y-4">
+      <p class="text-lg md:text-xl leading-relaxed">
+        CascadeFund is where your project's community comes together.
+      </p>
+      <p class="text-lg md:text-xl leading-relaxed">
+        Instead of scattered issues, docs, articles, across GitHub, Discord,
+        RSS, etc., all collaboration with developers, contributors, and users
+        happens here.
+        <br />
+        This not only makes collaboration easier, it makes your work visible and
+        recognized.
+      </p>
+    </div>
+  </Section>
+
+  <Section {...gamificationSection}>
+    <div
+      class="absolute top-0 left-10 -mt-10 flex items-center space-x-2 md:w-full lg:justify-start md:justify-center gap-1"
+    >
+      <Badge variant="default"
+        ><span class="h-6 pt-1"
+          >Okay, how does CascadeFund make this happen?</span
+        ></Badge
+      >
+      <Badge variant="info"
+        ><Badge>1</Badge><span class="ml-1">Collaboration platform</span></Badge
+      >
+      <span class="text-gray-500 dark:text-gray-400"> with </span>
+      <Badge variant="green" active={true}
+        ><Badge active={true}>2</Badge><span class="ml-1"
+          >Quest and rating system</span
+        ></Badge
+      >
+    </div>
+    <div class="max-w-4xl mx-auto space-y-4">
+      <p class="text-lg md:text-xl leading-relaxed">
+        All activities, such as message replies, roadmap planning, issue
+        readings are turned into quest tasks. Each task contributes to the
+        collaborative rating. Unlike competitive rating, a collaborative rating
+        reflects how you work with others and on which types of projects.
+        Similarly, a project rating reflects what goals preferred by the
+        community, what kind of people are working on it.
+      </p>
+    </div>
+  </Section>
+
+  <Section {...timeSavedSection}>
+    <div
+      class="absolute top-0 left-10 -mt-10 flex items-center space-x-2 md:w-full lg:justify-start md:justify-center gap-1"
+    >
+      <Badge variant="default"
+        ><span class="h-6 pt-1"
+          >Okay, how does CascadeFund make this happen?</span
+        ></Badge
+      >
+      <Badge variant="info"
+        ><Badge>1</Badge><span class="ml-1">Collaboration platform</span></Badge
+      >
+      <span class="text-gray-500 dark:text-gray-400"> with </span>
+      <Badge variant="green"
+        ><Badge>2</Badge><span class="ml-1">Quest and rating system</span
+        ></Badge
+      >
+      <span class="text-gray-500 dark:text-gray-400 -ml-2 mt-2">, </span>
+      <Badge variant="teal" active={true}
+        ><Badge active={true}>3</Badge><span class="ml-1"
+          >Automation, two click tasks</span
+        ></Badge
+      >
+    </div>
+    <div class="max-w-4xl mx-auto space-y-6">
+      <p class="text-lg md:text-xl leading-relaxed">
+        Managing your project shouldn't be a chore. CascadeFund turns messages,
+        code reviews, and closing issues into two-click daily tasks.
+      </p>
+      <p class="text-lg md:text-xl leading-relaxed">
+        In CascadeFund, all project management is reduced to just 10 minutes of
+        daily guided task completion. Routine, repetitive, and annoying
+        multi-click actions are minimized, giving you more offline time, saving
+        energy, and helping prevent burnout.
+      </p>
+      <p class="text-lg md:text-xl leading-relaxed font-semibold">
+        It's the easiest, most time-saving system for running an open-source
+        project.
+      </p>
+      <div class="mt-8 space-y-6">
+        <div
+          class="bg-gray-100 dark:bg-gray-800 rounded-lg p-4 border-2 border-dashed border-gray-300 dark:border-gray-600"
+        >
+          <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">
+            [Screenshot: Quest Panel]
+          </p>
+          <div
+            class="aspect-video bg-gray-200 dark:bg-gray-700 rounded flex items-center justify-center"
+          >
+            <span class="text-gray-400 dark:text-gray-500"
+              >Quest Panel Screenshot</span
+            >
+          </div>
+        </div>
+        <div
+          class="bg-gray-100 dark:bg-gray-800 rounded-lg p-4 border-2 border-dashed border-gray-300 dark:border-gray-600"
+        >
+          <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">
+            [Screenshot: Chat Reply Flow]
+          </p>
+          <div
+            class="aspect-video bg-gray-200 dark:bg-gray-700 rounded flex items-center justify-center"
+          >
+            <span class="text-gray-400 dark:text-gray-500"
+              >Chat Reply Flow Screenshot</span
+            >
+          </div>
+        </div>
+        <div
+          class="bg-gray-100 dark:bg-gray-800 rounded-lg p-4 border-2 border-dashed border-gray-300 dark:border-gray-600"
+        >
+          <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">
+            [Screenshot: Code Review Flow]
+          </p>
+          <div
+            class="aspect-video bg-gray-200 dark:bg-gray-700 rounded flex items-center justify-center"
+          >
+            <span class="text-gray-400 dark:text-gray-500"
+              >Code Review Flow Screenshot</span
+            >
+          </div>
+        </div>
+      </div>
+    </div>
+  </Section>
+
+  <Section {...paywallSection}>
+    <div
+      class="absolute top-0 left-10 -mt-10 flex items-center space-x-2 md:w-full lg:justify-start md:justify-center gap-1"
+    >
+      <Badge variant="default"
+        ><span class="h-6 pt-1"
+          >Okay, how does CascadeFund make this happen?</span
+        ></Badge
+      >
+      <Badge variant="info"
+        ><Badge>1</Badge><span class="ml-1">Collaboration platform</span></Badge
+      >
+      <span class="text-gray-500 dark:text-gray-400"> with </span>
+      <Badge variant="green"
+        ><Badge>2</Badge><span class="ml-1">Quest and rating system</span
+        ></Badge
+      >
+      <span class="text-gray-500 dark:text-gray-400 -ml-2 mt-2">, </span>
+      <Badge variant="teal"
+        ><Badge>3</Badge><span class="ml-1">Automation, two click tasks</span
+        ></Badge
+      >
+      <span class="text-gray-500 dark:text-gray-400 -ml-2 mt-2">, </span>
+      <Badge variant="purple" active={true}>
+        <Badge active={true}>4</Badge><span class="ml-1">Easy Monetization</span
+        >
+      </Badge>
+    </div>
+    <div class="max-w-4xl mx-auto space-y-4">
+      <p class="text-lg md:text-xl leading-relaxed">
+        To keep your time focused, CascadeFund adds a gamified paywall to user
+        requests. It filters out noise while making participation meaningful.
+      </p>
+      <p class="text-lg md:text-xl leading-relaxed">
+        Users spend voting power to raise issues and when they collaborate well
+        with maintainers, their ratings and influence grow. Those who write
+        thoughtful feature requests or help projects move forward earn bonus
+        points and recognition, becoming community voices who can bring people
+        together to build his own features.
+      </p>
+    </div>
+  </Section>
+
+  <Section {...interconnectedSection}>
+    <div class="max-w-4xl mx-auto space-y-4">
+      <p class="text-lg md:text-xl leading-relaxed">
+        CascadeFund keeps your project moving even when your time is limited. If
+        there's a task you'd rather not handle, you can let a contributor take
+        it and earn the rating, while you simply guide and consult.
+      </p>
+      <p class="text-lg md:text-xl leading-relaxed">
+        Others can also link a fork to solve the issue independently, so
+        progress never stalls. Your project grows, adapts, and keeps moving
+        toward its goals without too much worry on rating.
+      </p>
+      <p class="text-lg md:text-xl leading-relaxed">
+        It's a connected system that rewards collaboration, frees your time, and
+        keeps every maintainer in control of their direction.
+      </p>
+    </div>
+  </Section>
+
+  <Section {...fundingSection}>
+    <div class="max-w-4xl mx-auto space-y-4">
+      <p class="text-lg md:text-xl leading-relaxed">
+        CascadeFund doesn't charge you anything. All earnings go directly to you
+        and, through the <Link
+          asNewTab={true}
+          uri="https://www.hyperpayment.org/specification/opensource-hyperpayment-specification"
+          >Hyperpayment Protocol</Link
+        >, 20% is automatically shared with the open-source libraries your
+        project depends on. This happens in a gamified way. In exchange you get
+        voting power that affects collaborative ratings, strengthening the
+        ecosystem that supports your work.
+      </p>
+      <p class="text-lg md:text-xl leading-relaxed">
+        It's open, fair, and built to keep creators optimize their dependencies
+        for their projects.
+      </p>
+    </div>
+  </Section>
+
+  <Section
+    {...earlyStageSection}
+    actions={[
+      {
+        uri: "/login",
+        variant: "primary",
+        children: "Subscribe for newsletter",
+      },
+    ]}
+  >
+    <div class="max-w-4xl mx-auto space-y-4">
+      <p class="text-lg md:text-xl leading-relaxed">
+        CascadeFund is currently in active development. We plan to launch by the
+        end of this year.
+      </p>
+    </div>
+    <div class="mx-auto">
+      <p
+        class="text-lg md:text-xl leading-relaxed flex items-center justify-center space-x-1 gap-2"
+      >
+        Follow our progress on <Link
+          className="flex items-center space-x-1 gap-1 -mr-2 underline"
+          asNewTab={true}
+          uri="https://github.com/ara-foundation/cascade-fund"
+        >
+          <ReactComponentImporter element={getIcon("github")} /> GitHub
+        </Link>, for chatting with us join our <Link
+          className="flex items-center space-x-1 gap-1 -mr-2 underline"
+          asNewTab={true}
+          uri="https://t.me/cascadefund"
+        >
+          <ReactComponentImporter element={getIcon("telegram")} /> Telegram
+        </Link>, and to catch updates on subscribe to our <Link
+          className="flex items-center space-x-1 gap-1 -mr-2 underline"
+          asNewTab={true}
+          uri="https://www.youtube.com/@cascadefund"
+        >
+          <ReactComponentImporter element={getIcon("youtube")} /> YouTube
+        </Link>.
+      </p>
+    </div>
+    <div class="mx-auto">
+      <p class="text-lg md:text-xl leading-relaxed">
+        Subscribe with your email, it helps us a feedback. Our early adopters
+        will receive +20 voting power points on CascadeFund when we launch.
+      </p>
+    </div>
+  </Section>
+
+  <Section {...teamSection}>
+    <p
+      class="text-lg md:text-xl leading-relaxed flex items-center justify-center space-x-1 gap-2"
+    >
+      CascadeFund is built by two developers whose top achievements shaped their
+      paths in tech.
+    </p>
+    <p class="text-lg md:text-xl leading-relaxed">
+      Medet taught himself programming and, as his first major project in 2015,
+      created a full programming language from scratch in C. He later became CTO
+      and Chief of Blocklords, leading its technical development. LinkedIn
+    </p>
+    <p class="text-lg md:text-xl leading-relaxed">
+      Sergey has been coding since the early internet. A veteran of the first
+      dot-com era, he built CRMs and frameworks still in use today. He now
+      serves as CTO at one of the largest data analytics companies, working with
+      leading banks worldwide.
+    </p>
+  </Section>
+</V2Layout>
