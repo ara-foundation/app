@@ -32,7 +32,9 @@ const { hideLinks, hideAuth, additional } = Astro.props;
     </style>
     <ClientRouter />
   </head>
-  <body class="min-h-screen bg-slate-200 dark:bg-slate-800">
+  <body
+    class="min-h-screen bg-slate-200 dark:bg-slate-800 border-1 border-red-500/10"
+  >
     <GradientBackground
       className="fixed h-screen w-screen z-0 pointer-events-none"
       client:load

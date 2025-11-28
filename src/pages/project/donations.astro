@@ -6,8 +6,7 @@ import MenuPanel from "@/components/menu/MenuPanel";
 import BalancePanel from "@/components/maintainer/BalancePanel";
 ---
 
-<Layout active={MenuName.ProjectName}>
+<Layout hideLinks={Object.keys(MenuName)}>
   <MenuPanel activeMenuItem="donations" slot="left" />
   <BalancePanel slot="center" />
 </Layout>
-
