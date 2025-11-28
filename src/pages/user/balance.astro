@@ -2,14 +2,15 @@
 import Layout from "@/layouts/PanelViewLayout.astro";
 import { MenuName } from "@/components/navbar/WorkNavbar.astro";
 
-import MenuPanel from "@/components/menu/MenuPanel";
-import BalancePanel from "@/components/maintainer/BalancePanel";
+import UserBalancePanel from "@/components/user/UserBalancePanel";
+import BackButton from "@/components/custom-ui/BackButton";
+
 // todo: add recent transactions panel
 // import RecentTransactionPanel from "@/components/maintainer/RecentTransactionPanel";
 ---
 
-<Layout active={MenuName.ProjectName}>
-      <MenuPanel activeMenuItem="balance" slot="left" />
-      <BalancePanel slot="center" />
+<Layout hideLinks={Object.keys(MenuName)}>
+      <BackButton uri="/" slot="left" />
+      <UserBalancePanel slot="center" />
       <!-- <RecentTransactionPanel slot="center" /> -->
 </Layout>

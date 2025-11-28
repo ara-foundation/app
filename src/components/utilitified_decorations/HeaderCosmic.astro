@@ -1,6 +1,7 @@
 ---
 import Logo from "./Logo.astro";
 import AuthNavItem from "./AuthNavItem";
+import WalletBalance from "./WalletBalance";
 import WorkNavbar, { type MenuName } from "../navbar/WorkNavbar.astro";
 import { MenuItemProps } from "../menu/MenuItem";
 import { motion } from "framer-motion";
@@ -74,8 +75,9 @@ const { active, hideLinks, hideAuth, additional } = Astro.props;
         <slot />
       </WorkNavbar>
     </div>
-    <div class="navbar-end flex h-6">
+    <div class="navbar-end flex h-6 items-center gap-3">
       {!hideAuth && <AuthNavItem className="py-2! px-2!" client:load />}
+      {!hideAuth && <WalletBalance className="py-2! px-2!" client:load />}
     </div>
   </div>
 </header>

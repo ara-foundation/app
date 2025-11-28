@@ -19,20 +19,6 @@ const isOnlyInfluencerMenu = (activeMenuItem: MenuName): boolean => {
 const maintainerMainItems = (activeMenuItem: MenuName, focusMenuItem?: MenuName): React.ReactNode[] => {
   return [
     <MenuItem
-      icon="balance"
-      label="Balance"
-      uri={"/maintainer/balance"}
-      active={activeMenuItem === 'balance'}
-      focus={focusMenuItem === 'balance'}
-    />,
-    <MenuItem
-      icon="cascading-balance"
-      label="Cascading balance"
-      uri={"/maintainer/cbalance"}
-      active={activeMenuItem === 'cbalance'}
-      focus={focusMenuItem === 'cbalance'}
-    />,
-    <MenuItem
       icon="project-info"
       label="Project Info"
       badges={[
