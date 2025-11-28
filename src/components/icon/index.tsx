@@ -75,6 +75,9 @@ export type IconType =
   | 'cascading-work'
   | 'bluesky'
   | 'wallet'
+  | 'sunshine'
+  | 'percentage'
+  | 'unattached'
 
 export type IconProps = {
   iconType: IconType
@@ -397,6 +400,22 @@ export const getIcon = (props: IconProps | IconType): React.ReactNode => {
     case 'wallet': return (
       <svg className={className} fill={fill} stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m-1 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+      </svg>
+    )
+    case 'sunshine': return (
+      <svg className={className} fill={fill} stroke="currentColor" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="3" fill="currentColor" />
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 2v4M12 18v4M2 12h4M18 12h4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83M12 5.5l1.5 1.5M12 17l1.5 1.5M5.5 12l1.5-1.5M17 12l1.5-1.5M7.76 7.76l1.06 1.06M15.18 15.18l1.06 1.06M7.76 16.24l1.06-1.06M15.18 8.82l1.06-1.06" />
+      </svg>
+    )
+    case 'percentage': return (
+      <svg className={className} fill={fill} stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 7a2 2 0 11-4 0 2 2 0 014 0zM9 17a2 2 0 11-4 0 2 2 0 014 0zM19 7a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0zM7 7l10 10" />
+      </svg>
+    )
+    case 'unattached': return (
+      <svg className={className} fill={fill} stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.141 0M1.394 9.393c5.857-5.857 15.355-5.857 21.213 0" />
       </svg>
     )
     default:

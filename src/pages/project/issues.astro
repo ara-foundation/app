@@ -8,6 +8,5 @@ import WorkPanel from "@/components/maintainer/WorkPanel";
 
 <Layout active={MenuName.ProjectName}>
   <MenuPanel activeMenuItem="issues" slot="left" />
-  <WorkPanel slot="center" client:load />
+  <WorkPanel slot="center" client:only="react" />
 </Layout>
-

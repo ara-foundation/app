@@ -3,10 +3,10 @@ import Layout from "@/layouts/PanelViewLayout.astro";
 import { MenuName } from "@/components/navbar/WorkNavbar.astro";
 
 import MenuPanel from "@/components/menu/MenuPanel";
-import BalancePanel from "@/components/maintainer/BalancePanel";
+import DonationsPanel from "@/components/maintainer/DonationsPanel";
 ---
 
 <Layout hideLinks={Object.keys(MenuName)}>
   <MenuPanel activeMenuItem="donations" slot="left" />
-  <BalancePanel slot="center" />
+  <DonationsPanel slot="center" client:only="react" />
 </Layout>
