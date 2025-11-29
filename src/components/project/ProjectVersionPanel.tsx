@@ -30,10 +30,10 @@ const ProjectVersionPanel: React.FC<ProjectVersionProps> = ({
 }) => {
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'completed': return 'bg-green-100/10 border-green-300'
-      case 'active': return 'bg-blue-100/10 border-blue-300'
-      case 'planned': return 'bg-purple-100/10 border-purple-300'
-      default: return 'bg-gray-100/10 border-gray-300'
+      case 'completed': return 'bg-green-100/10 dark:bg-green-900/10 border-green-300 dark:border-green-500/10'
+      case 'active': return 'bg-blue-100/10 dark:bg-blue-900/10 border-blue-300 dark:border-blue-500/10'
+      case 'planned': return 'bg-purple-100/10 dark:bg-purple-900/10 border-purple-300 dark:border-purple-500/10'
+      default: return 'bg-gray-100/10 dark:bg-gray-900/10 border-gray-300 dark:border-gray-500/10'
     }
   }
 
