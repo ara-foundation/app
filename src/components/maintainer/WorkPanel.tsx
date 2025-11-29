@@ -24,18 +24,18 @@ const C: React.FC = () => {
       </DndProvider>
     },
     {
-      label: <DndProvider backend={HTML5Backend}><DropTarget id="detailize-list" accept={["issue"]} onDrop={(e) => console.log(e)}>Interesting</DropTarget></DndProvider>,
+      label: <DndProvider backend={HTML5Backend}><DropTarget id="detailize-list" accept={["issue"]} onDrop={(e) => console.log(e)}>Interesting Issues</DropTarget></DndProvider>,
       key: "detailize",
       content: <DndProvider backend={HTML5Backend}>
-        <IssueListPanel title={'Interesting Issues'} draggable={true} />
+        <IssueListPanel title={'Interesting Issues'} draggable={true} description="Interesting issues for the maintainer. It could mean anything, but basically its worth maintainer's attention" />
       </DndProvider>,
       className: ' p-0!',
     },
     {
-      label: <DndProvider backend={HTML5Backend}><DropTarget id="hard-list" accept={["issue"]} onDrop={(e) => console.log(e)}>Not interesting</DropTarget></DndProvider>,
+      label: <DndProvider backend={HTML5Backend}><DropTarget id="hard-list" accept={["issue"]} onDrop={(e) => console.log(e)}>Boring Issues</DropTarget></DndProvider>,
       key: "hard",
       content: <DndProvider backend={HTML5Backend}>
-        <IssueListPanel title={'Not Interesting Issues'} draggable={true} />
+        <IssueListPanel title={'Boring Issues'} draggable={true} description="Issues that are boring for the maintainer. It could be for any reason, but basically maintainer will not spend time on them." />
       </DndProvider>
     },
     {

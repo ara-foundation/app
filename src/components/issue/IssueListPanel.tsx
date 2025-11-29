@@ -11,9 +11,10 @@ interface Props {
   title?: string
   filterable?: boolean
   draggable?: boolean
+  description?: string
 }
 
-const ContentArea: React.FC<Props> = ({ title = 'Issues', draggable = false, filterable: filerable = false }) => {
+const ContentArea: React.FC<Props> = ({ title = 'Issues', draggable = false, filterable: filerable = false, description }) => {
   // Create filters based on IssueType
   const filters: FilterOption[] = [
     {
@@ -161,13 +162,17 @@ const ContentArea: React.FC<Props> = ({ title = 'Issues', draggable = false, fil
 
   return (
     <BasePanel className="max-w-6xl mx-auto">
-      {draggable && <p className='text-md mb-2 text-gray-600 flex items-center gap-2'>
+      {draggable && <p className='text-md text-gray-600 dark:text-gray-500 flex items-center gap-2'>
         {getIcon('info')} Issues are draggable. Your dragging will highlight the drop targets.
       </p>}
-      {!draggable && <p className='text-md mb-2 text-gray-600 dark:text-gray-400 flex items-center gap-2'>
+      {!draggable && <p className='text-md mb-2 text-gray-600 dark:text-gray-500 flex items-center gap-2'>
         {getIcon('lock')} Issues are closed and will never be back.
       </p>}
+      {description && <p className='text-md text-gray-600 dark:text-gray-500'>
+        {description}
+      </p>}
       <FilterableList
+        className='mt-2'
         items={issues}
         itemComponent={draggable ? DraggableIssueLink : IssueLink}
         title={title}
