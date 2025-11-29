@@ -188,14 +188,16 @@ const TasksSection: React.FC<Props> = ({ title = 'My Tasks' }) => {
   return (
     tasks.length > 0 ?
       <PageLikePanel actions={actions} onHover={(hovered) => { }} title={
-        <div className='flex items-center space-x-2 gap-1'>{title}<Badge variant='red'>{tasks.length}</Badge></div>
+        <div className='flex items-center space-x-2 gap-1'>{title}
+          <Badge variant='red'>{tasks.length}</Badge>
+          <Badge variant='info'>Server is not connected</Badge>
+        </div>
       }
         subtitle={
           <p className="text-sm text-gray-500 dark:text-gray-400 font-normal text-left">
-            Complete the management tasks.
+            The project management works are automatically converted into the tasks.
           </p>
         }
-        rightHeader={<ProjectRating rating={0} pointsLeft={0} />}
       >
         <List contentHeight="h-48" className={`${bgClassNames.listContent}`}>
           {tasks.map((task) =>
@@ -205,7 +207,8 @@ const TasksSection: React.FC<Props> = ({ title = 'My Tasks' }) => {
 
       </PageLikePanel> : hide ? null : <PageLikePanel className={`${GridStyle.panel.margin!.bottom}`} title={
         <div>Tasks are completed<Badge variant='info'>{tasks.length}</Badge>
-        </div>} rightHeader={<ProjectRating rating={0} pointsLeft={0} />}>
+        </div>}
+      >
         <div className={`p-4 space-y-3 lg:max-h-[30vh] overflow-y-auto`}>
           Come back in a few days later. No tasks to do.
         </div>
