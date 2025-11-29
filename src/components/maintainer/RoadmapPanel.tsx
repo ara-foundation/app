@@ -39,7 +39,7 @@ export const RoadmapPanel: React.FC<RoadmapProps> = ({ actions, versions }) => {
                 <Button variant={action.variant} onClick={action.onClick} className={action.className || ""} >{action.children}</Button>
                 :
                 <Popover.Root>
-                  <Popover.Trigger className="hyperlink flex items-center justify-center shadow-none">
+                  <Popover.Trigger className="pb-4">
                     <Button variant={action.variant} className={action.className || ""} >{getIcon('arrow')} {action.children}</Button>
                   </Popover.Trigger>
                   <Popover.Portal>

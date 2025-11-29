@@ -59,8 +59,9 @@ const RoadmapTabs: React.FC = () => {
 
   const actions = [
     {
-      className: "border-2 border-dashed border-gray-300 bg-transparent hover:bg-gray-50 text-gray-500 hover:text-gray-700",
-      children: "Add another version",
+      className: "",
+      variant: "secondary",
+      children: "New version",
       popoverContent: "Form to add another version"
     }
   ]
