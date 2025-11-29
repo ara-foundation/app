@@ -1,5 +1,4 @@
 import React from 'react'
-import ShinyText from '../ShinyText'
 
 export type IconType =
   | 'github'

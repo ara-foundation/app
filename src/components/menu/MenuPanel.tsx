@@ -5,6 +5,7 @@ import GradientText from '@/components/GradientText';
 import Tooltip from '@/components/custom-ui/Tooltip';
 import { getIcon } from '@/components/icon';
 import Link from '@/components/custom-ui/Link';
+import Galaxy from '../Galaxy';
 
 type MenuName = 'ihistory' | 'iwork' | 'balance' | 'cbalance' | 'project' | 'marketing' | 'work' | 'cwork' | 'guide' | 'dependencies' | 'roadmap' | 'issues' | 'share-btn' | 'donations';
 
@@ -70,13 +71,17 @@ const GalaxyObject: React.FC<{
       <div className="w-full">
         <Link
           uri="/data/project"
-          className={`flex flex-col items-center justify-center py-4 px-3 rounded-sm cursor-pointer transition-colors ${active
+          className={`flex flex-col items-center justify-center py-4 px-3 rounded-sm cursor-pointer transition-colors relative ${active
             ? 'bg-blue-100 dark:bg-blue-700'
             : 'hover:bg-slate-100 dark:hover:bg-slate-900'
             }`}
           focus={focus}
         >
-          <div className="flex flex-col items-center gap-2">
+          <div className="absolute top-0 left-0 right-0 bottom-0">
+            <Galaxy mouseRepulsion={false} autoCenterRepulsion={1} glowIntensity={0.2} density={0.1} rotationSpeed={0.01} />
+          </div>
+
+          <div className="flex flex-col items-center gap-2 relative">
             {projectIconElement}
             <GradientText
               colors={['#ffaa40', '#9c40ff', '#ffaa40']}
