@@ -70,7 +70,7 @@ const GalaxyObject: React.FC<{
     <Tooltip content={tooltipContent} openDelay={300}>
       <div className="w-full">
         <Link
-          uri="/data/project"
+          uri="/project"
           className={`flex flex-col items-center justify-center py-4 px-3 rounded-sm cursor-pointer transition-colors relative ${active
             ? 'bg-blue-100 dark:bg-blue-700'
             : 'hover:bg-slate-100 dark:hover:bg-slate-900'
