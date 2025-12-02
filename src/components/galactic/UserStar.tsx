@@ -25,13 +25,13 @@ interface UserStarProps {
 // 5-pointed star clip-path polygon
 const starClipPath = 'polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%)'
 
-const UserStar: React.FC<UserStarProps> = ({ 
+const UserStar: React.FC<UserStarProps> = ({
   x,
   y,
-  src, 
-  alt, 
-  className, 
-  imgClassName, 
+  src,
+  alt,
+  className,
+  imgClassName,
   uri = '/data/profile',
   nickname,
   sunshines,
@@ -49,13 +49,13 @@ const UserStar: React.FC<UserStarProps> = ({
   const tooltipContent = (
     <div className="text-sm space-y-3">
       <div className="flex items-center gap-2">
-        <div 
+        <div
           className="w-12 h-12 flex-shrink-0"
           style={{ clipPath: starClipPath }}
         >
-          <img 
-            src={src || defaultSrc} 
-            alt={alt || defaultAlt} 
+          <img
+            src={src || defaultSrc}
+            alt={alt || defaultAlt}
             className="w-full h-full object-cover"
             style={{ clipPath: starClipPath }}
           />
@@ -67,7 +67,7 @@ const UserStar: React.FC<UserStarProps> = ({
           )}
         </div>
       </div>
-      
+
       {(funded !== undefined || received !== undefined || issuesClosed !== undefined || issuesActive !== undefined) && (
         <div className="space-y-2 pt-2 border-t border-slate-700">
           {role && (
@@ -197,8 +197,8 @@ const UserStar: React.FC<UserStarProps> = ({
           object-fit: cover;
         }
       `}</style>
-      
-      <div 
+
+      <div
         className={`absolute ${className || ''}`}
         style={{ left: `${x}px`, top: `${y}px` }}
       >
@@ -211,22 +211,22 @@ const UserStar: React.FC<UserStarProps> = ({
                 <div className={`star-glow-${starId}`} />
                 <div className={`star-glow-${starId} star-glow-2-${starId}`} />
                 <div className={`star-glow-${starId} star-glow-3-${starId}`} />
-                
+
                 {/* Avatar inside the star */}
-                <div className={`star-avatar-${starId} hover:opacity-80 transition-opacity`}>
-                  <img 
-                    src={src || defaultSrc} 
-                    alt={alt || defaultAlt} 
+                <div className={`star-avatar-${starId} hover:opacity-80 transition-opacity p-3 border-2 border-red-500`}>
+                  <img
+                    src={src || defaultSrc}
+                    alt={alt || defaultAlt}
                     className={imgClassName || ''}
                   />
                 </div>
               </div>
-              
+
               {/* Stars and sunshines under the icon */}
               <div className="flex items-center gap-2">
                 {stars !== undefined && (
                   <div className="flex items-center gap-1">
-                    {getIcon({ iconType: 'star', className: 'w-3 h-3' })}
+                    {getIcon({ iconType: 'star', className: 'w-3 h-3', fill: 'currentColor' })}
                     <NumberFlow
                       value={stars}
                       locales="en-US"
