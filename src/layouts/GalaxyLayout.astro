@@ -52,7 +52,7 @@ const {
     <!-- Background Container - Will be transformed by GalaxyZoomWrapper -->
     <div
       data-galaxy-backgrounds
-      style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; transform-origin: center center; pointer-events: none; z-index: 0;"
+      style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; transform-origin: center center; pointer-events: auto; z-index: 0; overflow: hidden;"
     >
       <GradientBackground
         className="fixed h-screen w-screen z-0 pointer-events-none"
@@ -66,7 +66,7 @@ const {
       <div class="fixed h-screen w-screen z-2">
         <Galaxy
           client:only="react"
-          mouseInteraction={true}
+          mouseInteraction={false}
           speed={0.25}
           rotationSpeed={0.015}
           twinkleIntensity={0.2}

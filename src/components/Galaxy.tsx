@@ -235,8 +235,9 @@ export default function Galaxy({
     function resize(event?: Event) {
       const customEvent = event as CustomEvent<{ zoom?: number }>;
       const zoom = customEvent?.detail?.zoom;
-      const scale = 1.0 - (zoom ? (1 - (zoom / 100)) : 0.0);
-      console.log(`scale: ${scale}`);
+      const scale = 1.0 + (zoom ? (1 - (zoom / 100)) : 0.0);
+      console.log(`scale: ${scale}, canvas width: ${gl.canvas.width}, canvas height: ${gl.canvas.height}, ctn.offsetWidth: ${ctn.offsetWidth}, ctn.offsetHeight: ${ctn.offsetHeight}`);
+      console.log(`new rendered width: ${ctn.offsetWidth * scale}, new rendered height: ${ctn.offsetHeight * scale}\n\n`);
       renderer.setSize(ctn.offsetWidth * scale, ctn.offsetHeight * scale);
       if (program) {
         program.uniforms.uResolution.value = new Color(

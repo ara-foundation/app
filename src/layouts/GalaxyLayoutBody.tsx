@@ -17,14 +17,18 @@ const GalaxyLayoutBody: React.FC<GalaxyLayoutBodyProps> = ({
   maxGalaxyContent = 100,
 }) => {
   const [initialViewportSize, setInitialViewportSize] = useState({ width: 0, height: 0 });
+  const [currentZoom, setCurrentZoom] = useState(initialZoom || 100);
+  const [virtualScreenSize, setVirtualScreenSize] = useState({ width: 0, height: 0 });
 
   // Initialize viewport size
   useEffect(() => {
     const updateViewportSize = () => {
-      setInitialViewportSize({
+      const size = {
         width: window.innerWidth,
         height: window.innerHeight,
-      });
+      };
+      setInitialViewportSize(size);
+      setVirtualScreenSize(size);
     };
 
     updateViewportSize();
@@ -32,12 +36,15 @@ const GalaxyLayoutBody: React.FC<GalaxyLayoutBodyProps> = ({
     return () => window.removeEventListener('resize', updateViewportSize);
   }, []);
 
-  const handleZoomChange = (zoom: number, virtualScreenSize: { width: number; height: number }) => {
+  const handleZoomChange = (zoom: number, virtualSize: { width: number; height: number }) => {
+    setCurrentZoom(zoom);
+    setVirtualScreenSize(virtualSize);
+
     // Dispatch custom event for GalaxyWrapper to listen
     const event = new CustomEvent('galaxy-zoom-change', {
       detail: {
         zoom,
-        virtualScreenSize,
+        virtualScreenSize: virtualSize,
         initialViewportSize,
       },
     });
