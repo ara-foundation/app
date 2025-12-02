@@ -61,7 +61,7 @@ const GalaxyZoomWrapper: React.FC<GalaxyZoomWrapperProps> = ({
       width: Math.max(0, virtualWidth),
       height: Math.max(0, virtualHeight),
     };
-    setVirtualScreenSize(newSize);
+    setVirtualScreenSize(newSize)
     onZoomChange?.(zoom, newSize);
   }, [zoom, initialViewportSize]);
 
