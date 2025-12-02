@@ -11,6 +11,8 @@ import { GravityStarsBackground } from "@/components/animate-ui/components/backg
 import { GradientBackground } from "@/components/animate-ui/components/backgrounds/gradient";
 import Galaxy from "@/components/Galaxy";
 import GalaxyLayoutBody from "@/components/galactic/GalaxyLayoutBody";
+import Space from "@/components/galactic/Space";
+import { mockUserStars } from "@/data/mock-data";
 
 interface Props {
   active?: string;
@@ -70,10 +72,10 @@ const {
           rotationSpeed={0.015}
           twinkleIntensity={0.1}
           glowIntensity={0.1}
-          repulsionStrength={3}
           autoCenterRepulsion={0.5}
         />
       </div>
+      <Space client:only="react" users={mockUserStars} className="z-3" />
       <slot
         name="background"
         class="fixed h-screen w-screen z-3 pointer-events-none"
