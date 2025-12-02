@@ -1,0 +1,103 @@
+---
+import { ClientRouter } from "astro:transitions";
+import "@/styles/global.css";
+import "@/styles/motion.css";
+import Header from "@/components/utilitified_decorations/HeaderCosmic.astro";
+import Footer from "@/components/utilitified_decorations/Footer.astro";
+import ThreeColumnGrid from "@/components/grid/ThreeColumnGrid.astro";
+import GridBackgrounded from "./GridBackgrounded";
+import { MenuItemProps } from "@/components/menu/MenuItem";
+import { GravityStarsBackground } from "@/components/animate-ui/components/backgrounds/gravity-stars";
+import { GradientBackground } from "@/components/animate-ui/components/backgrounds/gradient";
+import GalaxyZoomWrapper from "@/components/galactic/GalaxyZoomWrapper";
+
+interface Props {
+  active?: string;
+  hideLinks?: string[];
+  hideAuth?: boolean;
+  additional?: MenuItemProps[];
+  projectName?: string;
+  initialZoom?: number;
+  minZoom?: number;
+  maxZoom?: number;
+}
+const {
+  hideLinks,
+  hideAuth,
+  additional,
+  projectName,
+  initialZoom,
+  minZoom,
+  maxZoom,
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/cascadefund_logo.png" />
+    <meta name="generator" content={Astro.generator} />
+    <title>CascadeFund</title>
+    <style is:global>
+      @import "@chatscope/chat-ui-kit-styles/dist/default/styles.min.css";
+    </style>
+    <ClientRouter />
+  </head>
+  <body
+    class="min-h-screen bg-slate-200 dark:bg-slate-800 border-1 border-red-500/10"
+  >
+    <!-- Background Container - Will be transformed by GalaxyZoomWrapper -->
+    <div
+      data-galaxy-backgrounds
+      style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; transform-origin: center center; pointer-events: none; z-index: 0;"
+    >
+      <GradientBackground
+        className="fixed h-screen w-screen z-0 pointer-events-none"
+        client:load
+      />
+      <GridBackgrounded />
+      <GravityStarsBackground
+        className="fixed h-screen w-screen z-1 pointer-events-none"
+        client:load
+      />
+      <slot
+        name="background"
+        class="fixed h-screen w-screen z-2 pointer-events-none"
+      />
+    </div>
+
+    <!-- Content Container - Will be transformed by GalaxyZoomWrapper -->
+    <div
+      data-galaxy-content
+      class="z-2 relative border border-red-500/10"
+      style="transform-origin: center center;"
+    >
+      <Header hideLinks={hideLinks} hideAuth={hideAuth} additional={additional}>
+        <slot name="header-navbar" />
+      </Header>
+      <section class="mt-6">
+        <slot name="hero" />
+      </section>
+      <ThreeColumnGrid
+        centerPercents="3/5"
+        className="mx-auto py-16 space-x-8 px-8 min-h-[calc(100vh-4rem)]"
+      >
+        <slot name="left" class="mr-4" slot="left" />
+        <slot name="center" class="mx-4" slot="center" />
+        <slot name="right" class="ml-4" slot="right" />
+      </ThreeColumnGrid>
+      <Footer />
+    </div>
+
+    <!-- Galaxy Zoom Wrapper - Controls zoom transforms -->
+    <GalaxyZoomWrapper
+      client:only="react"
+      projectName={projectName}
+      initialZoom={initialZoom}
+      minZoom={minZoom}
+      maxZoom={maxZoom}
+    />
+  </body>
+</html>

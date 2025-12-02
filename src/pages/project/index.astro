@@ -1,5 +1,5 @@
 ---
-import V2Layout from "@/layouts/PanelViewLayout.astro";
+import GalaxyLayout from "@/layouts/GalaxyLayout.astro";
 import { MenuName } from "@/components/navbar/WorkNavbar.astro";
 
 import ProjectInfo, {
@@ -9,7 +9,6 @@ import ProjectStats from "@/components/project/ProjectStatsPanel";
 // import ProjectPeople from "@/components/project/ProjectPeoplePanel";
 // import HighlightedInteraction from "@/components/project/HighlightedInteractionPanel";
 import BackButton from "@/components/custom-ui/BackButton";
-import GalacticUI from "@/components/galactic/GalacticUI";
 
 const projectData: ProjectInfoProps = {
   uri: "/project",
@@ -65,12 +64,11 @@ const projectData: ProjectInfoProps = {
 };
 ---
 
-<V2Layout active={MenuName.ProjectName} hideLinks={Object.keys(MenuName)}>
-  <GalacticUI
-    slot="background"
-    client:only="react"
-    projectName={projectData.title}
-  />
+<GalaxyLayout
+  active={MenuName.ProjectName}
+  hideLinks={Object.keys(MenuName)}
+  projectName={projectData.title}
+>
   <BackButton slot="left" uri="/data/projects" />
 
   <!-- <NotificationBanner
@@ -102,4 +100,4 @@ const projectData: ProjectInfoProps = {
   <!-- <HighlightedInteraction slot="right" /> -->
   <!-- <ProjectPeople slot="right" /> -->
   <!-- <IssueInfoPanel slot="right" /> -->
-</V2Layout>
+</GalaxyLayout>
