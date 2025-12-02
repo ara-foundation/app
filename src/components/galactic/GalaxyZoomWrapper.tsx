@@ -9,6 +9,7 @@ interface GalaxyZoomWrapperProps {
   minZoom?: number;
   maxZoom?: number;
   maxGalaxyContent?: number;
+  onZoomChange?: (zoom: number, virtualScreenSize: { width: number; height: number }) => void;
 }
 
 const VIRTUAL_SCREEN_STEP = 128; // 128px step for virtual screen size increments
@@ -19,6 +20,7 @@ const GalaxyZoomWrapper: React.FC<GalaxyZoomWrapperProps> = ({
   minZoom = 25,
   maxZoom = 100,
   maxGalaxyContent = 100,
+  onZoomChange,
 }) => {
   const [zoom, setZoom] = useState(initialZoom);
   const [showDialog, setShowDialog] = useState(false);
@@ -55,11 +57,13 @@ const GalaxyZoomWrapper: React.FC<GalaxyZoomWrapperProps> = ({
     const virtualWidth = Math.round(virtualWidthRaw / VIRTUAL_SCREEN_STEP) * VIRTUAL_SCREEN_STEP;
     const virtualHeight = Math.round(virtualHeightRaw / VIRTUAL_SCREEN_STEP) * VIRTUAL_SCREEN_STEP;
 
-    setVirtualScreenSize({
+    const newSize = {
       width: Math.max(0, virtualWidth),
       height: Math.max(0, virtualHeight),
-    });
-  }, [zoom, initialViewportSize]);
+    };
+    setVirtualScreenSize(newSize);
+    onZoomChange?.(zoom, newSize);
+  }, [zoom, initialViewportSize, onZoomChange]);
 
   useEffect(() => {
     if (zoom <= minZoom && !hasShownDialogRef.current) {

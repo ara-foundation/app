@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import GalaxyZoomWrapper from '@/components/galactic/GalaxyZoomWrapper';
 
 interface GalaxyLayoutBodyProps {
@@ -16,6 +16,34 @@ const GalaxyLayoutBody: React.FC<GalaxyLayoutBodyProps> = ({
   maxZoom,
   maxGalaxyContent = 100,
 }) => {
+  const [initialViewportSize, setInitialViewportSize] = useState({ width: 0, height: 0 });
+
+  // Initialize viewport size
+  useEffect(() => {
+    const updateViewportSize = () => {
+      setInitialViewportSize({
+        width: window.innerWidth,
+        height: window.innerHeight,
+      });
+    };
+
+    updateViewportSize();
+    window.addEventListener('resize', updateViewportSize);
+    return () => window.removeEventListener('resize', updateViewportSize);
+  }, []);
+
+  const handleZoomChange = (zoom: number, virtualScreenSize: { width: number; height: number }) => {
+    // Dispatch custom event for GalaxyWrapper to listen
+    const event = new CustomEvent('galaxy-zoom-change', {
+      detail: {
+        zoom,
+        virtualScreenSize,
+        initialViewportSize,
+      },
+    });
+    window.dispatchEvent(event);
+  };
+
   return (
     <GalaxyZoomWrapper
       projectName={projectName}
@@ -23,6 +51,7 @@ const GalaxyLayoutBody: React.FC<GalaxyLayoutBodyProps> = ({
       minZoom={minZoom}
       maxZoom={maxZoom}
       maxGalaxyContent={maxGalaxyContent}
+      onZoomChange={handleZoomChange}
     />
   );
 };

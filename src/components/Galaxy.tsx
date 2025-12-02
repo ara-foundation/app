@@ -232,8 +232,11 @@ export default function Galaxy({
 
     let program: Program;
 
-    function resize() {
-      const scale = 1;
+    function resize(event?: Event) {
+      const customEvent = event as CustomEvent<{ zoom?: number }>;
+      const zoom = customEvent?.detail?.zoom;
+      const scale = 1.0 - (zoom ? (1 - (zoom / 100)) : 0.0);
+      console.log(`scale: ${scale}`);
       renderer.setSize(ctn.offsetWidth * scale, ctn.offsetHeight * scale);
       if (program) {
         program.uniforms.uResolution.value = new Color(
@@ -243,7 +246,13 @@ export default function Galaxy({
         );
       }
     }
+    function handleZoomChange(event: Event) {
+      // Call resize when zoom changes to ensure smooth rendering
+      resize(event);
+    }
+
     window.addEventListener('resize', resize, false);
+    window.addEventListener('galaxy-zoom-change', resize);
     resize();
 
     const geometry = new Triangle(gl);
@@ -321,6 +330,7 @@ export default function Galaxy({
     return () => {
       cancelAnimationFrame(animateId);
       window.removeEventListener('resize', resize);
+      window.removeEventListener('galaxy-zoom-change', handleZoomChange);
       if (mouseInteraction) {
         ctn.removeEventListener('mousemove', handleMouseMove);
         ctn.removeEventListener('mouseleave', handleMouseLeave);
