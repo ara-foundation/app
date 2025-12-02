@@ -14,7 +14,7 @@ interface GalaxyZoomControlsProps {
 const GalaxyZoomControls: React.FC<GalaxyZoomControlsProps> = ({
   initialZoom = 100,
   minZoom = 25,
-  maxZoom = 200,
+  maxZoom = 100,
   stepSize = 10,
   onZoomChange,
 }) => {
@@ -45,7 +45,7 @@ const GalaxyZoomControls: React.FC<GalaxyZoomControlsProps> = ({
   };
 
   return (
-    <div className="fixed bottom-16 left-8 z-50">
+    <div className="fixed bottom-20 left-8 z-50">
       <ControlPanel className="p-3">
         <div className="flex items-center gap-2">
           {/* Zoom Out Button */}

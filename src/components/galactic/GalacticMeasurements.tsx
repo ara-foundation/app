@@ -1,25 +1,34 @@
-import React from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 
 interface GalacticMeasurementsProps {
   virtualScreenSize: { width: number; height: number };
   className?: string;
+  interval?: number;
 }
 
 const GalacticMeasurements: React.FC<GalacticMeasurementsProps> = ({
   virtualScreenSize,
   className = '',
+  interval: defaultInterval = 10,
 }) => {
-  const virtualWidth = virtualScreenSize.width;
-  const virtualHeight = virtualScreenSize.height;
+  const [initialViewportSize, setInitialViewportSize] = useState({ width: 0, height: 0 });
 
-  // Generate measurement marks (every 100px)
+  useEffect(() => {
+    // Only set initial viewport size on first render
+    if (initialViewportSize.width === 0 && initialViewportSize.height === 0) {
+      setInitialViewportSize(virtualScreenSize);
+    }
+  }, [virtualScreenSize, initialViewportSize]);
+
+  // Generate 10 intervals for the intialViewport Size
+  // Then, get the interval amount for the virtual screen size. 
+  //   its by dividing
   const getMarks = (size: number, isVertical: boolean) => {
     const marks = [];
-    const step = 100;
-    const count = Math.floor(size / step);
+    const count = Math.floor(size / defaultInterval);
 
-    for (let i = 0; i <= count; i++) {
-      const position = i * step;
+    for (let i = 1; i <= defaultInterval; i++) {
+      const position = (i - 1) * count;
       marks.push(
         <div
           key={i}
@@ -27,21 +36,29 @@ const GalacticMeasurements: React.FC<GalacticMeasurementsProps> = ({
           style={
             isVertical
               ? {
-                top: `${position}px`,
+                top: `${i * defaultInterval}%`,
                 transform: 'translateY(-50%)',
               }
               : {
-                left: `${position}px`,
+                left: `${i * defaultInterval}%`,
                 transform: 'translateX(-50%)',
               }
           }
         >
-          {i * step}
+          {position}
         </div>
       );
     }
     return marks;
   };
+
+  // Memoize marks based on virtualScreenSize - only recalculate when size changes
+  const marks = useMemo(() => {
+    return {
+      width: getMarks(virtualScreenSize.width, false),
+      height: getMarks(virtualScreenSize.height, true),
+    };
+  }, [virtualScreenSize.width, virtualScreenSize.height, defaultInterval]);
 
   return (
     <>
@@ -49,9 +66,9 @@ const GalacticMeasurements: React.FC<GalacticMeasurementsProps> = ({
       <div
         className={`fixed top-10 left-0 right-0 h-6 backdrop-blur-lg pointer-events-none z-40 ${className}`}
       >
-        {getMarks(virtualWidth, false)}
-        <div className="absolute right-4 top-2 text-[10px] font-mono text-slate-400 dark:text-slate-500">
-          W: {virtualWidth}px
+        {marks.width}
+        <div className="absolute right-8 top-4 text-[10px] font-mono text-slate-400 dark:text-slate-500">
+          W: {virtualScreenSize.width}px
         </div>
       </div>
 
@@ -59,19 +76,18 @@ const GalacticMeasurements: React.FC<GalacticMeasurementsProps> = ({
       <div
         className={`fixed bottom-8 left-0 right-0 h-6 backdrop-blur-lg pointer-events-none z-40 ${className}`}
       >
-        {getMarks(virtualWidth, false)}
+        {marks.width}
       </div>
 
       {/* Left measurements */}
       <div
         className={`fixed top-10 bottom-8 left-1 w-6 backdrop-blur-lg pointer-events-none z-40 ${className}`}
       >
-        {getMarks(virtualHeight, true)}
+        {marks.height}
         <div
-          className="absolute bottom-4 left-0 text-[10px] font-mono text-slate-400 dark:text-slate-500"
-          style={{ writingMode: 'vertical-rl', textOrientation: 'mixed' }}
+          className="absolute bottom-8 left-8 w-20 border-red-500 text-[10px] font-mono text-slate-400 dark:text-slate-500"
         >
-          H: {virtualHeight}px
+          H: {virtualScreenSize.height}px
         </div>
       </div>
 
@@ -79,7 +95,7 @@ const GalacticMeasurements: React.FC<GalacticMeasurementsProps> = ({
       <div
         className={`fixed top-10 bottom-8 right-0 w-6 backdrop-blur-lg pointer-events-none z-40 ${className}`}
       >
-        {getMarks(virtualHeight, true)}
+        {marks.height}
       </div>
     </>
   );

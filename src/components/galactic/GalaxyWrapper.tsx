@@ -29,7 +29,7 @@ const GalaxyWrapper: React.FC<GalaxyWrapperProps> = ({
     useEffect(() => {
         const handleZoomChange = (event: Event) => {
             const customEvent = event as CustomEvent<ZoomChangeEventDetail>;
-            const { virtualScreenSize, initialViewportSize } = customEvent.detail;
+            const { virtualScreenSize } = customEvent.detail;
 
             // Container expands to virtual screen size
             setContainerSize({
@@ -39,8 +39,8 @@ const GalaxyWrapper: React.FC<GalaxyWrapperProps> = ({
 
             // Galaxy component stays at initial viewport size (stars don't scale)
             setGalaxySize({
-                width: initialViewportSize.width,
-                height: initialViewportSize.height,
+                width: virtualScreenSize.width,
+                height: virtualScreenSize.height,
             });
         };
 
