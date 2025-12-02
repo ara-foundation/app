@@ -63,7 +63,7 @@ const GalaxyZoomWrapper: React.FC<GalaxyZoomWrapperProps> = ({
     };
     setVirtualScreenSize(newSize);
     onZoomChange?.(zoom, newSize);
-  }, [zoom, initialViewportSize, onZoomChange]);
+  }, [zoom, initialViewportSize]);
 
   useEffect(() => {
     if (zoom <= minZoom && !hasShownDialogRef.current) {
@@ -130,14 +130,6 @@ const GalaxyZoomWrapper: React.FC<GalaxyZoomWrapperProps> = ({
       (contentContainer as HTMLElement).style.transform = `scale(${contentScale})`;
       (contentContainer as HTMLElement).style.transformOrigin = 'center center';
     }
-
-    // Apply counter-transform to elements with data-galaxy-fixed to keep them at 100% scale
-    // const fixedElements = document.querySelectorAll('[data-galaxy-fixed]');
-    // fixedElements.forEach((element) => {
-    //   const inverseScale = 1 / contentScale;
-    //   (element as HTMLElement).style.transform = `scale(${inverseScale})`;
-    //   (element as HTMLElement).style.transformOrigin = 'center center';
-    // });
   }, [zoom, virtualScreenSize, maxGalaxyContent]);
 
   const handleConfirm = () => {
