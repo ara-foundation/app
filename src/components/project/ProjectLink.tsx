@@ -15,6 +15,7 @@ import PanelAction from '../panel/PanelAction'
 import AvatarList from '../AvatarList'
 import { Popover } from '@base-ui-components/react/popover'
 import { getIcon } from '../icon'
+import { UserStarData } from '../galactic/Space'
 
 export interface ProjectInfoProps {
   uri?: string
@@ -42,14 +43,9 @@ export interface ProjectInfoProps {
   closedIssues: number
   avgResponseTime: string
 
-  collaborators: Array<{
-    name: string
-    percentage: number
-    color: string
-  }>
   createdTime: number
   author: ProfileLink
-  influencers: Array<ProfileLink>
+  stars: UserStarData[]
   actions?: ActionProps[]  // Comes links to the work, and cascade work along with their badges
 }
 
@@ -80,9 +76,23 @@ const ProjectCard: React.FC<ProjectInfoProps> = ({
   avgResponseTime,
   createdTime,
   author,
-  influencers,
+  stars,
   actions
 }) => {
+  // Convert UserStarData to ProfileLink for AvatarList
+  const influencers: ProfileLink[] = stars.map(star => ({
+    uri: star.uri || '#',
+    children: star.nickname,
+    icon: star.src,
+    avatar: star.src,
+    name: star.nickname,
+    rating: star.stars ? {
+      ratingType: star.role === 'Maintainer' ? 'maintainer' : star.role === 'Influencer' ? 'influencer' : 'contributor',
+      lvl: Math.floor(star.stars * 2),
+      maxLvl: 10,
+      top: 0
+    } : undefined
+  }))
   return (
     <Link uri={uri || '#'}>
       <BasePanel 

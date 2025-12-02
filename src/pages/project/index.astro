@@ -8,6 +8,7 @@ import ProjectCTAPanel from "@/components/project/ProjectCTAPanel";
 // import ProjectPeople from "@/components/project/ProjectPeoplePanel";
 // import HighlightedInteraction from "@/components/project/HighlightedInteractionPanel";
 import BackButton from "@/components/custom-ui/BackButton";
+import { mockUserStars } from "@/data/mock-data";
 
 const projectData: ProjectInfoProps = {
   uri: "/project",
@@ -35,11 +36,6 @@ const projectData: ProjectInfoProps = {
   openIssues: 12,
   closedIssues: 45,
   avgResponseTime: "1 day for reply",
-  collaborators: [
-    { name: "Core Maintainers", percentage: 65, color: "bg-blue-500" },
-    { name: "Repeat Contributors", percentage: 25, color: "bg-blue-400" },
-    { name: "One-time Contributors", percentage: 10, color: "bg-gray-400" },
-  ],
   author: {
     uri: "/profile/alexjohnson",
     children: "Alex Johnson",
@@ -50,12 +46,7 @@ const projectData: ProjectInfoProps = {
       top: 10,
     },
   },
-  influencers: [
-    { uri: "/profile/alexjohnson", children: "Alex Johnson" },
-    { uri: "/profile/alexjohnson", children: "Alex Johnson" },
-    { uri: "/profile/alexjohnson", children: "Alex Johnson" },
-    { uri: "/profile/alexjohnson", children: "Alex Johnson" },
-  ],
+  stars: mockUserStars,
   originalProjectUrl: "",
   followers: 0,
   createdTime: 0,
@@ -67,6 +58,7 @@ const projectData: ProjectInfoProps = {
   active={MenuName.ProjectName}
   hideLinks={Object.keys(MenuName)}
   projectName={projectData.title}
+  stars={projectData.stars}
 >
   <BackButton slot="left" uri="/project/issues" />
 

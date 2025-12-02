@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react'
 import ProjectListPanel from './ProjectListPanel'
 import type { ProjectInfoProps } from './ProjectLink'
+import { UserStarData } from '@/components/galactic/Space'
 
 const meta: Meta<typeof ProjectListPanel> = {
     title: 'Components/Project/ProjectListPanel',
@@ -65,30 +66,38 @@ const mockProjects: ProjectInfoProps[] = [
                 top: 5
             }
         },
-        influencers: [
+        stars: [
             {
-                uri: '/profile/jane-smith',
-                children: 'Jane Smith',
-                icon: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=32&h=32&fit=crop&crop=face',
-                rating: {
-                    ratingType: 'influencer',
-                    lvl: 7,
-                    maxLvl: 10,
-                    top: 12
-                }
+                x: 200,
+                y: 150,
+                nickname: 'Jane Smith',
+                src: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=32&h=32&fit=crop&crop=face',
+                alt: 'Jane Smith Avatar',
+                stars: 3.5,
+                sunshines: 84,
+                role: 'Influencer',
+                funded: 30000,
+                received: 20000,
+                issuesClosed: 25,
+                issuesActive: 5,
+                uri: '/profile/jane-smith'
             },
             {
-                uri: '/profile/mike-johnson',
-                children: 'Mike Johnson',
-                icon: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=32&h=32&fit=crop&crop=face',
-                rating: {
-                    ratingType: 'contributor',
-                    lvl: 6,
-                    maxLvl: 10,
-                    top: 25
-                }
+                x: 450,
+                y: 300,
+                nickname: 'Mike Johnson',
+                src: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=32&h=32&fit=crop&crop=face',
+                alt: 'Mike Johnson Avatar',
+                stars: 3.0,
+                sunshines: 72,
+                role: 'Contributor',
+                funded: 20000,
+                received: 15000,
+                issuesClosed: 20,
+                issuesActive: 3,
+                uri: '/profile/mike-johnson'
             },
-        ],
+        ] as UserStarData[],
         actions: [
             {
                 variant: 'primary',
@@ -102,8 +111,7 @@ const mockProjects: ProjectInfoProps[] = [
                 children: 'Cascade Work',
                 icon: 'work'
             }
-        ],
-        collaborators: []
+        ]
     },
     {
         title: 'Vue.js E-commerce',
@@ -143,19 +151,23 @@ const mockProjects: ProjectInfoProps[] = [
                 top: 18
             }
         },
-        influencers: [
+        stars: [
             {
-                uri: '/profile/tom-brown',
-                children: 'Tom Brown',
-                icon: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=32&h=32&fit=crop&crop=face',
-                rating: {
-                    ratingType: 'contributor',
-                    lvl: 5,
-                    maxLvl: 10,
-                    top: 35
-                }
+                x: 300,
+                y: 200,
+                nickname: 'Tom Brown',
+                src: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=32&h=32&fit=crop&crop=face',
+                alt: 'Tom Brown Avatar',
+                stars: 2.5,
+                sunshines: 60,
+                role: 'Contributor',
+                funded: 15000,
+                received: 10000,
+                issuesClosed: 15,
+                issuesActive: 2,
+                uri: '/profile/tom-brown'
             },
-        ],
+        ] as UserStarData[],
         actions: [
             {
                 variant: 'primary',
@@ -163,8 +175,7 @@ const mockProjects: ProjectInfoProps[] = [
                 children: 'View Work',
                 icon: 'work'
             }
-        ],
-        collaborators: []
+        ]
     },
     {
         title: 'Node.js API Gateway',
@@ -204,41 +215,53 @@ const mockProjects: ProjectInfoProps[] = [
                 top: 2
             }
         },
-        influencers: [
+        stars: [
             {
-                uri: '/profile/maria-garcia',
-                children: 'Maria Garcia',
-                icon: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=32&h=32&fit=crop&crop=face',
-                rating: {
-                    ratingType: 'influencer',
-                    lvl: 8,
-                    maxLvl: 10,
-                    top: 8
-                }
+                x: 200,
+                y: 150,
+                nickname: 'Maria Garcia',
+                src: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=32&h=32&fit=crop&crop=face',
+                alt: 'Maria Garcia Avatar',
+                stars: 4.0,
+                sunshines: 96,
+                role: 'Influencer',
+                funded: 50000,
+                received: 40000,
+                issuesClosed: 35,
+                issuesActive: 8,
+                uri: '/profile/maria-garcia'
             },
             {
-                uri: '/profile/david-lee',
-                children: 'David Lee',
-                icon: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=32&h=32&fit=crop&crop=face',
-                rating: {
-                    ratingType: 'contributor',
-                    lvl: 6,
-                    maxLvl: 10,
-                    top: 20
-                }
+                x: 450,
+                y: 300,
+                nickname: 'David Lee',
+                src: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=32&h=32&fit=crop&crop=face',
+                alt: 'David Lee Avatar',
+                stars: 3.0,
+                sunshines: 72,
+                role: 'Contributor',
+                funded: 25000,
+                received: 18000,
+                issuesClosed: 24,
+                issuesActive: 4,
+                uri: '/profile/david-lee'
             },
             {
-                uri: '/profile/emma-wilson',
-                children: 'Emma Wilson',
-                icon: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=32&h=32&fit=crop&crop=face',
-                rating: {
-                    ratingType: 'contributor',
-                    lvl: 5,
-                    maxLvl: 10,
-                    top: 30
-                }
+                x: 700,
+                y: 200,
+                nickname: 'Emma Wilson',
+                src: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=32&h=32&fit=crop&crop=face',
+                alt: 'Emma Wilson Avatar',
+                stars: 2.5,
+                sunshines: 60,
+                role: 'Contributor',
+                funded: 18000,
+                received: 12000,
+                issuesClosed: 18,
+                issuesActive: 3,
+                uri: '/profile/emma-wilson'
             },
-        ],
+        ] as UserStarData[],
         actions: [
             {
                 variant: 'primary',
@@ -252,8 +275,7 @@ const mockProjects: ProjectInfoProps[] = [
                 children: 'Cascade Work',
                 icon: 'work'
             }
-        ],
-        collaborators: []
+        ]
     },
 ]
 

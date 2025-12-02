@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react'
 import ProjectCard from './ProjectLink'
+import { UserStarData } from '@/components/galactic/Space'
 
 const meta: Meta<typeof ProjectCard> = {
     title: 'Components/Project/Project Link',
@@ -109,9 +110,9 @@ const meta: Meta<typeof ProjectCard> = {
             control: 'object',
             description: 'Project author information',
         },
-        influencers: {
+        stars: {
             control: 'object',
-            description: 'List of project influencers',
+            description: 'List of project user stars',
         },
         actions: {
             control: 'object',
@@ -163,30 +164,38 @@ export const Default: Story = {
                 top: 15
             }
         },
-        influencers: [
+        stars: [
             {
-                uri: '/profile/jane-smith',
-                children: 'Jane Smith',
-                icon: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=32&h=32&fit=crop&crop=face',
-                rating: {
-                    ratingType: 'influencer',
-                    lvl: 6,
-                    maxLvl: 10,
-                    top: 25
-                }
+                x: 200,
+                y: 150,
+                nickname: 'Jane Smith',
+                src: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=32&h=32&fit=crop&crop=face',
+                alt: 'Jane Smith Avatar',
+                stars: 3.0,
+                sunshines: 72,
+                role: 'Influencer',
+                funded: 25000,
+                received: 18000,
+                issuesClosed: 22,
+                issuesActive: 4,
+                uri: '/profile/jane-smith'
             },
             {
-                uri: '/profile/mike-johnson',
-                children: 'Mike Johnson',
-                icon: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=32&h=32&fit=crop&crop=face',
-                rating: {
-                    ratingType: 'contributor',
-                    lvl: 4,
-                    maxLvl: 10,
-                    top: 50
-                }
+                x: 450,
+                y: 300,
+                nickname: 'Mike Johnson',
+                src: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=32&h=32&fit=crop&crop=face',
+                alt: 'Mike Johnson Avatar',
+                stars: 2.0,
+                sunshines: 48,
+                role: 'Contributor',
+                funded: 15000,
+                received: 10000,
+                issuesClosed: 15,
+                issuesActive: 2,
+                uri: '/profile/mike-johnson'
             },
-        ],
+        ] as UserStarData[],
         actions: [
             {
                 variant: 'primary',
@@ -242,63 +251,83 @@ export const HighEngagement: Story = {
                 top: 1
             }
         },
-        influencers: [
+        stars: [
             {
-                uri: '/profile/vue-contributor-1',
-                children: 'Vue Contributor 1',
-                icon: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=32&h=32&fit=crop&crop=face',
-                rating: {
-                    ratingType: 'influencer',
-                    lvl: 8,
-                    maxLvl: 10,
-                    top: 5
-                }
+                x: 200,
+                y: 150,
+                nickname: 'Vue Contributor 1',
+                src: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=32&h=32&fit=crop&crop=face',
+                alt: 'Vue Contributor 1 Avatar',
+                stars: 4.0,
+                sunshines: 96,
+                role: 'Influencer',
+                funded: 60000,
+                received: 50000,
+                issuesClosed: 40,
+                issuesActive: 10,
+                uri: '/profile/vue-contributor-1'
             },
             {
-                uri: '/profile/vue-contributor-2',
-                children: 'Vue Contributor 2',
-                icon: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=32&h=32&fit=crop&crop=face',
-                rating: {
-                    ratingType: 'influencer',
-                    lvl: 7,
-                    maxLvl: 10,
-                    top: 10
-                }
+                x: 450,
+                y: 300,
+                nickname: 'Vue Contributor 2',
+                src: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=32&h=32&fit=crop&crop=face',
+                alt: 'Vue Contributor 2 Avatar',
+                stars: 3.5,
+                sunshines: 84,
+                role: 'Influencer',
+                funded: 50000,
+                received: 40000,
+                issuesClosed: 35,
+                issuesActive: 8,
+                uri: '/profile/vue-contributor-2'
             },
             {
-                uri: '/profile/vue-contributor-3',
-                children: 'Vue Contributor 3',
-                icon: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=32&h=32&fit=crop&crop=face',
-                rating: {
-                    ratingType: 'contributor',
-                    lvl: 6,
-                    maxLvl: 10,
-                    top: 15
-                }
+                x: 700,
+                y: 200,
+                nickname: 'Vue Contributor 3',
+                src: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=32&h=32&fit=crop&crop=face',
+                alt: 'Vue Contributor 3 Avatar',
+                stars: 3.0,
+                sunshines: 72,
+                role: 'Contributor',
+                funded: 30000,
+                received: 22000,
+                issuesClosed: 30,
+                issuesActive: 6,
+                uri: '/profile/vue-contributor-3'
             },
             {
-                uri: '/profile/vue-contributor-4',
-                children: 'Vue Contributor 4',
-                icon: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=32&h=32&fit=crop&crop=face',
-                rating: {
-                    ratingType: 'contributor',
-                    lvl: 5,
-                    maxLvl: 10,
-                    top: 25
-                }
+                x: 100,
+                y: 400,
+                nickname: 'Vue Contributor 4',
+                src: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=32&h=32&fit=crop&crop=face',
+                alt: 'Vue Contributor 4 Avatar',
+                stars: 2.5,
+                sunshines: 60,
+                role: 'Contributor',
+                funded: 20000,
+                received: 15000,
+                issuesClosed: 20,
+                issuesActive: 4,
+                uri: '/profile/vue-contributor-4'
             },
             {
-                uri: '/profile/vue-contributor-5',
-                children: 'Vue Contributor 5',
-                icon: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=32&h=32&fit=crop&crop=face',
-                rating: {
-                    ratingType: 'contributor',
-                    lvl: 4,
-                    maxLvl: 10,
-                    top: 40
-                }
+                x: 850,
+                y: 500,
+                nickname: 'Vue Contributor 5',
+                src: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=32&h=32&fit=crop&crop=face',
+                alt: 'Vue Contributor 5 Avatar',
+                stars: 2.0,
+                sunshines: 48,
+                role: 'Contributor',
+                funded: 15000,
+                received: 10000,
+                issuesClosed: 15,
+                issuesActive: 2,
+                uri: '/profile/vue-contributor-5'
             },
-        ],
+        ] as UserStarData[],
     },
 }
 
@@ -331,7 +360,7 @@ export const LowActivity: Story = {
                 top: 100
             }
         },
-        influencers: [],
+        stars: [] as UserStarData[],
     },
 }
 
@@ -363,52 +392,68 @@ export const ManyCollaborators: Story = {
                 top: 8
             }
         },
-        influencers: [
+        stars: [
             {
-                uri: '/profile/bob-smith',
-                children: 'Bob Smith',
-                icon: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=32&h=32&fit=crop&crop=face',
-                rating: {
-                    ratingType: 'contributor',
-                    lvl: 7,
-                    maxLvl: 10,
-                    top: 12
-                }
+                x: 200,
+                y: 150,
+                nickname: 'Bob Smith',
+                src: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=32&h=32&fit=crop&crop=face',
+                alt: 'Bob Smith Avatar',
+                stars: 3.5,
+                sunshines: 84,
+                role: 'Contributor',
+                funded: 35000,
+                received: 28000,
+                issuesClosed: 28,
+                issuesActive: 7,
+                uri: '/profile/bob-smith'
             },
             {
-                uri: '/profile/carol-davis',
-                children: 'Carol Davis',
-                icon: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=32&h=32&fit=crop&crop=face',
-                rating: {
-                    ratingType: 'contributor',
-                    lvl: 6,
-                    maxLvl: 10,
-                    top: 18
-                }
+                x: 450,
+                y: 300,
+                nickname: 'Carol Davis',
+                src: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=32&h=32&fit=crop&crop=face',
+                alt: 'Carol Davis Avatar',
+                stars: 3.0,
+                sunshines: 72,
+                role: 'Contributor',
+                funded: 30000,
+                received: 24000,
+                issuesClosed: 24,
+                issuesActive: 6,
+                uri: '/profile/carol-davis'
             },
             {
-                uri: '/profile/david-wilson',
-                children: 'David Wilson',
-                icon: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=32&h=32&fit=crop&crop=face',
-                rating: {
-                    ratingType: 'contributor',
-                    lvl: 5,
-                    maxLvl: 10,
-                    top: 25
-                }
+                x: 700,
+                y: 200,
+                nickname: 'David Wilson',
+                src: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=32&h=32&fit=crop&crop=face',
+                alt: 'David Wilson Avatar',
+                stars: 2.5,
+                sunshines: 60,
+                role: 'Contributor',
+                funded: 25000,
+                received: 20000,
+                issuesClosed: 20,
+                issuesActive: 5,
+                uri: '/profile/david-wilson'
             },
             {
-                uri: '/profile/eva-brown',
-                children: 'Eva Brown',
-                icon: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=32&h=32&fit=crop&crop=face',
-                rating: {
-                    ratingType: 'contributor',
-                    lvl: 4,
-                    maxLvl: 10,
-                    top: 35
-                }
+                x: 100,
+                y: 400,
+                nickname: 'Eva Brown',
+                src: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=32&h=32&fit=crop&crop=face',
+                alt: 'Eva Brown Avatar',
+                stars: 2.0,
+                sunshines: 48,
+                role: 'Contributor',
+                funded: 20000,
+                received: 15000,
+                issuesClosed: 16,
+                issuesActive: 4,
+                uri: '/profile/eva-brown'
             },
-        ],
+        ] as UserStarData[],
     },
 }
 
@@ -452,7 +497,7 @@ export const Minimal: Story = {
                 top: 500
             }
         },
-        influencers: [],
+        stars: [] as UserStarData[],
         actions: [
             {
                 variant: 'primary',
