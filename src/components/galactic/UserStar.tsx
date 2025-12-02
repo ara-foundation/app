@@ -21,6 +21,9 @@ interface UserStarProps {
   issuesClosed?: number
   issuesActive?: number
   leaderboardPosition?: number
+  walletAddress?: string
+  githubUrl?: string
+  linkedinUrl?: string
 }
 
 // 5-pointed star clip-path polygon
@@ -43,10 +46,23 @@ const UserStar: React.FC<UserStarProps> = ({
   issuesClosed,
   issuesActive,
   leaderboardPosition,
+  walletAddress,
+  githubUrl,
+  linkedinUrl,
 }) => {
   const defaultSrc = 'https://api.backdropbuild.com/storage/v1/object/public/avatars/9nFM8HasgS.jpeg'
   const defaultAlt = 'Avatar'
   const profileUri = nickname ? `${uri}?nickname=${nickname}` : uri
+
+  // Generate blockchain explorer URL (defaulting to Ethereum/Etherscan)
+  const getExplorerUrl = (address: string) => {
+    // Check if it's an Ethereum address (starts with 0x)
+    if (address.startsWith('0x')) {
+      return `https://etherscan.io/address/${address}`
+    }
+    // Default to Etherscan for now, can be extended for other chains
+    return `https://etherscan.io/address/${address}`
+  }
 
   // Calculate star level (1-10) from stars prop
   // If stars is already 1-10, use it directly; otherwise normalize from 0-5 range to 1-10
@@ -121,6 +137,43 @@ const UserStar: React.FC<UserStarProps> = ({
           {leaderboardPosition !== undefined && (
             <div className="text-xs text-slate-400 dark:text-slate-100 mt-0.5">
               Star Order: #{leaderboardPosition}
+            </div>
+          )}
+          {(walletAddress || githubUrl || linkedinUrl) && (
+            <div className="flex items-center gap-2 mt-2 pt-2 border-t border-slate-700">
+              {walletAddress && (
+                <Link
+                  uri={getExplorerUrl(walletAddress)}
+                  asNewTab={true}
+                  className="text-[10px] text-blue-500 dark:text-blue-400 hover:text-teal-300 dark:hover:text-teal-200"
+                >
+                  {getIcon({ iconType: 'wallet', className: 'w-3 h-3', fill: 'currentColor' })}
+                </Link>
+              )}
+              {githubUrl && (
+                <>
+                  {walletAddress && <span className="text-[10px] text-slate-500">•</span>}
+                  <Link
+                    uri={githubUrl}
+                    asNewTab={true}
+                    className="text-[10px] text-blue-500 dark:text-blue-400 hover:text-teal-300 dark:hover:text-teal-200"
+                  >
+                    {getIcon({ iconType: 'github', className: 'w-3 h-3', fill: 'currentColor' })}
+                  </Link>
+                </>
+              )}
+              {linkedinUrl && (
+                <>
+                  {(walletAddress || githubUrl) && <span className="text-[10px] text-slate-500">•</span>}
+                  <Link
+                    uri={linkedinUrl}
+                    asNewTab={true}
+                    className="text-[10px] text-blue-500 dark:text-blue-400 hover:text-teal-300 dark:hover:text-teal-200"
+                  >
+                    {getIcon({ iconType: 'linkedin', className: 'w-3 h-3', fill: 'currentColor' })}
+                  </Link>
+                </>
+              )}
             </div>
           )}
         </div>

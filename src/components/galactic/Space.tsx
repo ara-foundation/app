@@ -15,6 +15,9 @@ export interface UserStarData {
   issuesClosed?: number
   issuesActive?: number
   uri?: string
+  walletAddress?: string
+  githubUrl?: string
+  linkedinUrl?: string
 }
 
 interface SpaceProps {
@@ -63,6 +66,9 @@ const Space: React.FC<SpaceProps> = ({ users, className = '' }) => {
             issuesClosed={user.issuesClosed}
             issuesActive={user.issuesActive}
             uri={user.uri}
+            walletAddress={user.walletAddress || '0x1027298987234987234987234987234987234987'}
+            githubUrl={user.githubUrl || 'https://github.com/ara-foundation/cascadefund-frontend'}
+            linkedinUrl={user.linkedinUrl || 'https://www.linkedin.com/in/ara-foundation/'}
           />
         </div>
       ))}
