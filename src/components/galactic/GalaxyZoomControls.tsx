@@ -5,12 +5,14 @@ interface GalaxyZoomControlsProps {
   minZoom?: number;
   maxZoom?: number;
   onZoomChange?: (zoom: number) => void;
+  stepSize?: number;
 }
 
 const GalaxyZoomControls: React.FC<GalaxyZoomControlsProps> = ({
   initialZoom = 100,
   minZoom = 25,
   maxZoom = 200,
+  stepSize = 10,
   onZoomChange,
 }) => {
   const [zoom, setZoom] = useState(initialZoom);
@@ -24,11 +26,11 @@ const GalaxyZoomControls: React.FC<GalaxyZoomControlsProps> = ({
   }, [zoom, onZoomChange]);
 
   const handleZoomIn = () => {
-    setZoom((prev) => Math.min(prev + 10, maxZoom));
+    setZoom((prev) => Math.min(prev + stepSize, maxZoom));
   };
 
   const handleZoomOut = () => {
-    setZoom((prev) => Math.max(prev - 10, minZoom));
+    setZoom((prev) => Math.max(prev - stepSize, minZoom));
   };
 
   const handleSliderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -81,7 +83,8 @@ const GalaxyZoomControls: React.FC<GalaxyZoomControlsProps> = ({
         </button>
       </div>
 
-      <style jsx>{`
+      <style dangerouslySetInnerHTML={{
+        __html: `
         .slider::-webkit-slider-thumb {
           appearance: none;
           width: 14px;
@@ -102,7 +105,7 @@ const GalaxyZoomControls: React.FC<GalaxyZoomControlsProps> = ({
           border: 2px solid rgb(30 41 59);
           box-shadow: 0 0 4px rgba(59, 130, 246, 0.5);
         }
-      `}</style>
+      ` }} />
     </div>
   );
 };
