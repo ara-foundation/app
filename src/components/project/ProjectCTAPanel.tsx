@@ -58,12 +58,9 @@ const ProjectCTAPanel: React.FC = () => {
             Show your star
           </h3>
           <Tooltip content={tooltipContent}>
-            <Badge variant="info" className="cursor-help">
-              <span className="flex items-center gap-1">
-                {getIcon({ iconType: 'info', className: 'w-4 h-4' })}
-                <span>!</span>
-              </span>
-            </Badge>
+            <span className="flex items-center gap-1 cursor-help">
+              {getIcon({ iconType: 'info', className: 'w-4 h-4' })}
+            </span>
           </Tooltip>
         </div>
 
