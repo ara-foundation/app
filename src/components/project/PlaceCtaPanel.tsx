@@ -5,9 +5,18 @@ import { getIcon } from '@/components/icon';
 import { cn } from '@/lib/utils';
 import confetti from 'canvas-confetti';
 import NumberFlow from '@number-flow/react';
+import { UserStarData } from '@/components/galactic/Space';
+import DraggableUserStar from '@/components/galactic/DraggableUserStar';
+import { DndProvider } from 'react-dnd';
+import { HTML5Backend } from 'react-dnd-html5-backend';
 
-const PlaceCtaPanel: React.FC = () => {
+interface PlaceCtaPanelProps {
+    userData: UserStarData;
+}
+
+const PlaceCtaPanel: React.FC<PlaceCtaPanelProps> = ({ userData }) => {
     const [hasTriggeredConfetti, setHasTriggeredConfetti] = useState(false);
+    const [isStarPlaced, setIsStarPlaced] = useState(false);
 
     const triggerConfetti = () => {
         if (hasTriggeredConfetti) return; // Prevent multiple triggers
@@ -44,6 +53,29 @@ const PlaceCtaPanel: React.FC = () => {
         }, 250);
     };
 
+    const handleStarDrop = (dropResult: { x: number; y: number }) => {
+        // Create new user star data with position from drop result
+        const newUserStar: UserStarData = {
+            ...userData,
+            x: dropResult.x,
+            y: dropResult.y,
+        };
+
+        // Dispatch event to create new user star
+        const event = new CustomEvent('user-star-created', {
+            detail: {
+                userData: newUserStar,
+                x: dropResult.x,
+                y: dropResult.y,
+            },
+        });
+        window.dispatchEvent(event);
+
+        // Mark as placed and trigger confetti
+        setIsStarPlaced(true);
+        triggerConfetti();
+    };
+
     return (
         <motion.div
             className={cn(
@@ -75,80 +107,57 @@ const PlaceCtaPanel: React.FC = () => {
 
             {/* Content */}
             <div className="relative z-10 flex flex-col items-center gap-6">
-                {/* Title */}
-                <h3 className="text-lg font-bold text-slate-800 dark:text-slate-200 text-center">
-                    Add your star on the page! ✨
-                </h3>
+                {!isStarPlaced ? (
+                    <>
+                        {/* Title */}
+                        <h3 className="text-lg font-bold text-slate-800 dark:text-slate-200 text-center">
+                            Add your star on the page! ✨
+                        </h3>
 
-                {/* Large animated star with number */}
-                <div className="flex items-center justify-center ">
-                    <motion.div
-                        className="relative"
-                        animate={{
-                            rotate: [0, 5, -5, 0],
-                        }}
-                        transition={{
-                            duration: 2,
-                            repeat: Infinity,
-                            ease: "easeInOut",
-                        }}
-                    >
-                        {getIcon({ iconType: 'star', className: 'w-16 h-16 text-yellow-500 dark:text-yellow-500/90', fill: 'currentColor' })}
-                    </motion.div>
-                    <NumberFlow
-                        value={1}
-                        locales="en-US"
-                        className="text-4xl font-bold text-slate-500 dark:text-yellow-500/70 -mt-2"
-                        format={{ style: 'decimal', maximumFractionDigits: 0 }}
-                    />
-                </div>
+                        {/* Large animated star with number */}
+                        <div className="flex items-center justify-center gap-2">
+                            <motion.div
+                                animate={{
+                                    rotate: [0, 5, -5, 0],
+                                }}
+                                transition={{
+                                    duration: 2,
+                                    repeat: Infinity,
+                                    ease: "easeInOut",
+                                }}
+                            >
+                                <DndProvider backend={HTML5Backend}>
+                                    <DraggableUserStar
+                                        userData={userData}
+                                        onDrop={handleStarDrop}
+                                    />
+                                </DndProvider>
+                            </motion.div>
+                            <NumberFlow
+                                value={1}
+                                locales="en-US"
+                                className="text-4xl font-bold text-slate-500 dark:text-yellow-500/70 -mt-2"
+                                format={{ style: 'decimal', maximumFractionDigits: 0 }}
+                            />
+                        </div>
 
-                {/* Message */}
-                <p className="text-lg text-center text-slate-700 dark:text-slate-300 -mt-4">
-                    <span className="text-base">Drag and drop your star to the page.</span>
-                </p>
+                        {/* Message */}
+                        <p className="text-lg text-center text-slate-700 dark:text-slate-300 -mt-4">
+                            <span className="text-base">Drag and drop your star to the page.</span>
+                        </p>
+                    </>
+                ) : (
+                    <>
+                        {/* Success Message */}
+                        <h3 className="text-lg font-bold text-slate-800 dark:text-slate-200 text-center">
+                            You placed your star, congratulations. Share the project.
+                        </h3>
+                        <div className="flex items-center justify-center">
+                            {getIcon({ iconType: 'star', className: 'w-16 h-16 text-yellow-500 dark:text-yellow-500/90', fill: 'currentColor' })}
+                        </div>
+                    </>
+                )}
 
-                {/* Buttons */}
-                <div className="flex flex-col sm:flex-row gap-4 w-full">
-                    <Button
-                        variant="secondary"
-                        size="lg"
-                        className="flex-1 flex items-center justify-center gap-2"
-                        onClick={() => {
-                            // Virtual Screen button
-                            console.log('Virtual Screen clicked');
-                            triggerConfetti();
-                        }}
-                    >
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                        </svg>
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v6m3-3H7" />
-                        </svg>
-                        <span>Virtual Screen</span>
-                    </Button>
-                    <Button
-                        variant="secondary"
-                        size="lg"
-                        className="flex-1 flex items-center justify-center gap-2"
-                        onClick={() => {
-                            // Monitor Screen button
-                            console.log('Monitor Screen clicked');
-                            triggerConfetti();
-                        }}
-                    >
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                        </svg>
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v6m3-3H7" />
-                        </svg>
-                        <span>Monitor Screen</span>
-                    </Button>
-                </div>
             </div>
 
             {/* Twinkle animation styles */}

@@ -22,6 +22,9 @@ const starsWithDraggable = mockUserStars.map((star, index) => ({
   draggable: isPlaceMode && index === 0, // First star is the current user's star
 }));
 
+// Get current user data (first star as current user for demo)
+const currentUserData = mockUserStars[0];
+
 const projectData: ProjectInfoProps = {
   uri: "/project",
   title: "Hyperpayment",
@@ -127,7 +130,15 @@ const projectData: ProjectInfoProps = {
     documentationUrl="https://docs.example.com"
     client:only="react"
   />
-  {isPlaceMode && <PlaceCtaPanel slot="center" client:only="react" />}
+  {
+    isPlaceMode && (
+      <PlaceCtaPanel
+        slot="center"
+        client:only="react"
+        userData={currentUserData}
+      />
+    )
+  }
   {!isPlaceMode && <ProjectCTAPanel slot="center" client:only="react" />}
 
   <ProjectGoalPanel

@@ -27,6 +27,8 @@ interface UserStarProps {
   tags?: string[] // User interests, technologies, keywords (max 5)
   animationDelay?: number // Delay for orchestrated animations (in seconds)
   draggable?: boolean // Whether this star can be dragged
+  disableTooltip?: boolean // Whether to disable tooltip
+  disableEllipses?: boolean // Whether to disable ellipses and tag badges
 }
 
 // 5-pointed star clip-path polygon
@@ -55,6 +57,8 @@ const UserStar: React.FC<UserStarProps> = ({
   tags = ["Maintainer", "Django", "Solidity", "p2p"],
   animationDelay = 0,
   draggable = false,
+  disableTooltip = false,
+  disableEllipses = false,
 }) => {
   const defaultSrc = 'https://api.backdropbuild.com/storage/v1/object/public/avatars/9nFM8HasgS.jpeg'
   const defaultAlt = 'Avatar'
@@ -726,74 +730,21 @@ const UserStar: React.FC<UserStarProps> = ({
         onDrag={handleDrag}
         onDragEnd={handleDragEnd}
       >
-        <Tooltip content={tooltipContent}>
-          {draggable ? (
-            <div className="flex flex-col items-center gap-1">
-              {/* Star container with glows and avatar */}
-              <div className={`star-glow-container-${starId} `}>
-                {/* Tags ellipse (transparent, outermost) */}
-                {validTags.length > 0 && (
-                  <div className={`tags-ellipse-${starId}`}>
-                    <div className={`tags-ellipse-ring-${starId}`} />
-                  </div>
-                )}
-
-                {/* Orbital ellipses */}
-                {ellipses.map((ellipse) => (
-                  <div key={ellipse.id} className={`ellipse-orbit-${starId}-${ellipse.id} `}>
-                    {/* Ellipse ring */}
-                    <div className={`ellipse-ring-${starId}-${ellipse.id} `} />
-                    {/* Rotating beam wrapper */}
-                    <div className={`ellipse-beam-wrapper-${starId}-${ellipse.id}`}>
-                      <div className={`ellipse-beam-${starId}-${ellipse.id} `} />
-                    </div>
-                  </div>
-                ))}
-
-                {/* Tag badges */}
-                {badgePositions.map((badge, index) => (
-                  <div
-                    key={`${badge.tag}-${index}`}
-                    className={`tag-badge-${starId}-${index}`}
-                  >
-                    <Tooltip content={badge.tag}>
-                      <div className={`tag-badge-content-${starId}-${index}`}>
-                        {getIcon({ iconType: 'star', className: 'w-3 h-3', fill: 'currentColor' })}
-                        <span className="text-[10px] font-medium">{badge.tag}</span>
-                      </div>
-                    </Tooltip>
-                  </div>
-                ))}
-
-                {/* Glowing layers that pulse and rotate */}
-                <div className={`star-glow-${starId}`} />
-                <div className={`star-glow-${starId} star-glow-2-${starId}`} />
-                <div className={`star-glow-${starId} star-glow-3-${starId}`} />
-
-                {/* Avatar inside the star */}
-                <div className={`star-avatar-${starId} hover:opacity-80 transition-opacity p-3 border-2 border-red-500 hover:bg-teal-300 bg-blue-200 dark:bg-blue-400! dark:hover:bg-teal-300! dark:hover:blur-sm`}>
-                  <img
-                    src={src || defaultSrc}
-                    alt={alt || defaultAlt}
-                    className={imgClassName || ''}
-                  />
-                </div>
-              </div>
-            </div>
-          ) : (
-            <Link uri={profileUri}>
+        {disableTooltip ? (
+          <>
+            {draggable ? (
               <div className="flex flex-col items-center gap-1">
                 {/* Star container with glows and avatar */}
                 <div className={`star-glow-container-${starId} `}>
                   {/* Tags ellipse (transparent, outermost) */}
-                  {validTags.length > 0 && (
+                  {!disableEllipses && validTags.length > 0 && (
                     <div className={`tags-ellipse-${starId}`}>
                       <div className={`tags-ellipse-ring-${starId}`} />
                     </div>
                   )}
 
                   {/* Orbital ellipses */}
-                  {ellipses.map((ellipse) => (
+                  {!disableEllipses && ellipses.map((ellipse) => (
                     <div key={ellipse.id} className={`ellipse-orbit-${starId}-${ellipse.id} `}>
                       {/* Ellipse ring */}
                       <div className={`ellipse-ring-${starId}-${ellipse.id} `} />
@@ -805,7 +756,7 @@ const UserStar: React.FC<UserStarProps> = ({
                   ))}
 
                   {/* Tag badges */}
-                  {badgePositions.map((badge, index) => (
+                  {!disableEllipses && badgePositions.map((badge, index) => (
                     <div
                       key={`${badge.tag}-${index}`}
                       className={`tag-badge-${starId}-${index}`}
@@ -834,13 +785,184 @@ const UserStar: React.FC<UserStarProps> = ({
                   </div>
                 </div>
               </div>
-            </Link>
-          )}
-          {/* User name under the icon */}
-          <div className="text-center mt-1">
-            <span className="text-[10px] font-medium text-slate-700 dark:text-slate-300">{nickname}</span>
-          </div>
-        </Tooltip >
+            ) : (
+              <Link uri={profileUri}>
+                <div className="flex flex-col items-center gap-1">
+                  {/* Star container with glows and avatar */}
+                  <div className={`star-glow-container-${starId} `}>
+                    {/* Tags ellipse (transparent, outermost) */}
+                    {!disableEllipses && validTags.length > 0 && (
+                      <div className={`tags-ellipse-${starId}`}>
+                        <div className={`tags-ellipse-ring-${starId}`} />
+                      </div>
+                    )}
+
+                    {/* Orbital ellipses */}
+                    {!disableEllipses && ellipses.map((ellipse) => (
+                      <div key={ellipse.id} className={`ellipse-orbit-${starId}-${ellipse.id} `}>
+                        {/* Ellipse ring */}
+                        <div className={`ellipse-ring-${starId}-${ellipse.id} `} />
+                        {/* Rotating beam wrapper */}
+                        <div className={`ellipse-beam-wrapper-${starId}-${ellipse.id}`}>
+                          <div className={`ellipse-beam-${starId}-${ellipse.id} `} />
+                        </div>
+                      </div>
+                    ))}
+
+                    {/* Tag badges */}
+                    {!disableEllipses && badgePositions.map((badge, index) => (
+                      <div
+                        key={`${badge.tag}-${index}`}
+                        className={`tag-badge-${starId}-${index}`}
+                      >
+                        <Tooltip content={badge.tag}>
+                          <div className={`tag-badge-content-${starId}-${index}`}>
+                            {getIcon({ iconType: 'star', className: 'w-3 h-3', fill: 'currentColor' })}
+                            <span className="text-[10px] font-medium">{badge.tag}</span>
+                          </div>
+                        </Tooltip>
+                      </div>
+                    ))}
+
+                    {/* Glowing layers that pulse and rotate */}
+                    <div className={`star-glow-${starId}`} />
+                    <div className={`star-glow-${starId} star-glow-2-${starId}`} />
+                    <div className={`star-glow-${starId} star-glow-3-${starId}`} />
+
+                    {/* Avatar inside the star */}
+                    <div className={`star-avatar-${starId} hover:opacity-80 transition-opacity p-3 border-2 border-red-500 hover:bg-teal-300 bg-blue-200 dark:bg-blue-400! dark:hover:bg-teal-300! dark:hover:blur-sm`}>
+                      <img
+                        src={src || defaultSrc}
+                        alt={alt || defaultAlt}
+                        className={imgClassName || ''}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </Link>
+            )}
+            {/* User name under the icon */}
+            <div className="text-center mt-1">
+              <span className="text-[10px] font-medium text-slate-700 dark:text-slate-300">{nickname}</span>
+            </div>
+          </>
+        ) : (
+          <Tooltip content={tooltipContent}>
+            {draggable ? (
+              <div className="flex flex-col items-center gap-1">
+                {/* Star container with glows and avatar */}
+                <div className={`star-glow-container-${starId} `}>
+                  {/* Tags ellipse (transparent, outermost) */}
+                  {!disableEllipses && validTags.length > 0 && (
+                    <div className={`tags-ellipse-${starId}`}>
+                      <div className={`tags-ellipse-ring-${starId}`} />
+                    </div>
+                  )}
+
+                  {/* Orbital ellipses */}
+                  {!disableEllipses && ellipses.map((ellipse) => (
+                    <div key={ellipse.id} className={`ellipse-orbit-${starId}-${ellipse.id} `}>
+                      {/* Ellipse ring */}
+                      <div className={`ellipse-ring-${starId}-${ellipse.id} `} />
+                      {/* Rotating beam wrapper */}
+                      <div className={`ellipse-beam-wrapper-${starId}-${ellipse.id}`}>
+                        <div className={`ellipse-beam-${starId}-${ellipse.id} `} />
+                      </div>
+                    </div>
+                  ))}
+
+                  {/* Tag badges */}
+                  {!disableEllipses && badgePositions.map((badge, index) => (
+                    <div
+                      key={`${badge.tag}-${index}`}
+                      className={`tag-badge-${starId}-${index}`}
+                    >
+                      <Tooltip content={badge.tag}>
+                        <div className={`tag-badge-content-${starId}-${index}`}>
+                          {getIcon({ iconType: 'star', className: 'w-3 h-3', fill: 'currentColor' })}
+                          <span className="text-[10px] font-medium">{badge.tag}</span>
+                        </div>
+                      </Tooltip>
+                    </div>
+                  ))}
+
+                  {/* Glowing layers that pulse and rotate */}
+                  <div className={`star-glow-${starId}`} />
+                  <div className={`star-glow-${starId} star-glow-2-${starId}`} />
+                  <div className={`star-glow-${starId} star-glow-3-${starId}`} />
+
+                  {/* Avatar inside the star */}
+                  <div className={`star-avatar-${starId} hover:opacity-80 transition-opacity p-3 border-2 border-red-500 hover:bg-teal-300 bg-blue-200 dark:bg-blue-400! dark:hover:bg-teal-300! dark:hover:blur-sm`}>
+                    <img
+                      src={src || defaultSrc}
+                      alt={alt || defaultAlt}
+                      className={imgClassName || ''}
+                    />
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <Link uri={profileUri}>
+                <div className="flex flex-col items-center gap-1">
+                  {/* Star container with glows and avatar */}
+                  <div className={`star-glow-container-${starId} `}>
+                    {/* Tags ellipse (transparent, outermost) */}
+                    {!disableEllipses && validTags.length > 0 && (
+                      <div className={`tags-ellipse-${starId}`}>
+                        <div className={`tags-ellipse-ring-${starId}`} />
+                      </div>
+                    )}
+
+                    {/* Orbital ellipses */}
+                    {!disableEllipses && ellipses.map((ellipse) => (
+                      <div key={ellipse.id} className={`ellipse-orbit-${starId}-${ellipse.id} `}>
+                        {/* Ellipse ring */}
+                        <div className={`ellipse-ring-${starId}-${ellipse.id} `} />
+                        {/* Rotating beam wrapper */}
+                        <div className={`ellipse-beam-wrapper-${starId}-${ellipse.id}`}>
+                          <div className={`ellipse-beam-${starId}-${ellipse.id} `} />
+                        </div>
+                      </div>
+                    ))}
+
+                    {/* Tag badges */}
+                    {!disableEllipses && badgePositions.map((badge, index) => (
+                      <div
+                        key={`${badge.tag}-${index}`}
+                        className={`tag-badge-${starId}-${index}`}
+                      >
+                        <Tooltip content={badge.tag}>
+                          <div className={`tag-badge-content-${starId}-${index}`}>
+                            {getIcon({ iconType: 'star', className: 'w-3 h-3', fill: 'currentColor' })}
+                            <span className="text-[10px] font-medium">{badge.tag}</span>
+                          </div>
+                        </Tooltip>
+                      </div>
+                    ))}
+
+                    {/* Glowing layers that pulse and rotate */}
+                    <div className={`star-glow-${starId}`} />
+                    <div className={`star-glow-${starId} star-glow-2-${starId}`} />
+                    <div className={`star-glow-${starId} star-glow-3-${starId}`} />
+
+                    {/* Avatar inside the star */}
+                    <div className={`star-avatar-${starId} hover:opacity-80 transition-opacity p-3 border-2 border-red-500 hover:bg-teal-300 bg-blue-200 dark:bg-blue-400! dark:hover:bg-teal-300! dark:hover:blur-sm`}>
+                      <img
+                        src={src || defaultSrc}
+                        alt={alt || defaultAlt}
+                        className={imgClassName || ''}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </Link>
+            )}
+            {/* User name under the icon */}
+            <div className="text-center mt-1">
+              <span className="text-[10px] font-medium text-slate-700 dark:text-slate-300">{nickname}</span>
+            </div>
+          </Tooltip>
+        )}
       </div >
     </>
   )
