@@ -147,23 +147,12 @@ const PlaceCtaPanel: React.FC<PlaceCtaPanelProps> = ({ userData }) => {
 
                         {/* Large animated star with number */}
                         <div className="flex items-center justify-center gap-2">
-                            <motion.div
-                                animate={{
-                                    rotate: [0, 5, -5, 0],
-                                }}
-                                transition={{
-                                    duration: 2,
-                                    repeat: Infinity,
-                                    ease: "easeInOut",
-                                }}
-                            >
-                                <DndProvider backend={HTML5Backend}>
-                                    <DraggableUserStar
-                                        userData={userData}
-                                        onDrop={handleStarDrop}
-                                    />
-                                </DndProvider>
-                            </motion.div>
+                            <DndProvider backend={HTML5Backend}>
+                                <DraggableUserStar
+                                    userData={userData}
+                                    onDrop={handleStarDrop}
+                                />
+                            </DndProvider>
                             <NumberFlow
                                 value={1}
                                 locales="en-US"
@@ -173,7 +162,7 @@ const PlaceCtaPanel: React.FC<PlaceCtaPanelProps> = ({ userData }) => {
                         </div>
 
                         {/* Message */}
-                        <p className="text-lg text-center text-slate-700 dark:text-slate-300 -mt-4">
+                        <p className="text-lg text-center text-slate-700 dark:text-slate-300 mt-4">
                             <span className="text-base">Drag and drop your star to the page.</span>
                         </p>
                     </>

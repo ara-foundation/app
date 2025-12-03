@@ -34,7 +34,7 @@ const DraggableUserStar: React.FC<DraggableUserStarProps> = memo(({
             data-testid={userData.nickname}
             className={`cursor-move inline-block opacity-${opacity} ${className || ''}`}
         >
-            <div style={{ position: 'relative', display: 'inline-block' }}>
+            <div className="relative w-10 h-10 mr-10 -mt-10 border-transparent">
                 <UserStar
                     x={0}
                     y={0}
