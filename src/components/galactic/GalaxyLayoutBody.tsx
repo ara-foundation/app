@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import GalacticMeasurements from './GalacticMeasurements';
 import GalaxyZoomControls from './GalaxyZoomControls';
 import GalaxyNavigationDialog from './GalaxyNavigationDialog';
+import AllStarsLink from './AllStarsLink';
 
 interface GalaxyZoomWrapperProps {
   projectName?: string;
@@ -139,6 +140,9 @@ const GalaxyZoomWrapper: React.FC<GalaxyZoomWrapperProps> = ({
         minZoom={minZoom}
         maxZoom={maxZoom}
       />
+
+      {/* All Stars Link - Not scaled, always at 100% */}
+      <AllStarsLink />
 
       {/* Navigation Dialog - Not scaled, always at 100% */}
       <GalaxyNavigationDialog
