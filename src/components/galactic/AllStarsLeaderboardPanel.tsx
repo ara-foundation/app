@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { getIcon } from '@/components/icon';
 import NumberFlow from '@number-flow/react';
 import { cn } from '@/lib/utils';
 import Tooltip from '@/components/custom-ui/Tooltip';
 import InfoPanel from '../panel/InfoPanel';
+import TimeAgo from 'timeago-react';
 
 interface AllStarsLeaderboardPanelProps {
     prizePool?: number;
@@ -20,13 +21,71 @@ const AllStarsLeaderboardPanel: React.FC<AllStarsLeaderboardPanelProps> = ({
     contestDescription,
     leaderboardPosition = 5,
 }) => {
+    const [currentTime, setCurrentTime] = useState(new Date());
+
+    // Update current time every second for time ago display
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setCurrentTime(new Date());
+        }, 1000);
+
+        return () => clearInterval(interval);
+    }, []);
+
     const formatDate = (date: Date | undefined): string => {
         if (!date) return '';
         return date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
     };
 
-    const description = contestDescription || 
+    const formatDateTime = (date: Date | undefined): string => {
+        if (!date) return '';
+        return date.toLocaleDateString('en-US', {
+            month: 'short',
+            day: 'numeric',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    };
+
+    // Calculate progress percentage
+    const getProgress = (): number => {
+        if (!contestFromDate || !contestToDate) return 0;
+        const now = currentTime.getTime();
+        const start = contestFromDate.getTime();
+        const end = contestToDate.getTime();
+        const total = end - start;
+        const elapsed = now - start;
+
+        if (elapsed < 0) return 0;
+        if (elapsed > total) return 100;
+        return (elapsed / total) * 100;
+    };
+
+    const progress = getProgress();
+    const isEnded = contestToDate && currentTime > contestToDate;
+    const isNotStarted = contestFromDate && currentTime < contestFromDate;
+
+    const description = contestDescription ||
         `5% of the funds from ${contestFromDate ? formatDate(contestFromDate) : '1st december'} to ${contestToDate ? formatDate(contestToDate) : '1st january'}. The funds is given to the 1/100 of the top star gained galaxy. It includes all users, contributors and maintainers receiving equivalent to their earned stars`;
+
+    const howToEarnRewardTooltip = (
+        <div className="text-sm space-y-3 max-w-xs">
+            <div>
+                <p className="font-semibold mb-2">If you have an open-source project:</p>
+                <ul className="list-disc list-inside space-y-1 text-xs">
+                    <li>For maintainers: Add your repository, create galaxy and begin collaboration.</li>
+                </ul>
+            </div>
+            <div>
+                <p className="font-semibold mb-2">For everybody:</p>
+                <ul className="list-disc list-inside space-y-1 text-xs">
+                    <li>You can also get the reward.</li>
+                    <li>Find the galaxy, by donating to the open-source project, obtain sunshines, then with the collaboration turn them into stars.</li>
+                </ul>
+            </div>
+        </div>
+    );
 
     return (
         <InfoPanel
@@ -85,28 +144,84 @@ const AllStarsLeaderboardPanel: React.FC<AllStarsLeaderboardPanelProps> = ({
                     </div>
                 </div>
 
-                {/* Contest Description */}
-                <div className="w-full px-4 py-3 rounded-lg bg-white/5 dark:bg-slate-900/5 border border-slate-200/20 dark:border-slate-700/20">
-                    <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-                        {description}
-                    </p>
-                </div>
+                {/* Timeline Section */}
+                <div className="w-full space-y-3 px-4 py-4 rounded-lg bg-white/5 dark:bg-slate-900/5 border border-slate-200/20 dark:border-slate-700/20">
+                    <div className="text-xs text-slate-600 dark:text-slate-400 mb-3">Timeline</div>
 
-                {/* Leaderboard Position */}
-                {leaderboardPosition && (
-                    <div className="w-full px-4 py-2 rounded-lg bg-white/5 dark:bg-slate-900/5 border border-slate-200/20 dark:border-slate-700/20">
-                        <div className="flex items-center justify-center gap-2">
-                            <span className="text-sm text-slate-600 dark:text-slate-400">Current Position:</span>
-                            <span className="text-lg font-semibold text-slate-800 dark:text-slate-200">
-                                #{leaderboardPosition}
+                    {/* Start Time */}
+                    <div className="flex items-center justify-between text-xs">
+                        <span className="text-slate-500 dark:text-slate-400">Start:</span>
+                        <span className="text-slate-700 dark:text-slate-300 font-medium">
+                            {contestFromDate ? formatDateTime(contestFromDate) : 'N/A'}
+                        </span>
+                    </div>
+
+                    {/* Progress Slider */}
+                    <div className="w-full space-y-2">
+                        <div className="relative w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                            <div
+                                className="absolute top-0 left-0 h-full bg-gradient-to-r from-blue-500 to-purple-500 transition-all duration-1000 ease-out"
+                                style={{ width: `${Math.min(100, Math.max(0, progress))}%` }}
+                            />
+                        </div>
+                        <div className="flex items-center justify-between text-xs">
+                            <span className="text-slate-500 dark:text-slate-400">Progress</span>
+                            <span className="text-slate-700 dark:text-slate-300 font-medium">
+                                {Math.round(progress)}%
                             </span>
                         </div>
                     </div>
-                )}
+
+                    {/* End Time with Time Ago */}
+                    <div className="flex items-center justify-between text-xs">
+                        <span className="text-slate-500 dark:text-slate-400">End:</span>
+                        <div className="flex items-center gap-2">
+                            {contestToDate && (
+                                <>
+                                    <span className="text-slate-700 dark:text-slate-300 font-medium">
+                                        {formatDateTime(contestToDate)}
+                                    </span>
+                                    <span className="text-slate-500 dark:text-slate-400">
+                                        (
+                                        {isEnded ? (
+                                            <span>ended</span>
+                                        ) : isNotStarted ? (
+                                            <span>starts in</span>
+                                        ) : (
+                                            <span>ends in</span>
+                                        )}
+                                        {' '}
+                                        <TimeAgo datetime={contestToDate} live={true} />
+                                        )
+                                    </span>
+                                </>
+                            )}
+                        </div>
+                    </div>
+                </div>
+
+                {/* Eligibility Section */}
+                <div className="w-full px-4 py-3 rounded-lg bg-white/5 dark:bg-slate-900/5 border border-slate-200/20 dark:border-slate-700/20">
+                    <div className="text-xs text-slate-600 dark:text-slate-400 mb-2">Eligibility</div>
+                    <p className="text-xs text-slate-700 dark:text-slate-300 leading-relaxed">
+                        Top 100 galaxies obtained stars within the contest period. Randomly picked 1 at the end.
+                    </p>
+                </div>
+
+                {/* How to Earn Reward Section */}
+                <div className="w-full px-4 py-3 rounded-lg bg-white/5 dark:bg-slate-900/5 border border-slate-200/20 dark:border-slate-700/20">
+                    <div className="flex items-center justify-center gap-2">
+                        <span className="text-xs text-slate-700 dark:text-slate-300 font-medium">
+                            How to earn reward?
+                        </span>
+                        <Tooltip content={howToEarnRewardTooltip}>
+                            {getIcon({ iconType: 'info', className: 'w-4 h-4 text-slate-500 dark:text-slate-400' })}
+                        </Tooltip>
+                    </div>
+                </div>
             </div>
         </InfoPanel>
     );
 };
 
 export default AllStarsLeaderboardPanel;
-
