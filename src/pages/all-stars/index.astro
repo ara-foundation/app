@@ -8,14 +8,13 @@ import AllStarsLeaderboardPanels from "@/components/galactic/AllStarsLeaderboard
 import UniverseResearchPanel from "@/components/galactic/UniverseResearchPanel";
 import GalaxyAutoZoom from "@/components/galactic/GalaxyAutoZoom";
 import BackButton from "@/components/custom-ui/BackButton";
-import Button from "@/components/custom-ui/Button";
+import NewGalaxyButton from "@/components/galactic/NewGalaxyButton";
 import {
   mockUniverseStats,
   mockContestData,
   mockTopGalaxies,
   mockTopLibraries,
 } from "@/data/mock-data";
-import Link from "@/components/custom-ui/Link";
 
 // Read galaxy query parameter
 const galaxyId = Astro.url.searchParams.get("galaxy");
@@ -57,16 +56,7 @@ const allGalaxies = mockTopGalaxies.map((galaxy, index) => ({
   }
 
   <div slot="header-navbar" class="flex items-center justify-center pt-4">
-    <Link uri="/project/post">
-      <Button
-        client:only="react"
-        variant="secondary"
-        outline={true}
-        className="opacity-70 hover:opacity-100 text-slate-400 dark:text-slate-500 text-xs"
-      >
-        New Galaxy
-      </Button>
-    </Link>
+    <NewGalaxyButton client:only="react" />
   </div>
 
   <UniverseHero
