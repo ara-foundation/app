@@ -93,7 +93,7 @@ const QuestTable: React.FC = () => {
           </svg>
           <h2 className="text-xl font-semibold text-gray-800">Current Quests</h2>
         </div>
-        <p className="text-gray-600">Here's a live snapshot of what quests look like on CascadeFund:</p>
+        <p className="text-gray-600">Here's a live snapshot of what quests look like on Ara:</p>
       </div>
       
       <div className="overflow-x-auto">

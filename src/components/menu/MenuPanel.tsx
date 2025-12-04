@@ -30,7 +30,7 @@ const GalaxyObject: React.FC<{
   starCount?: number
   active?: boolean
   focus?: boolean
-}> = ({ projectIcon, projectName = 'CascadeFund', starCount = 0, active, focus }) => {
+}> = ({ projectIcon, projectName = 'Ara', starCount = 0, active, focus }) => {
   const isZeroStars = starCount === 0;
   const starColorClass = isZeroStars ? 'text-rose-500' : '';
 
@@ -42,7 +42,7 @@ const GalaxyObject: React.FC<{
     />
   ) : (
     <div className="w-12 h-12 flex items-center justify-center">
-      {getIcon({ iconType: 'cascadefund', width: 'w-12', height: 'h-12' })}
+      {getIcon({ iconType: 'ara', width: 'w-12', height: 'h-12' })}
     </div>
   );
 

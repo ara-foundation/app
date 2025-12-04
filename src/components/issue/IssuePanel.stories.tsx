@@ -57,7 +57,7 @@ const mockIssue: Issue = {
 
 const mockCascadefundIssue: Issue = {
     ...mockIssue,
-    storage: 'cascadefund',
+    storage: 'arada-',
     number: '#456',
     title: 'Database Migration Strategy',
     description: 'We need to migrate our database from PostgreSQL 12 to PostgreSQL 15 to take advantage of new features and improve performance. The migration must be planned carefully to avoid downtime.',

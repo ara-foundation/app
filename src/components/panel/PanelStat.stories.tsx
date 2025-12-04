@@ -19,7 +19,7 @@ const meta: Meta<typeof PanelStat> = {
             options: [
                 'github', 'analytics', 'money', 'email', 'info', 'likes', 'clock', 'heart',
                 'vote-priority', 'energy', 'project', 'star', 'fork', 'settings', 'user',
-                'chat', 'navigation', 'success', 'check', 'cascadefund'
+                'chat', 'navigation', 'success', 'check', 'ara'
             ] as IconType[],
             description: 'The icon type to display'
         },

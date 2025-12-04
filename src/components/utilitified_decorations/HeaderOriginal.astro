@@ -1,5 +1,5 @@
 ---
-import CascadeFundLogo from "./Logo.astro";
+import AraLogo from "./Logo.astro";
 import AuthNavItem from "./AuthNavItem";
 import WorkNavbar, { type MenuName } from "../navbar/WorkNavbar.astro";
 import { MenuItemProps } from "../menu/MenuItem";
@@ -48,7 +48,7 @@ const { active, hideLinks, hideAuth, additional } = Astro.props;
           <slot />
         </WorkNavbar>
       </div>
-      <CascadeFundLogo />
+      <AraLogo />
     </div>
     <div class="navbar-center h-6 hidden lg:flex lg:min-w-[50vw]">
       <WorkNavbar

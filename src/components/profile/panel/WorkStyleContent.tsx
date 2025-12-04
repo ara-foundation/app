@@ -30,7 +30,7 @@ const WorkStyleSection: React.FC<WorkStyleProps> = ({
     <PageLikePanel interactive={false} title="Availability & Work Style" actions={[]} bg='green-50'>
       {/* <p className='text-rose-600 dark:text-rose-400'>
         <p className='text-lg w-full gap-1 flex items-center'>{getIcon('clock')} Feature is on the roadmap.</p>
-        CascadeFund tracks the way how a person interacts in the platform
+        Ara tracks the way how a person interacts in the platform
         and tries to draw the portrait. Interact with the people
         whose communication style is matching your preferences
         or use it as the hint how to reach out to the person.
@@ -76,7 +76,7 @@ const WorkStyleSection: React.FC<WorkStyleProps> = ({
       </div>
 
       <p className="text-xs text-gray-500 mt-6">
-        Estimated by CascadeFund based on communication analysis
+        Estimated by Ara based on communication analysis
       </p>
     </PageLikePanel>
   )

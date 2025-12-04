@@ -9,13 +9,13 @@ const GalaxyAutoZoom: React.FC<GalaxyAutoZoomProps> = ({ galaxyX, galaxyY }) => 
   useEffect(() => {
     if (galaxyX === undefined || galaxyY === undefined) return;
 
-    // CascadeFund is at (0, 0)
-    const cascadeFundX = 0;
-    const cascadeFundY = 0;
+    // Ara is at (0, 0)
+    const araX = 0;
+    const araY = 0;
 
-    // Calculate distance between CascadeFund and galaxy
-    const dx = galaxyX - cascadeFundX;
-    const dy = galaxyY - cascadeFundY;
+    // Calculate distance between Ara and galaxy
+    const dx = galaxyX - araX;
+    const dy = galaxyY - araY;
     const distance = Math.sqrt(dx * dx + dy * dy);
 
     // Get viewport dimensions

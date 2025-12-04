@@ -42,7 +42,7 @@ const ProjectLandingHero: React.FC<ProjectLandingHeroProps> = ({
           <Link uri={projectUri} className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/10 dark:bg-slate-900/10 backdrop-blur-sm border border-slate-200/20 dark:border-slate-700/20 hover:bg-white/20 dark:hover:bg-slate-900/20 transition-colors">
             <Tooltip content="Show project issues">
               <div className="flex items-center gap-2">
-                {getIcon({ iconType: 'cascadefund', className: 'w-5 h-5 text-blue-500' })}
+                {getIcon({ iconType: 'ara', className: 'w-5 h-5 text-blue-500' })}
                 <span className="text-sm font-semibold text-slate-800 dark:text-slate-200">Issues</span>
               </div>
             </Tooltip>

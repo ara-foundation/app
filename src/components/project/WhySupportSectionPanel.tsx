@@ -84,7 +84,7 @@ const WhySupportSection: React.FC = () => {
 
       <div className="mt-6">
         <Button variant="outline" className="w-full">
-          Learn More About CascadeFund
+          Learn More About Ara
         </Button>
       </div>
     </PageLikePanel>

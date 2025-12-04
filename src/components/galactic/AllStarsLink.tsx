@@ -34,7 +34,7 @@ const AllStarsLink: React.FC<AllStarsLinkProps> = ({
                         )}
                     >
                         <div className="flex items-center gap-2 text-slate-400 dark:text-slate-500">
-                            {getIcon({ iconType: 'cascadefund', className: 'w-4 h-4' })}
+                            {getIcon({ iconType: 'ara', className: 'w-4 h-4' })}
                             <span className="text-xs font-mono">All Stars</span>
                         </div>
                     </ControlPanel>

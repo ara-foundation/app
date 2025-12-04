@@ -9,7 +9,7 @@ const VotingPowerSection: React.FC = () => {
         <li>• Upon completing the task, you receive the rating points. The points increase the rating of the project. Rating is the measurement of the satisfaction and attraction you get from customers.</li>
       </ul>
       <div>
-        <p className="text-xs text-gray-500">Learn how CascadeFund works:</p>
+        <p className="text-xs text-gray-500">Learn how Ara works:</p>
         <a href="#" className="text-xs text-blue-600 hover:underline">How does progress system work?</a>
       </div>
     </PageLikePanel>

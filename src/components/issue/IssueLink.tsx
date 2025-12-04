@@ -18,7 +18,7 @@ import AvatarList from '../AvatarList'
 const IssueLinkPanel4: React.FC<Issue & { actions?: ActionProps[] }> = (issue) => {
   // Check if this is a rating issue (has voting power > 0)
   const votingPower = issue.stats?.['voting-power']?.children
-  const isRatingIssue = issue.storage === 'cascadefund' && votingPower && Number(votingPower) > 0
+  const isRatingIssue = issue.storage === 'arada-' && votingPower && Number(votingPower) > 0
 
   // Handle VP change from VotePopover
   const handleVPChange = (newVP: number) => {
@@ -62,10 +62,10 @@ const IssueLinkPanel4: React.FC<Issue & { actions?: ActionProps[] }> = (issue) =
     <div className='flex flex-row gap-1 items-start w-full'>
       {/* Issue storage and number */}
       <div className="flex items-center space-x-3 mt-0.5">
-        <Link uri={issue.uri} asNewTab={issue.storage !== 'cascadefund'}>
+        <Link uri={issue.uri} asNewTab={issue.storage !== 'arada-'}>
           <Badge variant='info' static={true}>
             <div className="flex items-center space-x-1">
-              {getIcon(issue.storage as IconType || 'cascadefund')}
+              {getIcon(issue.storage as IconType || 'ara')}
               <span className="text-xs font-medium">{issue.number}</span>
             </div>
           </Badge>
@@ -77,8 +77,8 @@ const IssueLinkPanel4: React.FC<Issue & { actions?: ActionProps[] }> = (issue) =
         <div className='flex justify-between items-center mb-1 ml-0.5'>
           <div className="flex items-center gap-2">
             <span className="text-lg font-medium text-slate-700 dark:text-slate-300/80">{issue.title}</span>
-            {/* Voting power badge for cascadefund storage */}
-            {issue.storage === 'cascadefund' && (
+            {/* Voting power badge for arada- storage */}
+            {issue.storage === 'arada-' && (
               <Badge variant={isRatingIssue ? 'success' : 'gray'} static={true}>
                 {isRatingIssue ? 'Rating Issue' : 'Non-Rating Issue'}
               </Badge>
@@ -110,7 +110,7 @@ const IssueLinkPanel4: React.FC<Issue & { actions?: ActionProps[] }> = (issue) =
         }
 
         {/* Issue status and actions */}
-        {(issue.stats || issue.actions || (issue.storage === 'cascadefund')) &&
+        {(issue.stats || issue.actions || (issue.storage === 'arada-')) &&
           <PanelFooter className='flex flex-row justify-between items-center mt-2'>
             <div className="flex items-center gap-2">
               {issue.actions && <PanelAction className='' actions={issue.actions} />}

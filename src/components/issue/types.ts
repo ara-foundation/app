@@ -4,7 +4,7 @@ import { ProfileLink } from "../profile/types"
 export type IssueType = 'improvement' | 'feature' | 'bug' | 'enhancement' | 'wish' | 'custom'
 // export type IssueType = 'bug' | 'wish' | 'feature'
 export type IssuePriority = 'low' | 'medium' | 'high'
-export type IssueStorage = 'github' | 'cascadefund'
+export type IssueStorage = 'github' | 'arada-'
 export type IssueStatType = 'upvote' | 'downvote' | 'chat' | 'voting-power' | 'follower' | 'money' | 'persona'
 
 export interface Issue {

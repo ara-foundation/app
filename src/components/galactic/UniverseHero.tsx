@@ -16,11 +16,11 @@ const UniverseHero: React.FC<UniverseHeroProps> = ({
 }) => {
     return (
         <div className="flex flex-col items-center justify-center min-h-[60vh] text-center space-y-8 px-4">
-            {/* CascadeFund Title with Blur Text Animation */}
+            {/* Ara Title with Blur Text Animation */}
             <div className="w-full max-w-4xl relative">
-                {getIcon({ iconType: 'cascadefund', className: 'w-26 h-26 text-blue-500 absolute top-0 left-10' })}
+                {getIcon({ iconType: 'ara', className: 'w-26 h-26 text-blue-500 absolute top-0 left-10' })}
                 <BlurText
-                    text="CascadeFund"
+                    text="Ara"
                     className="text-6xl md:text-7xl lg:text-8xl font-bold text-slate-800 dark:text-slate-200 justify-center "
                     animateBy="words"
                     direction="top"

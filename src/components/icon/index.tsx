@@ -66,7 +66,7 @@ export type IconType =
   | 'whatsapp'
   | 'twitch'
   | 'check'
-  | 'cascadefund'
+  | 'ara'
   | 'issue'
   | 'influencer-history'
   | 'influencer-work'
@@ -353,10 +353,10 @@ export const getIcon = (props: IconProps | IconType): React.ReactNode => {
         <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
       </svg>
     )
-    case 'cascadefund': return (
+    case 'ara': return (
       <img
-        src="/cascadefund_logo.png"
-        alt="CascadeFund Logo"
+        src="/ara_logo.png"
+        alt="Ara Logo"
         className={className}
         style={{ objectFit: 'contain' }}
       />

@@ -21,7 +21,7 @@ export const data: Record<Accent, {
         title: "Get help with branding and monetization",
         subtitle: "Turning open-source development into a recognized, collaborative, and financially sustainable pursuit.",
         description: "For maintainers, helping with PRs and monetization.",
-        howTo: <div>CascadeFund is a collaboration platform with the standardized work cycle.<br />
+        howTo: <div>Ara is a collaboration platform with the standardized work cycle.<br />
             <br />Here, the achivements are awarded for the resolved issues and patches to all participants. We represent them as project coins.<br /><br />These coins highlight everyone's contribution, boosts project trust, user engagement, and acts as proof of traction.</div>,
     },
     [Accent.formalResponsibleCollaborationAccent]: {
@@ -56,7 +56,7 @@ export const data: Record<Accent, {
         subtitle: "Turning open-source development into a recognized, collaborative, and financially sustainable pursuit.",
         description: "Turning open-source development into a recognized, collaborative, and financially sustainable pursuit.",
         howTo: <motion.div className="space-y-3">
-            Here is how collaboration is implemented as a gamified guide within the CascadeFund:
+            Here is how collaboration is implemented as a gamified guide within Ara:
             <ul className="space-y-3 mt-2">
                 <li>🔌 Todo Tasks are automatically generated after certain user actions. 😌 You don't have to create them yourself.</li>
                 <li>🎮 Web pages show these tasks inside an interactive mini-player.</li>
@@ -86,7 +86,7 @@ export const data: Record<Accent, {
         subtitle: "Turning open-source development into a recognized, collaborative, and financially sustainable pursuit.",
         description: "Turning open-source development into a recognized, collaborative, and financially sustainable pursuit.",
         howTo: <motion.div className="space-y-3">
-            In CascadeFund collaboration is done using todo tasks.
+            In Ara collaboration is done using todo tasks.
             <ul className="space-y-3 mt-2">
                 <li>🔌 Todo Tasks are automatically generated after certain user actions. 😌 You don't have to create them yourself.</li>
                 <li>🎮 Web pages show these tasks inside an interactive mini-player.</li>
@@ -162,7 +162,7 @@ export interface SocialLink {
 
 export const socialLinks: Record<SocialLinkType, SocialLink> = {
     github: {
-        url: 'https://github.com/ara-foundation/cascadefund-frontend',
+        url: 'https://github.com/ara-foundation/app',
         type: 'github',
         useCustomIcon: false,
     },

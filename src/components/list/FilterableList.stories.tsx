@@ -158,12 +158,12 @@ const sampleIssues: Issue[] = [
         categoryId: ''
     },
     {
-        uri: 'https://cascadefund.org/issues/custom',
+        uri: 'https://app.ara.foundation/issues/custom',
         number: 'Other',
         title: 'Custom issue or enhancement',
         description: 'Describe your own contribution',
         type: 'custom',
-        storage: 'cascadefund',
+        storage: 'arada-',
         author: {
             uri: '',
             children: '',

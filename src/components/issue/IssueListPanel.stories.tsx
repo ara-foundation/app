@@ -88,7 +88,7 @@ export const WithMultipleAuthors: Story = {
                         title: "Fix responsive layout on tablet devices",
                         description: "The dashboard layout breaks on iPad and other tablet devices in landscape orientation. Elements overlap and some controls become inaccessible.",
                         type: 'bug' as IssueType,
-                        storage: 'cascadefund' as IssueStorage,
+                        storage: 'arada-' as IssueStorage,
                         author: {
                             uri: '/profile/serkan',
                             name: 'Serkan Bulgurcu',
@@ -110,7 +110,7 @@ export const WithMultipleAuthors: Story = {
                         title: "Data export feature crashes with large datasets",
                         description: "When attempting to export data sets larger than 10,000 records, the application crashes. We need to implement pagination or streaming.",
                         type: 'wish' as IssueType,
-                        storage: 'cascadefund' as IssueStorage,
+                        storage: 'arada-' as IssueStorage,
                         author: [
                             {
                                 uri: '/profile/alex',
@@ -146,7 +146,7 @@ export const WithMultipleAuthors: Story = {
                         title: "Implement dark mode theme",
                         description: "Users have requested a dark mode option for better accessibility and reduced eye strain during night usage.",
                         type: 'feature' as IssueType,
-                        storage: 'cascadefund' as IssueStorage,
+                        storage: 'arada-' as IssueStorage,
                         author: [
                             {
                                 uri: '/profile/sarah',
@@ -227,7 +227,7 @@ export const LoadingState: Story = {
                     title: '',
                     description: '',
                     type: 'bug' as const,
-                    storage: 'cascadefund' as const,
+                    storage: 'arada-' as const,
                     projectId: '',
                     categoryId: '',
                     createdTime: ''

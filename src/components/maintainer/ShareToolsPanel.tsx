@@ -18,7 +18,7 @@ const mapEmojiToIconType = (emoji: string): IconType => {
 
 const ShareTools: React.FC = () => {
   const [copied, setCopied] = useState(false)
-  const badgeCode = '[CascadeFund](https://cascadefund.org/badge/)'
+  const badgeCode = '[Ara](https://app.ara.foundation/badge/)'
 
   const handleCopy = async () => {
     try {
@@ -57,7 +57,7 @@ const ShareTools: React.FC = () => {
         className="mb-4 dark:bg-transparent bg-transparent"
       >
         <p className='text-gray-600 dark:text-gray-500 text-md'>
-          This share link and copy button let you quickly add a CascadeFund badge to your README.
+          This share link and copy button let you quickly add an Ara badge to your README.
           The badge helps visitors interact with you, and donate directly to your project,
           while you focus on your project.
         </p>

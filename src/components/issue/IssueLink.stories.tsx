@@ -40,7 +40,7 @@ const meta: Meta<typeof IssueLink> = {
         },
         storage: {
             control: 'select',
-            options: ['github', 'cascadefund'] as IssueStorage[],
+            options: ['github', 'arada-'] as IssueStorage[],
             description: 'The storage platform for the issue'
         },
         authorId: {
@@ -185,14 +185,14 @@ export const WithStats: Story = {
 }
 
 // Cascadefund issue
-export const CascadefundIssue: Story = {
+export const AraIssue: Story = {
     args: {
-        uri: '/cascadefund/issues/404',
+        uri: '/arada-/issues/404',
         number: '#404',
         title: 'Create funding proposal system',
         description: 'Build a comprehensive system for creating and managing funding proposals',
         type: 'feature',
-        storage: 'cascadefund',
+        storage: 'arada-',
         projectId: 'proj456',
         categoryId: 'cat789',
         stats: {
@@ -482,12 +482,12 @@ export const AuthorShowcase: Story = {
             <div>
                 <h3 className="text-lg font-semibold mb-2">Cascadefund Author</h3>
                 <IssueLink
-                    uri="/cascadefund/issues/104"
+                    uri="/arada-/issues/104"
                     number="#104"
                     title="Cascadefund issue with author"
                     description="This shows a Cascadefund issue with author information"
                     type="improvement"
-                    storage="cascadefund"
+                    storage="arada-"
                     author={{
                         uri: 'https://github.com/cascadefunduser',
                         name: 'Cascade User',
@@ -705,12 +705,12 @@ export const MultipleIssues: Story = {
                 }}
             />
             <IssueLink
-                uri="/cascadefund/issues/103"
+                uri="/arada-/issues/103"
                 number="#103"
                 title="Optimize database performance"
                 description="Improve query performance for better user experience"
                 type="improvement"
-                storage="cascadefund"
+                storage="arada-"
                 author={{
                     uri: 'https://github.com/user123',
                     name: 'John Doe',
@@ -871,12 +871,12 @@ export const ActionsShowcase: Story = {
             <div>
                 <h3 className="text-lg font-semibold mb-2">Cascadefund Issue with Actions</h3>
                 <IssueLink
-                    uri="/cascadefund/issues/904"
+                    uri="/arada-/issues/904"
                     number="#904"
                     title="Cascadefund issue with actions"
                     description="This shows a Cascadefund issue with action buttons"
                     type="improvement"
-                    storage="cascadefund"
+                    storage="arada-"
                     projectId="proj456"
                     categoryId="cat789"
                     actions={[

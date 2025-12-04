@@ -95,7 +95,7 @@ const ContentArea: React.FC<Props> = ({ title = 'Issues', draggable = false, fil
       title: "Fix responsive layout on tablet devices",
       description: "The dashboard layout breaks on iPad and other tablet devices in landscape orientation. Elements overlap and some controls become inaccessible.",
       type: 'bug',
-      storage: 'cascadefund',
+      storage: 'arada-',
       author: {
         uri: '/profile/serkan',
         name: 'Serkan Bulgurcu',
@@ -130,7 +130,7 @@ const ContentArea: React.FC<Props> = ({ title = 'Issues', draggable = false, fil
       title: "Data export feature crashes with large datasets",
       description: "When attempting to export data sets larger than 10,000 records, the application crashes. We need to implement pagination or streaming.",
       type: 'wish',
-      storage: 'cascadefund',
+      storage: 'arada-',
       author: {
         uri: '/profile/serkan',
         name: 'Serkan Bulgurcu',

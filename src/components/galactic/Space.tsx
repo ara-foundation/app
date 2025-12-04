@@ -202,7 +202,7 @@ const SpaceContent: React.FC<SpaceProps> = ({ users: initialUsers, className = '
             issuesActive={user.issuesActive}
             uri={user.uri}
             walletAddress={user.walletAddress || '0x1027298987234987234987234987234987234987'}
-            githubUrl={user.githubUrl || 'https://github.com/ara-foundation/cascadefund-frontend'}
+            githubUrl={user.githubUrl || 'https://github.com/ara-foundation/app'}
             linkedinUrl={user.linkedinUrl || 'https://www.linkedin.com/in/ara-foundation/'}
             tags={user.tags}
             draggable={user.draggable}

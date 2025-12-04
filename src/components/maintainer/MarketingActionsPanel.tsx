@@ -36,7 +36,7 @@ const CallToAction: React.FC = () => {
       </div>
 
       <p className="text-xs text-gray-500 mt-4 text-center">
-        Guests to help marketing will be prepared in the upcoming versions. If you want to help, become the CascadeFund influencer for the best.
+        Guests to help marketing will be prepared in the upcoming versions. If you want to help, become the Ara influencer for the best.
       </p>
     </PageLikePanel>
   )

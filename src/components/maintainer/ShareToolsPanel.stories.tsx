@@ -54,7 +54,7 @@ export const GoalCard: Story = {
                 title="Goal: Onboard Users & Contributors"
                 className="mb-4"
             >
-                This marketing tool is not only about when people know about it. The link to your page reviews, tell to people about your project, and configuration goes on the CascadeFund.
+                This marketing tool is not only about when people know about it. The link to your page reviews, tell to people about your project, and configuration goes on Ara.
             </InfoPanel>
         </PageLikePanel>
     ),
@@ -81,7 +81,7 @@ export const CardWithButton: Story = {
                     } as ActionProps
                 ]}
             >
-                The 'Issues and support moved to CascadeFund' Description: Hey, my time is scarce, for providing the best support, I moved to CascadeFund where I will help them. Sign up.
+                The 'Issues and support moved to Ara' Description: Hey, my time is scarce, for providing the best support, I moved to Ara where I will help them. Sign up.
             </InfoPanel>
         </PageLikePanel>
     ),
@@ -109,7 +109,7 @@ export const CardWithLink: Story = {
                 ]}
             >
                 <div className="text-xs text-blue-600 bg-blue-50 p-2 rounded mb-2 font-mono">
-                    [CascadeFund](https://badge.cascadefund.io/project/)
+                    [Ara](https://badge.app.ara.foundation/project/)
                 </div>
             </InfoPanel>
         </PageLikePanel>
@@ -133,12 +133,12 @@ export const CardWithBothLinkAndButton: Story = {
                 actions={[
                     {
                         children: '📋',
-                        uri: 'https://cascadefund.org/donate/reflect',
+                        uri: 'https://app.ara.foundation/donate/reflect',
                         variant: 'default'
                     } as ActionProps
                 ]}
             >
-                Support us and influence the project on CascadeFund.
+                Support us and influence the project on Ara.
             </InfoPanel>
         </PageLikePanel>
     ),

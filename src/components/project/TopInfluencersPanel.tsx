@@ -35,7 +35,7 @@ const TopInfluencers: React.FC = () => {
 
       <div className="mt-6 p-4 bg-purple-50 rounded-lg">
         <blockquote className="text-sm italic text-gray-700">
-          "CascadeFund makes me feel like my voice actually shapes the tools I use every day."
+          "Ara makes me feel like my voice actually shapes the tools I use every day."
         </blockquote>
         <cite className="text-xs text-gray-500 mt-2 block text-right">— Backer testimonial</cite>
       </div>

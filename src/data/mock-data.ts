@@ -262,7 +262,7 @@ export const mockTopGalaxies: GalaxyData[] = [
   {
     id: 'hyperpayment',
     name: 'Hyperpayment',
-    description: 'A protocol and its implementation to transfer a resource between arbitrary amount parties. Used for example in the CascadeFund to distribute donations',
+    description: 'A protocol and its implementation to transfer a resource between arbitrary amount parties. Used for example in Ara to distribute donations',
     stars: 3456.7,
     sunshines: 125000,
     users: 234,
@@ -284,9 +284,9 @@ export const mockTopGalaxies: GalaxyData[] = [
     tags: ['TypeScript', 'JavaScript', 'Library', 'Reflection', 'Meta'],
   },
   {
-    id: 'cascadefund-app',
-    name: 'CascadeFund App',
-    description: 'The frontend application for CascadeFund platform',
+    id: 'ara-app',
+    name: 'Ara App',
+    description: 'The frontend application for Ara platform',
     stars: 2156.2,
     sunshines: 87000,
     users: 156,

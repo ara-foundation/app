@@ -96,7 +96,7 @@ const NavigationArrow: React.FC<NavigationArrowProps> = ({
             if (progress < 1) {
                 requestAnimationFrame(animate);
             } else {
-                // Navigate to CascadeFund
+                // Navigate to Ara
                 if (onNavigate) {
                     onNavigate();
                 } else {
@@ -110,7 +110,7 @@ const NavigationArrow: React.FC<NavigationArrowProps> = ({
 
     return (
         <div className="absolute top-0 left-1/2 transform -translate-x-1/2 z-50">
-            <Tooltip content="Go to the Center of the Universe, the CascadeFund">
+            <Tooltip content="Go to the Center of the Universe, Ara">
                 <Button
                     variant="secondary"
                     onClick={handleClick}

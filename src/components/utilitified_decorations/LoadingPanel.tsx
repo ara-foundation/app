@@ -30,7 +30,7 @@ const AuthSuccessCard: React.FC<SectionProps & { gotoLink?: string, gotoLabel?: 
         {children}
 
         <p className="text-sm text-gray-500">
-          You will be redirected to the CascadeFund alpha version shortly
+          You will be redirected to the Ara alpha version shortly
         </p>
         <p>
           {

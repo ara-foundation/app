@@ -18,7 +18,7 @@ import TwoColumnGrid from "@/components/grid/TwoColumnGrid.astro";
 import PageLikePanel from "@/components/panel/PageLikePanel";
 
 const heroSection = {
-  title: "How CascadeFund Works",
+  title: "How Ara Works",
   actions: [{ variant: "green", children: "Getting Started", href: "/login/" }],
   bg: {
     sectionBgType: BgType.purpleToTealViaBlue,
@@ -85,7 +85,7 @@ const steps: (NumeratedInfoProps & { id: string })[] = [
   {
     id: "4",
     number: 4,
-    title: "CascadeFund analyzes repo — creates quests",
+    title: "Ara analyzes repo — creates quests",
     description:
       "Platform analyzes the repository and creates meaningful quests and contribution opportunities.",
     icon: "search",
@@ -196,7 +196,7 @@ const scenarios: Scenario[] = [
 ];
 ---
 
-<V2Layout active={ItemName.HowItWork} subtitle="How does CascadeFund work?">
+<V2Layout active={ItemName.HowItWork} subtitle="How does Ara work?">
   <HeroSection {...heroSection}>
     A story of Maintainers, Contributors, and Influencers working together.
     <div class="mb-12">
@@ -409,7 +409,7 @@ const scenarios: Scenario[] = [
   </Section>
 
   <Section
-    title="Ready to Join the CascadeFund Ecosystem?"
+    title="Ready to Join the Ara Ecosystem?"
     bg={{ sectionBgType: BgType.redToPurpleViaLime, overlay: "circles" }}
     actions={[
       {

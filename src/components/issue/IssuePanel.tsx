@@ -36,7 +36,7 @@ const IssueContentPanel: React.FC<IssueContentPanelProps> = ({
 }) => {
   // Check if this is a rating issue (has voting power > 0)
   const votingPower = issue.stats?.['voting-power']?.children
-  const isRatingIssue = issue.storage === 'cascadefund' && votingPower && Number(votingPower) > 0
+  const isRatingIssue = issue.storage === 'arada-' && votingPower && Number(votingPower) > 0
 
   // State management for editable content
   const [value, setValue] = useState<Record<string, any>>({
@@ -141,7 +141,7 @@ const IssueContentPanel: React.FC<IssueContentPanelProps> = ({
       <div className="flex items-start space-x-4">
         {/* Left column: Issue badge and actions */}
         <div className="w-16 overflow-hidden flex flex-col space-y-2 items-center">
-          <Link uri={issue.uri} asNewTab={issue.storage !== 'cascadefund'}>
+          <Link uri={issue.uri} asNewTab={issue.storage !== 'arada-'}>
             <Badge variant='info' static={true}>
               <div className="flex items-center space-x-1">
                 {getIcon(issue.storage as IconType || 'github')}
@@ -183,8 +183,8 @@ const IssueContentPanel: React.FC<IssueContentPanelProps> = ({
                   {editable && <EditableBadge showEditBar={showEditBar} setShowEditBar={setShowEditBar} />}
                 </h1>
               </Tooltip>
-              {/* Voting power badge for cascadefund storage */}
-              {issue.storage === 'cascadefund' && (
+              {/* Voting power badge for arada- storage */}
+              {issue.storage === 'arada-' && (
                 <Badge variant={isRatingIssue ? 'success' : 'gray'} static={true}>
                   {isRatingIssue ? 'Rating Issue' : 'Non-Rating Issue'}
                 </Badge>
@@ -274,7 +274,7 @@ const IssueContentPanel: React.FC<IssueContentPanelProps> = ({
           )}
 
           {/* Footer with actions and stats */}
-          {(issue.stats || preparedActions.length > 0 || (issue.storage === 'cascadefund')) && (
+          {(issue.stats || preparedActions.length > 0 || (issue.storage === 'arada-')) && (
             <PanelFooter className='flex flex-row justify-between items-center mt-2'>
               <div className="flex items-center gap-2">
                 {preparedActions.length > 0 && <PanelAction className='' actions={preparedActions} />}
