@@ -86,6 +86,7 @@ export type IconType =
   | 'revert'
   | 'lock'
   | 'trophy'
+  | 'mekga'
 
 export type IconProps = {
   iconType: IconType
@@ -454,6 +455,14 @@ export const getIcon = (props: IconProps | IconType): React.ReactNode => {
     case 'trophy': return (
       <svg className={`${className} text-yellow-500 dark:text-yellow-400/60 hover:text-yellow-500/80 dark:hover:text-yellow-400/80 transition-all duration-100`} fill="currentColor" viewBox="0 0 24 24">
         <path d="M19 5h-2V3H7v2H5c-1.1 0-2 .9-2 2v1c0 2.55 1.92 4.63 4.39 4.94.63 1.5 1.98 2.63 3.61 2.96V19H7v2h10v-2h-4v-3.1c1.63-.33 2.98-1.46 3.61-2.96C19.08 12.63 21 10.55 21 8V7c0-1.1-.9-2-2-2zM5 8V7h2v3.82C5.84 10.4 5 9.3 5 8zm14 0c0 1.3-.84 2.4-2 2.82V7h2v1z" />
+      </svg>
+    )
+    case 'mekga': return (
+      <svg className={`${className} text-blue-500 dark:text-blue-400`} fill="currentColor" viewBox="0 0 24 24">
+        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="currentColor" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+        <circle cx="12" cy="7" r="1.5" fill="currentColor" />
+        <circle cx="12" cy="12" r="1.5" fill="currentColor" />
+        <circle cx="12" cy="17" r="1.5" fill="currentColor" />
       </svg>
     )
     default:

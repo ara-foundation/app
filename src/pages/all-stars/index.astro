@@ -1,0 +1,84 @@
+---
+import GalaxyLayout from "@/layouts/GalaxyLayout.astro";
+import { MenuName } from "@/components/navbar/WorkNavbar.astro";
+
+import UniverseHero from "@/components/galactic/UniverseHero";
+import AllStarsLeaderboardPanel from "@/components/galactic/AllStarsLeaderboardPanel";
+import AllStarsLeaderboardTabs from "@/components/galactic/AllStarsLeaderboardTabs";
+import GalaxyView from "@/components/galactic/GalaxyView";
+import NavigationArrow from "@/components/galactic/NavigationArrow";
+import UniverseResearchPanel from "@/components/galactic/UniverseResearchPanel";
+import { 
+  mockUniverseStats, 
+  mockContestData, 
+  mockTopGalaxies, 
+  mockTopLibraries,
+  type GalaxyData 
+} from "@/data/mock-data";
+
+// Read galaxy query parameter
+const galaxyId = Astro.url.searchParams.get("galaxy");
+const selectedGalaxy = galaxyId 
+  ? mockTopGalaxies.find(g => g.id === galaxyId) 
+  : null;
+
+// Get current user's starsunshines (for demo, using 0 to show locked state)
+const currentStarsunshines = 0;
+---
+
+<GalaxyLayout
+  active={MenuName.ProjectList}
+  hideLinks={Object.keys(MenuName)}
+  projectName="CascadeFund Universe"
+>
+
+  {!selectedGalaxy && (
+    <UniverseHero
+      slot="center"
+      client:only="react"
+      totalGalaxies={mockUniverseStats.totalGalaxies}
+      totalStars={mockUniverseStats.totalStars}
+      totalUsers={mockUniverseStats.totalUsers}
+    />
+  )}
+
+  {selectedGalaxy && (
+    <GalaxyView
+      slot="center"
+      client:only="react"
+      galaxy={selectedGalaxy}
+    />
+  )}
+
+  <AllStarsLeaderboardPanel
+    slot="right"
+    client:only="react"
+    prizePool={mockContestData.prizePool}
+    contestFromDate={mockContestData.fromDate}
+    contestToDate={mockContestData.toDate}
+    contestDescription={mockContestData.description}
+    leaderboardPosition={5}
+  />
+
+  {selectedGalaxy && (
+    <NavigationArrow 
+      client:only="react"
+      distance={1000}
+      onNavigate={() => {
+        window.location.href = '/all-stars';
+      }}
+    />
+  )}
+
+  <AllStarsLeaderboardTabs
+    client:only="react"
+    topGalaxies={mockTopGalaxies}
+    topLibraries={mockTopLibraries}
+  />
+
+  <UniverseResearchPanel
+    client:only="react"
+    starsunshines={currentStarsunshines}
+  />
+</GalaxyLayout>
+

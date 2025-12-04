@@ -212,3 +212,104 @@ export const mockUserStars: UserStarData[] = [
     uri: '/data/profile?nickname=MariaGarcia'
   }
 ];
+
+export interface UniverseStats {
+  totalGalaxies: number;
+  totalStars: number;
+  totalUsers: number;
+}
+
+export interface GalaxyData {
+  id: string;
+  name: string;
+  description: string;
+  stars: number;
+  sunshines: number;
+  users: number;
+  donationAmount: number;
+}
+
+export interface ContestData {
+  prizePool: number;
+  fromDate: Date;
+  toDate: Date;
+  description: string;
+}
+
+export interface LibraryData {
+  id: string;
+  name: string;
+  dependsOn: number; // Number of projects using this library
+}
+
+export const mockUniverseStats: UniverseStats = {
+  totalGalaxies: 1247,
+  totalStars: 45678.5,
+  totalUsers: 8923,
+};
+
+export const mockContestData: ContestData = {
+  prizePool: 125000,
+  fromDate: new Date('2024-12-01'),
+  toDate: new Date('2025-01-01'),
+  description: '5% of the funds from 1st december to 1st january. The funds is given to the 1/100 of the top star gained galaxy. It includes all users, contributors and maintainers receiving equivalent to their earned stars',
+};
+
+export const mockTopGalaxies: GalaxyData[] = [
+  {
+    id: 'hyperpayment',
+    name: 'Hyperpayment',
+    description: 'A protocol and its implementation to transfer a resource between arbitrary amount parties. Used for example in the CascadeFund to distribute donations',
+    stars: 3456.7,
+    sunshines: 125000,
+    users: 234,
+    donationAmount: 450000,
+  },
+  {
+    id: 'reflect',
+    name: 'Reflect',
+    description: 'A modern reflection library for TypeScript and JavaScript',
+    stars: 2890.3,
+    sunshines: 98000,
+    users: 189,
+    donationAmount: 320000,
+  },
+  {
+    id: 'cascadefund-app',
+    name: 'CascadeFund App',
+    description: 'The frontend application for CascadeFund platform',
+    stars: 2156.2,
+    sunshines: 87000,
+    users: 156,
+    donationAmount: 280000,
+  },
+  {
+    id: 'blockchain-verify',
+    name: 'Blockchain Verification Tool',
+    description: 'An open-source tool for verifying software components on the blockchain',
+    stars: 1890.5,
+    sunshines: 76000,
+    users: 142,
+    donationAmount: 240000,
+  },
+  {
+    id: 'galaxy-engine',
+    name: 'Galaxy Engine',
+    description: 'A rendering engine for creating beautiful galaxy visualizations',
+    stars: 1678.9,
+    sunshines: 65000,
+    users: 128,
+    donationAmount: 210000,
+  },
+];
+
+export const mockTopLibraries: LibraryData[] = [
+  { id: 'react', name: 'React', dependsOn: 892 },
+  { id: 'typescript', name: 'TypeScript', dependsOn: 756 },
+  { id: 'astro', name: 'Astro', dependsOn: 623 },
+  { id: 'tailwindcss', name: 'Tailwind CSS', dependsOn: 589 },
+  { id: 'nodejs', name: 'Node.js', dependsOn: 534 },
+  { id: 'express', name: 'Express', dependsOn: 478 },
+  { id: 'nextjs', name: 'Next.js', dependsOn: 445 },
+  { id: 'vue', name: 'Vue.js', dependsOn: 412 },
+];
