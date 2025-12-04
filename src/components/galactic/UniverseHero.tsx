@@ -2,7 +2,6 @@ import React from 'react';
 import BlurText from '@/components/BlurText';
 import { getIcon } from '@/components/icon';
 import NumberFlow from '@number-flow/react';
-import Link from '../custom-ui/Link';
 
 interface UniverseHeroProps {
     totalGalaxies: number;
@@ -15,8 +14,6 @@ const UniverseHero: React.FC<UniverseHeroProps> = ({
     totalStars,
     totalUsers,
 }) => {
-    const araDescription = "Ara is an attempt to connect people directly with open-source developers, bypassing the giants that lock everything down. For three years, we worked on Ara. The culmination of all that work became CascadeFund. If Ara was the dream, CascadeFund is the tool that makes it practical.";
-
     return (
         <div className="flex flex-col items-center justify-center min-h-[60vh] text-center space-y-8 px-4">
             {/* CascadeFund Title with Blur Text Animation */}
@@ -73,10 +70,11 @@ const UniverseHero: React.FC<UniverseHeroProps> = ({
                 </div>
             </div>
 
-            {/* Ara Description */}
-            <div className="w-full max-w-2xl">
+            <div className="w-full max-w-4xl">
                 <p className="text-lg md:text-xl text-slate-600 dark:text-slate-400 leading-relaxed">
-                    {araDescription}
+                    This is the All Stars. <br />
+                    The galactic universe of the open-source projects.<br />
+                    Donate, collaborate, and become the owner of the project.
                 </p>
             </div>
         </div>
