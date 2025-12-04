@@ -18,7 +18,7 @@ const UniverseHero: React.FC<UniverseHeroProps> = ({
         <div className="flex flex-col items-center justify-center min-h-[60vh] text-center space-y-8 px-4">
             {/* Ara Title with Blur Text Animation */}
             <div className="w-full max-w-4xl relative">
-                {getIcon({ iconType: 'ara', className: 'w-26 h-26 text-blue-500 absolute top-0 left-10' })}
+                {getIcon({ iconType: 'ara', className: 'w-26 h-26 text-blue-500 absolute top-0 left-1/2 -translate-x-48' })}
                 <BlurText
                     text="Ara"
                     className="text-6xl md:text-7xl lg:text-8xl font-bold text-slate-800 dark:text-slate-200 justify-center "

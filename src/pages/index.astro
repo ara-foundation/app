@@ -3,14 +3,12 @@ import PanelViewLayout from "@/layouts/PanelViewLayout.astro";
 import PageLikePanel from "@/components/panel/PageLikePanel";
 import Link from "@/components/custom-ui/Link";
 import { MenuName } from "@/components/navbar/WorkNavbar.astro";
+
+return Astro.redirect("/all-stars");
 ---
 
 <PanelViewLayout hideLinks={Object.keys(MenuName)} hideAuth={true}>
-  <PageLikePanel
-    slot="center"
-    title="Welcome to Ara"
-    titleCenter={true}
-  >
+  <PageLikePanel slot="center" title="Welcome to Ara" titleCenter={true}>
     <div class="text-center space-y-2 mt-8">
       <Link
         uri="/login/callback"
