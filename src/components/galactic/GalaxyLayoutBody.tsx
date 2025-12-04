@@ -27,6 +27,18 @@ const GalaxyZoomWrapper: React.FC<GalaxyZoomWrapperProps> = ({
   const [showDialog, setShowDialog] = useState(false);
   const hasShownDialogRef = useRef(false);
   const [virtualScreenSize, setVirtualScreenSize] = useState({ width: window.innerWidth, height: window.innerHeight });
+  const [isAllStarsPage, setIsAllStarsPage] = useState(false);
+
+  // Check if we're on the all-stars page
+  useEffect(() => {
+    const checkPath = () => {
+      setIsAllStarsPage(window.location.pathname.includes('/all-stars'));
+    };
+    checkPath();
+    // Listen for navigation changes
+    window.addEventListener('popstate', checkPath);
+    return () => window.removeEventListener('popstate', checkPath);
+  }, []);
 
 
   // Initialize viewport size and virtual screen size
@@ -66,7 +78,8 @@ const GalaxyZoomWrapper: React.FC<GalaxyZoomWrapperProps> = ({
   }, [zoom]);
 
   useEffect(() => {
-    if (zoom <= minZoom && !hasShownDialogRef.current) {
+    // Don't show dialog on all-stars page (can't navigate to itself)
+    if (zoom <= minZoom && !hasShownDialogRef.current && !isAllStarsPage) {
       setShowDialog(true);
       hasShownDialogRef.current = true;
     } else if (zoom > minZoom) {
@@ -184,8 +197,8 @@ const GalaxyZoomWrapper: React.FC<GalaxyZoomWrapperProps> = ({
         maxZoom={maxZoom}
       />
 
-      {/* All Stars Link - Not scaled, always at 100% */}
-      <AllStarsLink projectId={projectId} />
+      {/* All Stars Link - Not scaled, always at 100% - Hidden on all-stars page */}
+      {!isAllStarsPage && <AllStarsLink projectId={projectId} />}
 
       {/* Navigation Dialog - Not scaled, always at 100% */}
       <GalaxyNavigationDialog

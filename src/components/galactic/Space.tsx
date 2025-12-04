@@ -2,7 +2,9 @@ import React, { useEffect, useRef, useState } from 'react'
 import { DndProvider, useDrop } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 import UserStar from './UserStar'
+import ProjectGalaxy from './ProjectGalaxy'
 import { cn } from '@/lib/utils'
+import { GalaxyData } from '@/data/mock-data'
 
 export interface UserStarData {
   x: number
@@ -28,9 +30,23 @@ export interface UserStarData {
 interface SpaceProps {
   users: UserStarData[]
   className?: string
+  projectGalaxy?: {
+    x: number
+    y: number
+    projectName: string
+    projectId?: string
+    galaxyData?: GalaxyData
+  }
+  projectGalaxies?: Array<{
+    x: number
+    y: number
+    projectName: string
+    projectId?: string
+    galaxyData?: GalaxyData
+  }>
 }
 
-const SpaceContent: React.FC<SpaceProps> = ({ users: initialUsers, className = '' }) => {
+const SpaceContent: React.FC<SpaceProps> = ({ users: initialUsers, className = '', projectGalaxy, projectGalaxies }) => {
   const containerRef = useRef<HTMLDivElement>(null)
   const [initialViewport, setInitialViewport] = useState({ width: 0, height: 0 })
   const [users, setUsers] = useState<UserStarData[]>(initialUsers)
@@ -196,6 +212,28 @@ const SpaceContent: React.FC<SpaceProps> = ({ users: initialUsers, className = '
             tags={user.tags}
             draggable={user.draggable}
             animationDelay={index * 0.5} // Orchestrate: stagger each star's animation by 0.5s
+          />
+        </div>
+      ))}
+      {projectGalaxy && (
+        <div style={{ pointerEvents: 'auto' }}>
+          <ProjectGalaxy
+            x={projectGalaxy.x}
+            y={projectGalaxy.y}
+            projectName={projectGalaxy.projectName}
+            projectId={projectGalaxy.projectId}
+            galaxyData={projectGalaxy.galaxyData}
+          />
+        </div>
+      )}
+      {projectGalaxies && projectGalaxies.map((galaxy, index) => (
+        <div key={`galaxy-${galaxy.projectName}-${index}`} style={{ pointerEvents: 'auto' }}>
+          <ProjectGalaxy
+            x={galaxy.x}
+            y={galaxy.y}
+            projectName={galaxy.projectName}
+            projectId={galaxy.projectId}
+            galaxyData={galaxy.galaxyData}
           />
         </div>
       ))}

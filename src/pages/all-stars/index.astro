@@ -6,8 +6,8 @@ import UniverseHero from "@/components/galactic/UniverseHero";
 import AllStarsLeaderboardPanel from "@/components/galactic/AllStarsLeaderboardPanel";
 import AllStarsLeaderboardTabs from "@/components/galactic/AllStarsLeaderboardTabs";
 import GalaxyView from "@/components/galactic/GalaxyView";
-import NavigationArrow from "@/components/galactic/NavigationArrow";
 import UniverseResearchPanel from "@/components/galactic/UniverseResearchPanel";
+import GalaxyAutoZoom from "@/components/galactic/GalaxyAutoZoom";
 import {
   mockUniverseStats,
   mockContestData,
@@ -24,12 +24,24 @@ const selectedGalaxy = galaxyId
 
 // Get current user's starsunshines (for demo, using 0 to show locked state)
 const currentStarsunshines = 0;
+
+// Prepare all galaxies for display in the virtual screen
+const allGalaxies = mockTopGalaxies.map((galaxy) => ({
+  x: galaxy.x,
+  y: galaxy.y,
+  projectName: galaxy.name,
+  projectId: galaxy.id,
+  galaxyData: galaxy,
+}));
 ---
 
 <GalaxyLayout
   active={MenuName.ProjectList}
   hideLinks={Object.keys(MenuName)}
   projectName="CascadeFund Universe"
+  projectX={selectedGalaxy?.x}
+  projectY={selectedGalaxy?.y}
+  projectGalaxies={allGalaxies}
 >
   {
     !selectedGalaxy && (
@@ -59,18 +71,6 @@ const currentStarsunshines = 0;
     leaderboardPosition={5}
   />
 
-  {
-    selectedGalaxy && (
-      <NavigationArrow
-        slot="header-navbar"
-        client:only="react"
-        onNavigate={() => {
-          window.location.href = "/all-stars";
-        }}
-      />
-    )
-  }
-
   <AllStarsLeaderboardTabs
     client:only="react"
     topGalaxies={mockTopGalaxies}
@@ -81,4 +81,14 @@ const currentStarsunshines = 0;
     client:only="react"
     starsunshines={currentStarsunshines}
   />
+
+  {
+    selectedGalaxy && (
+      <GalaxyAutoZoom
+        client:only="react"
+        galaxyX={selectedGalaxy.x}
+        galaxyY={selectedGalaxy.y}
+      />
+    )
+  }
 </GalaxyLayout>

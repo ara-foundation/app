@@ -227,6 +227,8 @@ export interface GalaxyData {
   sunshines: number;
   users: number;
   donationAmount: number;
+  x: number;
+  y: number;
 }
 
 export interface ContestData {
@@ -264,6 +266,8 @@ export const mockTopGalaxies: GalaxyData[] = [
     sunshines: 125000,
     users: 234,
     donationAmount: 450000,
+    x: 800,
+    y: 600,
   },
   {
     id: 'reflect',
@@ -273,6 +277,8 @@ export const mockTopGalaxies: GalaxyData[] = [
     sunshines: 98000,
     users: 189,
     donationAmount: 320000,
+    x: 1200,
+    y: 400,
   },
   {
     id: 'cascadefund-app',
@@ -282,6 +288,8 @@ export const mockTopGalaxies: GalaxyData[] = [
     sunshines: 87000,
     users: 156,
     donationAmount: 280000,
+    x: 600,
+    y: 800,
   },
   {
     id: 'blockchain-verify',
@@ -291,6 +299,8 @@ export const mockTopGalaxies: GalaxyData[] = [
     sunshines: 76000,
     users: 142,
     donationAmount: 240000,
+    x: 1000,
+    y: 200,
   },
   {
     id: 'galaxy-engine',
@@ -300,6 +310,8 @@ export const mockTopGalaxies: GalaxyData[] = [
     sunshines: 65000,
     users: 128,
     donationAmount: 210000,
+    x: 400,
+    y: 500,
   },
 ];
 
