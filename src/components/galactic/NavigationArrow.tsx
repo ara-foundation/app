@@ -27,7 +27,7 @@ const NavigationArrow: React.FC<NavigationArrowProps> = ({
     const getDefaultPositions = () => {
         if (typeof window === 'undefined') {
             return {
-                galaxy: { x: 0, y: 0 },
+                galaxy: { x: 100, y: 100 },
                 mekga: { x: 0, y: 0 },
             };
         }
@@ -44,7 +44,7 @@ const NavigationArrow: React.FC<NavigationArrowProps> = ({
         if (typeof window !== 'undefined') {
             return getDefaultPositions();
         }
-        return { galaxy: { x: 0, y: 0 }, mekga: { x: 0, y: 0 } };
+        return { galaxy: { x: 100, y: 100 }, mekga: { x: 0, y: 0 } };
     });
 
     // Update positions when window is available or props change

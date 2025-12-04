@@ -1,5 +1,4 @@
 import React, { useMemo } from 'react';
-import { getIcon } from '@/components/icon';
 
 interface CompassArrowProps {
     currentPosition: { x: number; y: number };
@@ -17,23 +16,60 @@ const CompassArrow: React.FC<CompassArrowProps> = ({
         const dx = targetPosition.x - currentPosition.x;
         const dy = targetPosition.y - currentPosition.y;
         // atan2 returns angle in radians, convert to degrees
-        // Add 90 degrees because arrow-right icon points right (0°), but we want it to point up (90°) as default
         const radians = Math.atan2(dy, dx);
         const degrees = (radians * 180) / Math.PI;
-        // Rotate so arrow points in the correct direction (arrow-right points right, we want it to point toward target)
         return degrees;
     }, [currentPosition, targetPosition]);
 
     return (
         <div
-            className={className}
+            className={`relative ${className}`}
             style={{
-                transform: `rotate(${angle}deg)`,
-                transformOrigin: 'center',
-                display: 'inline-block',
+                width: '20px',
+                height: '20px',
             }}
         >
-            {getIcon({ iconType: 'arrow-right', className: 'w-5 h-5 text-slate-600 dark:text-slate-400' })}
+            {/* Compass circle background */}
+            <div
+                className="absolute inset-0 rounded-full"
+                style={{
+                    backgroundColor: 'rgba(20, 184, 166, 0.2)', // teal-500 with 20% opacity
+                    border: '1px solid rgba(20, 184, 166, 0.6)', // teal-500 border
+                    boxShadow: '0 0 4px rgba(20, 184, 166, 0.4)',
+                }}
+            />
+
+            {/* Compass arrow (blue and red triangles) */}
+            <div
+                className="absolute inset-0 flex items-center justify-center"
+                style={{
+                    transform: `rotate(${angle}deg)`,
+                    transformOrigin: 'center',
+                }}
+            >
+                <svg
+                    width="50"
+                    height="50"
+                    viewBox="0 0 25 25"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                >
+                    {/* Red triangle pointing up (North) */}
+                    <path
+                        d="M12 2 L16 10 L12 8 L8 10 Z"
+                        fill="#ef4444"
+                        stroke="#dc2626"
+                        strokeWidth="0.5"
+                    />
+                    {/* Blue triangle pointing down (South) */}
+                    <path
+                        d="M12 22 L16 14 L12 16 L8 14 Z"
+                        fill="#3b82f6"
+                        stroke="#2563eb"
+                        strokeWidth="0.5"
+                    />
+                </svg>
+            </div>
         </div>
     );
 };
