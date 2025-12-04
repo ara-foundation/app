@@ -1,5 +1,5 @@
 import type { APIRoute } from 'astro'
-import { isWishlisted, joinWishlist } from '../scripts/db'
+import { isWishlisted, joinWishlist } from '../scripts/wishlist'
 import { sleep } from '../lib/utils'
 
 const secretKey = import.meta.env.TURNSTYLE_SECRET_KEY;

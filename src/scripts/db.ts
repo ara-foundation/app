@@ -1,4 +1,4 @@
-import { MongoClient, Db, Collection } from 'mongodb'
+import { MongoClient, Db, Collection, Filter, OptionalUnlessRequiredId } from 'mongodb'
 
 interface WishlistModel {
     _id?: any
@@ -67,33 +67,48 @@ async function getDb(): Promise<Db> {
     return db
 }
 
-async function getWishlistCollection(): Promise<Collection<WishlistModel>> {
+/**
+ * Get a collection for custom queries.
+ * Checkout the [Node MongoDB Docs](https://mongodb.github.io/node-mongodb-native/6.10/classes/Collection.html) 
+ * for using the collection.
+ * @param collectionName 
+ * @returns 
+ */
+export async function getCollection<ModelType extends object>(collectionName: string): Promise<Collection<ModelType>> {
     const database = await getDb()
-    return database.collection<WishlistModel>('wishlist')
+    return database.collection<ModelType>(collectionName)
 }
 
-export async function isWishlisted(email: string): Promise<boolean> {
+/**
+ * Check if a document exists in the collection
+ * @param collectionName 
+ * @param filter 
+ * @returns 
+ */
+export async function exists<ModelType extends object>(collectionName: string, filter: Filter<ModelType>): Promise<boolean> {
     try {
-        const collection = await getWishlistCollection()
-        const result = await collection.findOne({ email })
+        const collection = await getCollection<ModelType>(collectionName)
+        const result = await collection.findOne(filter)
         return result !== null
     } catch (error) {
-        console.error('Error checking if email is wishlisted:', error)
+        console.error('Error checking if document exists:', error)
         return false
     }
 }
 
-export async function joinWishlist(email: string): Promise<boolean> {
+/**
+ * Create a new document in the collection
+ * @param collectionName 
+ * @param document 
+ * @returns 
+ */
+export async function create<ModelType extends object>(collectionName: string, document: ModelType): Promise<boolean> {
     try {
-        const collection = await getWishlistCollection()
-        const wishlistEntry: WishlistModel = {
-            email,
-            time: Date.now()
-        }
-        await collection.insertOne(wishlistEntry)
+        const collection = await getCollection<ModelType>(collectionName)
+        await collection.insertOne(document as OptionalUnlessRequiredId<ModelType>)
         return true
     } catch (error) {
-        console.error('Error joining wishlist:', error)
+        console.error('Error creating document:', error)
         return false
     }
 }
