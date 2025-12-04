@@ -255,7 +255,7 @@ export const mockContestData: ContestData = {
   prizePool: 125000,
   fromDate: new Date('2025-12-01'),
   toDate: new Date('2027-01-01'),
-  description: '5% of the funds from 1st december to 1st january. The funds is given to the 1/100 of the top star gained galaxy. It includes all users, contributors and maintainers receiving equivalent to their earned stars',
+  description: 'Active, funded projects compete for 5% of donations pooled within the contest period. In the winning project it\'s shared by users, maintainers, and contributors according to their stars.',
 };
 
 export const mockTopGalaxies: GalaxyData[] = [

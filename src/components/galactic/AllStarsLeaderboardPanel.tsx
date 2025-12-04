@@ -13,6 +13,7 @@ interface AllStarsLeaderboardPanelProps {
     contestToDate?: Date;
     contestDescription?: string;
     leaderboardPosition?: number;
+    winProbability?: number; // Probability percentage (0-100)
 }
 
 const AllStarsLeaderboardPanel: React.FC<AllStarsLeaderboardPanelProps> = ({
@@ -21,6 +22,7 @@ const AllStarsLeaderboardPanel: React.FC<AllStarsLeaderboardPanelProps> = ({
     contestToDate,
     contestDescription,
     leaderboardPosition = 5,
+    winProbability = 1.5, // Default probability percentage
 }) => {
     const [currentTime, setCurrentTime] = useState(new Date());
 
@@ -83,6 +85,17 @@ const AllStarsLeaderboardPanel: React.FC<AllStarsLeaderboardPanelProps> = ({
     const description = contestDescription ||
         `5% of the funds from ${contestFromDate ? formatDate(contestFromDate) : '1st december'} to ${contestToDate ? formatDate(contestToDate) : '1st january'}. The funds is given to the 1/100 of the top star gained galaxy. It includes all users, contributors and maintainers receiving equivalent to their earned stars`;
 
+    const eligibilityTooltip = (
+        <div className="text-sm space-y-2 max-w-xs">
+            <ul className="list-disc list-inside space-y-1 text-xs">
+                <li>Open-source projects that obtained stars within the contest period.</li>
+                <li>Stars are given to the solved issues and merged pull requests.</li>
+                <li>But the issues must be with the sunshines that users get after donating to the project.</li>
+                <li>Winner is randomly picked at the end of the contest, from the top 100 galaxies by obtained stars.</li>
+            </ul>
+        </div>
+    );
+
     const howToEarnRewardTooltip = (
         <div className="text-sm space-y-3 max-w-xs">
             <div>
@@ -98,6 +111,12 @@ const AllStarsLeaderboardPanel: React.FC<AllStarsLeaderboardPanelProps> = ({
                     <li>Find the galaxy, by donating to the open-source project, obtain sunshines, then with the collaboration turn them into stars.</li>
                 </ul>
             </div>
+        </div>
+    );
+
+    const winProbabilityTooltip = (
+        <div className="text-sm max-w-xs">
+            <p>Calculated probability for you to win the contest if you join the project with 10 stars.</p>
         </div>
     );
 
@@ -127,7 +146,7 @@ const AllStarsLeaderboardPanel: React.FC<AllStarsLeaderboardPanelProps> = ({
                     {/* Title Section */}
                     <div className="flex items-center justify-center gap-2 mt-4">
                         <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-200">
-                            Universe Contest
+                            Open-source Galaxy Contest 1
                         </h3>
                         <Tooltip
                             content={
@@ -152,9 +171,6 @@ const AllStarsLeaderboardPanel: React.FC<AllStarsLeaderboardPanelProps> = ({
                             format={{ style: 'currency', currency: 'USD', maximumFractionDigits: 0 }}
                             className="text-2xl font-bold text-green-600 dark:text-green-400"
                         />
-                    </div>
-                    <div className="text-xs text-slate-500 dark:text-slate-500 mt-2">
-                        Pool is increasing
                     </div>
                 </div>
 
@@ -208,17 +224,35 @@ const AllStarsLeaderboardPanel: React.FC<AllStarsLeaderboardPanelProps> = ({
 
                 {/* Eligibility Section */}
                 <div className="w-full px-4 py-3 rounded-lg bg-white/5 dark:bg-slate-900/5 border border-slate-200/20 dark:border-slate-700/20">
-                    <div className="text-xs text-slate-600 dark:text-slate-400 mb-2">Eligibility</div>
-                    <p className="text-xs text-slate-700 dark:text-slate-300 leading-relaxed">
-                        Top 100 galaxies obtained stars within the contest period. Randomly picked 1 at the end.
-                    </p>
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                            <span className="text-xs text-slate-700 dark:text-slate-300 font-medium">
+                                Eligibility
+                            </span>
+                            <Tooltip content={eligibilityTooltip}>
+                                {getIcon({ iconType: 'info', className: 'w-4 h-4 text-slate-500 dark:text-slate-400' })}
+                            </Tooltip>
+                        </div>
+                        <Tooltip content={winProbabilityTooltip}>
+                            <div className="flex items-center gap-1 cursor-pointer">
+                                <span className="text-base">🍀</span>
+                                <span className="text-base">😊</span>
+                                <NumberFlow
+                                    value={winProbability / 100}
+                                    locales="en-US"
+                                    format={{ style: 'percent', minimumFractionDigits: 2, maximumFractionDigits: 2 }}
+                                    className="text-xs font-medium text-slate-700 dark:text-slate-300"
+                                />
+                            </div>
+                        </Tooltip>
+                    </div>
                 </div>
 
                 {/* How to Earn Reward Section */}
                 <div className="w-full px-4 py-3 rounded-lg bg-white/5 dark:bg-slate-900/5 border border-slate-200/20 dark:border-slate-700/20">
                     <div className="flex items-center justify-center gap-2">
                         <span className="text-xs text-slate-700 dark:text-slate-300 font-medium">
-                            How to earn reward?
+                            Anyone can join the contest
                         </span>
                         <Tooltip content={howToEarnRewardTooltip}>
                             {getIcon({ iconType: 'info', className: 'w-4 h-4 text-slate-500 dark:text-slate-400' })}
