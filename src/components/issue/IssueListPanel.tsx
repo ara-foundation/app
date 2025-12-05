@@ -174,7 +174,7 @@ const ContentArea: React.FC<Props> = ({ title = 'Issues', draggable = false, fil
 
   if (isLoading) {
     return (
-      <BasePanel className="max-w-6xl mx-auto">
+      <BasePanel className="max-w-6xl mx-auto max-h-[150vh] overflow-y-auto">
         <div className="text-center py-8">
           <p className="text-slate-600 dark:text-slate-400">Loading issues...</p>
         </div>
@@ -183,22 +183,34 @@ const ContentArea: React.FC<Props> = ({ title = 'Issues', draggable = false, fil
   }
 
   return (
-    <BasePanel className="max-w-6xl mx-auto">
-      {draggable && <p className='text-md text-gray-600 dark:text-gray-500 flex items-center gap-2'>
-        {getIcon('info')} Issues are draggable. Your dragging will highlight the drop targets.
-      </p>}
-      {!draggable && <p className='text-md mb-2 text-gray-600 dark:text-gray-500 flex items-center gap-2'>
-        {getIcon('lock')} Issues are closed and will never be back.
-      </p>}
-      {description && <p className='text-md text-gray-600 dark:text-gray-500'>
-        {description}
-      </p>}
+    <BasePanel className="max-w-6xl mx-auto max-h-[150vh] min-h-[50vh] overflow-y-auto">
+      {/* Title with shadow and bigger size */}
+      <div className="mb-4">
+        <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-200 text-center drop-shadow-lg">
+          {title}
+        </h2>
+      </div>
+
+      {/* Issues information moved under title */}
+      <div className="mb-4 space-y-2">
+        {draggable && <p className='text-md text-gray-600 dark:text-gray-500 flex items-center gap-2'>
+          {getIcon('info')} Issues are draggable. Your dragging will highlight the drop targets.
+        </p>}
+        {!draggable && <p className='text-md mb-2 text-gray-600 dark:text-gray-500 flex items-center gap-2'>
+          {getIcon('lock')} Issues are closed and will never be back.
+        </p>}
+        {description && <p className='text-md text-gray-600 dark:text-gray-500'>
+          {description}
+        </p>}
+      </div>
+
+      {/* FilterableList without title prop since we're showing it above */}
       <FilterableList
         className='mt-2'
         items={issues}
         itemComponent={draggable ? DraggableIssueLink : IssueLink}
-        title={title}
-        titleCenter={true}
+        title={undefined}
+        titleCenter={false}
         searchPlaceholder="Search issues..."
         searchableFields={['title', 'description']}
         filters={filerable ? filters : undefined}

@@ -46,7 +46,7 @@ const C: React.FC<Props> = ({ activeTab: initialTab, tabs, id }) => {
         </TabsList>
       </TabsHighlight>
       <TabsContents
-        className="bg-white dark:bg-slate-800 p-0 h-80 m-0"
+        className="bg-gray-50 dark:bg-slate-800/70 p-0 h-80 m-0 rounded-b-xl"
       >
         {tabs.map((tab) =>
           <TabsContent value={tab.key} className="space-y-4">
