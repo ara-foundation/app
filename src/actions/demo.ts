@@ -38,6 +38,7 @@ function generateRandomUser(role: Roles, index: number): UserModel {
         sunshines,
         stars: Math.round(stars * 100) / 100,
         role: role as Roles,
+        balance: 0,
     }
 }
 

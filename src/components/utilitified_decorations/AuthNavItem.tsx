@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import MenuAvatar from '@/components/MenuAvatar'
 import Button from '@/components/custom-ui/Button'
+import WalletBalance from '@/components/utilitified_decorations/WalletBalance'
 import { useDemoStart } from '@/hooks/use-demo-start'
 import DemoCongratulationsDialog from '@/components/project/DemoCongratulationsDialog'
 import { cn } from '@/lib/utils'
@@ -101,16 +102,18 @@ const AuthNavItem: React.FC<Props> = ({ className }) => {
   // If demo user exists, show MenuAvatar with demo user data
   if (demoUser) {
     return (
-      <MenuAvatar
-        className={cn(className)}
-        src={demoUser.src}
-        alt={demoUser.alt}
-        uri={demoUser.uri}
-        nickname={demoUser.nickname}
-        sunshines={demoUser.sunshines}
-        stars={demoUser.stars}
-        role={demoUser.role}
-      />
+      <div className={cn('flex items-center gap-2', className)}>
+        <MenuAvatar
+          src={demoUser.src}
+          alt={demoUser.alt}
+          uri={demoUser.uri}
+          nickname={demoUser.nickname}
+          sunshines={demoUser.sunshines}
+          stars={demoUser.stars}
+          role={demoUser.role}
+        />
+        <WalletBalance balance={demoUser.balance} />
+      </div>
     )
   }
 

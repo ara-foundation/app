@@ -6,11 +6,11 @@ import Tooltip from '../custom-ui/Tooltip'
 
 interface Props {
   className?: string
+  balance?: number
 }
 
-const WalletBalance: React.FC<Props> = ({ className }) => {
+const WalletBalance: React.FC<Props> = ({ className, balance = 0 }) => {
   return (
-
     <Tooltip
       content={
         <div className="text-sm">
@@ -21,10 +21,9 @@ const WalletBalance: React.FC<Props> = ({ className }) => {
       <div className={`flex items-center gap-2 ${className || ''}`}>
         <Link uri='/user/balance' className={`hover:bg-teal-300 bg-blue-200 dark:bg-blue-400 rounded-full h-6 w-6 flex items-center justify-center`}>
           {getIcon({ iconType: 'wallet', width: 'w-4', height: 'h-4', className: 'text-blue-700 dark:text-blue-900' })}
-
         </Link>
         <NumberFlow
-          value={0.00}
+          value={balance}
           locales="en-US"
           format={{ style: 'currency', currency: 'USD', maximumFractionDigits: 2 }}
           className="text-sm text-gray-700 dark:text-gray-300"

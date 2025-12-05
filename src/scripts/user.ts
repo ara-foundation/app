@@ -8,5 +8,6 @@ export interface UserModel {
     sunshines?: number
     stars?: number
     role?: Roles
+    balance?: number
 }
 
