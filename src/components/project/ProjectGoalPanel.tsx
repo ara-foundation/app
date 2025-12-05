@@ -1,7 +1,7 @@
 import React from 'react';
 import { getIcon } from '@/components/icon';
 import NumberFlow from '@number-flow/react';
-import { UserStarData } from '@/components/galactic/Space';
+import { UserStarData } from '@/components/cosmos/Space';
 import { cn } from '@/lib/utils';
 import Tooltip from '@/components/custom-ui/Tooltip';
 import GoalChart from './GoalChart';

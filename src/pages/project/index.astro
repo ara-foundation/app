@@ -10,7 +10,7 @@ import ProjectGoalPanel from "@/components/project/ProjectGoalPanel";
 // import ProjectPeople from "@/components/project/ProjectPeoplePanel";
 // import HighlightedInteraction from "@/components/project/HighlightedInteractionPanel";
 import BackButton from "@/components/custom-ui/BackButton";
-import AllStarsContest from "@/components/galactic/AllStarsContest";
+import AllStarsContest from "@/components/cosmos/AllStarsContest";
 import { mockUserStars } from "@/data/mock-data";
 
 // Place Mode: If the page is in place mode, the user can place their star on the web page.
@@ -68,9 +68,6 @@ const projectData: ProjectInfoProps = {
   actions: [],
   projectGoal: 1000,
 };
-
-// Generate project ID from title (lowercase, replace spaces with hyphens)
-const projectId = projectData.title.toLowerCase().replace(/\s+/g, "-");
 ---
 
 <GalaxyLayout
@@ -79,7 +76,7 @@ const projectId = projectData.title.toLowerCase().replace(/\s+/g, "-");
   projectName={projectData.title}
   stars={projectData.stars}
   projectGoal={projectData.projectGoal}
-  projectId={projectId}
+  projectId={galaxyId}
 >
   <AllStarsContest
     slot="header-navbar"
@@ -128,7 +125,7 @@ const projectId = projectData.title.toLowerCase().replace(/\s+/g, "-");
   <ProjectLandingHero
     slot="center"
     projectData={projectData}
-    projectUri="/project/issues"
+    projectUri={`/project/issues?galaxy=${projectId}`}
     githubUrl="https://github.com/ara-foundation/app"
     blockchainExplorerUrl="https://etherscan.io/address/0x1027298987234987234987234987234987234987"
     documentationUrl="https://docs.example.com"

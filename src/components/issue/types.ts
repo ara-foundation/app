@@ -28,7 +28,7 @@ export interface Issue {
     topVP?: number
     minVP?: number
 }
-// For influencer, to pick
+// For users, to pick
 // export interface Issue2 {
 //     uri: string
 //     title: string

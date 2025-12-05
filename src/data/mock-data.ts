@@ -1,5 +1,5 @@
 import { type Transaction } from '../types/transaction';
-import { type UserStarData } from '../components/galactic/Space';
+import { type UserStarData } from '../components/cosmos/Space';
 import { UserModel } from '@/scripts/user';
 
 export const mockUser: UserModel = {

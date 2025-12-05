@@ -15,7 +15,7 @@ import PanelAction from '../panel/PanelAction'
 import AvatarList from '../AvatarList'
 import { Popover } from '@base-ui-components/react/popover'
 import { getIcon } from '../icon'
-import { UserStarData } from '../galactic/Space'
+import { UserStarData } from '../cosmos/Space'
 
 export interface ProjectInfoProps {
   uri?: string

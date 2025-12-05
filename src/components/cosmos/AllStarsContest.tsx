@@ -3,7 +3,6 @@ import { getIcon } from '@/components/icon';
 import Badge from '@/components/badge/Badge';
 import Tooltip from '@/components/custom-ui/Tooltip';
 import Link from '@/components/custom-ui/Link';
-import { cn } from '@/lib/utils';
 
 interface ContestData {
     title: string;

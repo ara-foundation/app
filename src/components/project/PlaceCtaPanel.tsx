@@ -6,8 +6,8 @@ import { getIcon } from '@/components/icon';
 import { cn } from '@/lib/utils';
 import confetti from 'canvas-confetti';
 import NumberFlow from '@number-flow/react';
-import { UserStarData } from '@/components/galactic/Space';
-import DraggableUserStar from '@/components/galactic/DraggableUserStar';
+import { UserStarData } from '@/components/cosmos/Space';
+import DraggableUserStar from '@/components/cosmos/DraggableUserStar';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 
