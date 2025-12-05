@@ -6,7 +6,12 @@ import DemoCongratulationsDialog from './DemoCongratulationsDialog';
 import { startDemo, demoExists } from '@/demo-runtime-cookies/client-side';
 import { DEMO_EVENT_TYPES } from '@/demo-runtime-cookies';
 
-const DemoCtaPanel: React.FC = () => {
+interface DemoCtaPanelProps {
+    projectName: string
+    galaxyId: string
+}
+
+const DemoCtaPanel: React.FC<DemoCtaPanelProps> = ({ projectName, galaxyId }) => {
     const [isHovered, setIsHovered] = useState(false);
     const [email, setEmail] = useState('');
     const [error, setError] = useState('');
@@ -198,6 +203,8 @@ const DemoCtaPanel: React.FC = () => {
                 isOpen={showDialog}
                 users={demoUsers}
                 onClose={() => setShowDialog(false)}
+                projectName={projectName}
+                galaxyId={galaxyId}
             />
         </motion.div>
     );

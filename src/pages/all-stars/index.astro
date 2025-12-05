@@ -62,7 +62,12 @@ const allGalaxies = allGalaxiesData.map((galaxy, index) => ({
   </div>
 
   <UniverseHero slot="center" client:only="react" />
-  <DemoCtaPanel slot="center" client:only="react" />
+  <DemoCtaPanel
+    slot="center"
+    client:only="react"
+    projectName={selectedGalaxy?.name || ""}
+    galaxyId={selectedGalaxy?._id!.toString() || ""}
+  />
 
   <AllStarsContestPanel
     slot="right"

@@ -3,21 +3,27 @@ import PageLikePanel from '@/components/panel/PageLikePanel'
 import Link from '@/components/custom-ui/Link'
 import Button from '@/components/custom-ui/Button'
 import { cn } from '@/lib/utils'
-import { demoProjectName } from '@/demo-runtime-cookies'
 import type { UserModel } from '@/scripts/user'
 
 interface DemoCongratulationsDialogProps {
   isOpen: boolean
   users: UserModel[]
   onClose: () => void
+  projectName: string
+  galaxyId: string
 }
 
 const DemoCongratulationsDialog: React.FC<DemoCongratulationsDialogProps> = ({
   isOpen,
   users,
   onClose,
+  projectName,
+  galaxyId,
 }) => {
   if (!isOpen) return null
+
+  // If galaxyId is not provided, we can't create a valid link, so use a default
+  const linkUri = `/project?galaxy=${galaxyId}`
 
   return (
     <>
@@ -71,7 +77,7 @@ const DemoCongratulationsDialog: React.FC<DemoCongratulationsDialogProps> = ({
                 🎉 Welcome to your demo experience!
               </p>
               <p className="text-base">
-                You have received a <span className="font-semibold text-blue-600 dark:text-blue-400">$50 demo coupon</span> for the <span className="font-semibold">{demoProjectName}</span> project.
+                You have received a <span className="font-semibold text-blue-600 dark:text-blue-400">$50 demo coupon</span> for the <span className="font-semibold">{projectName}</span> project.
               </p>
               <p className="text-base">
                 To get started, navigate to the project and purchase starshines to begin contributing.
@@ -80,9 +86,9 @@ const DemoCongratulationsDialog: React.FC<DemoCongratulationsDialogProps> = ({
 
             {/* Action Button */}
             <div className="flex justify-center">
-              <Link uri={`/project?galaxy=${demoProjectName}`}>
+              <Link uri={linkUri}>
                 <Button variant="primary" size="lg">
-                  '{demoProjectName}' galaxy
+                  '{projectName}' galaxy
                 </Button>
               </Link>
             </div>

@@ -4,6 +4,7 @@ import { getCollection, create } from './db'
 export interface GalaxyModel {
     _id?: ObjectId
     maintainer: ObjectId
+    projectLink: ObjectId; // Required reference to ProjectModel
     name: string;
     description: string;
     stars: number;

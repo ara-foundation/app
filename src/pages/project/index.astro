@@ -12,6 +12,48 @@ import ProjectGoalPanel from "@/components/project/ProjectGoalPanel";
 import BackButton from "@/components/custom-ui/BackButton";
 import AllStarsContest from "@/components/cosmos/AllStarsContest";
 import { mockUserStars } from "@/data/mock-data";
+import { getGalaxyById } from "@/scripts/galaxy";
+import { getProjectById } from "@/scripts/project";
+import { getUserById } from "@/scripts/user";
+
+// Get galaxy ID from query parameter
+const galaxyIdParam = Astro.url.searchParams.get("galaxy");
+
+// Validate galaxy ID
+if (!galaxyIdParam) {
+  return Astro.redirect("/project/404");
+}
+
+// Fetch galaxy from database
+const galaxy = await getGalaxyById(galaxyIdParam);
+if (!galaxy || !galaxy.projectLink) {
+  return Astro.redirect("/project/404?method=getGalaxyById");
+}
+
+// Fetch project from database
+const project = await getProjectById(galaxy.projectLink);
+if (!project) {
+  return Astro.redirect("/project/404?method=getProjectById");
+}
+
+// Fetch maintainer user for author info
+const maintainer = await getUserById(galaxy.maintainer);
+const authorUri =
+  maintainer?.uri || `/profile?email=${maintainer?.email || "unknown"}`;
+const authorName =
+  maintainer?.nickname || maintainer?.email?.split("@")[0] || "Unknown";
+
+// Extract social links
+const githubLink = project.socialLinks.find((link) => link.type === "github");
+const blockchainExplorerLink = project.socialLinks.find(
+  (link) => link.type === "blockchain-explorer",
+);
+const documentationLink = project.socialLinks.find(
+  (link) => link.type === "documentation",
+);
+const projectUriLink = project.socialLinks.find(
+  (link) => link.type === "projectUri",
+);
 
 // Place Mode: If the page is in place mode, the user can place their star on the web page.
 const isPlaceMode = Astro.url.searchParams.get("place") === "true";
@@ -25,48 +67,57 @@ const starsWithDraggable = mockUserStars.map((star, index) => ({
 // Get current user data (first star as current user for demo)
 const currentUserData = mockUserStars[0];
 
+// Transform database models to ProjectInfoProps
 const projectData: ProjectInfoProps = {
-  uri: "/project",
-  title: "Hyperpayment",
-  isInfluencer: true,
+  uri: project.uri,
+  title: galaxy.name,
+  isInfluencer: false, // TODO: Determine from user data
   rating: {
-    sunshines: 1250,
-    stars: 3.47,
+    sunshines: galaxy.sunshines,
+    stars: galaxy.stars,
   },
-  forks: 1,
-  likes: 23,
-  isFollowing: true,
-  originalProject: "Original project",
-  issue: "Issue: Windows support",
-  description:
-    "A protocol and it's implementation to transfer a resource between arbitrary amount parties. Used for example in Ara to distribute donations",
-  license: "MIT License",
-  balance: 1240,
-  cascadeBalance: 350,
-  totalAmount: 45,
-  duration: "38 days",
-  lastActivity: 1,
-  totalCommits: 2000,
-  commitsPerDay: "8 commits / day",
-  openIssues: 12,
-  closedIssues: 45,
-  avgResponseTime: "1 day for reply",
+  forks: project.forkLines.length,
+  likes: 0, // TODO: Add likes to galaxy model if needed
+  isFollowing: false, // TODO: Check if current user is following
+  originalProject: project.forkLines.length > 0 ? "Original project" : "",
+  issue:
+    project.forkLines.length > 0
+      ? `Issue: ${project.forkLines[0].via.length} issues`
+      : "",
+  description: galaxy.description,
+  license: project.license || "MIT License",
+  balance: galaxy.donationAmount,
+  cascadeBalance: 0, // TODO: Add cascade balance to galaxy model if needed
+  totalAmount: 0, // TODO: Calculate from donations
+  duration: "0 days", // TODO: Calculate from created time
+  lastActivity: project.lastCommitUpdateTime
+    ? Date.now() - project.lastCommitUpdateTime.getTime()
+    : 0,
+  totalCommits: project.totalCommits || 0,
+  commitsPerDay: "0 commits / day", // TODO: Calculate from commits
+  openIssues: 0, // TODO: Add issues count to galaxy model
+  closedIssues: 0, // TODO: Add closed issues count to galaxy model
+  avgResponseTime: "N/A", // TODO: Calculate from issues
   author: {
-    uri: "/profile/alexjohnson",
-    children: "Alex Johnson",
-    rating: {
-      ratingType: "maintainer",
-      lvl: 220,
-      maxLvl: 10,
-      top: 10,
-    },
+    uri: authorUri,
+    children: authorName,
+    icon: maintainer?.src,
+    rating:
+      maintainer?.role === "maintainer"
+        ? {
+            ratingType: "maintainer",
+            lvl: Math.floor((maintainer?.stars || 0) * 2),
+            maxLvl: 10,
+            top: 0, // TODO: Calculate top position
+          }
+        : undefined,
   },
   stars: starsWithDraggable,
   originalProjectUrl: "",
-  followers: 0,
-  createdTime: 0,
+  followers: galaxy.users,
+  createdTime: 0, // TODO: Add created time to galaxy model
   actions: [],
-  projectGoal: 1000,
+  projectGoal: 1000, // TODO: Add project goal to galaxy or project model
 };
 ---
 
@@ -76,7 +127,7 @@ const projectData: ProjectInfoProps = {
   projectName={projectData.title}
   stars={projectData.stars}
   projectGoal={projectData.projectGoal}
-  projectId={galaxyId}
+  projectId={galaxyIdParam}
 >
   <AllStarsContest
     slot="header-navbar"
@@ -125,10 +176,10 @@ const projectData: ProjectInfoProps = {
   <ProjectLandingHero
     slot="center"
     projectData={projectData}
-    projectUri={`/project/issues?galaxy=${projectId}`}
-    githubUrl="https://github.com/ara-foundation/app"
-    blockchainExplorerUrl="https://etherscan.io/address/0x1027298987234987234987234987234987234987"
-    documentationUrl="https://docs.example.com"
+    projectUri={`/project/issues?galaxy=${galaxyIdParam}`}
+    githubUrl={githubLink?.uri}
+    blockchainExplorerUrl={blockchainExplorerLink?.uri}
+    documentationUrl={documentationLink?.uri}
     client:only="react"
   />
   {
@@ -145,7 +196,7 @@ const projectData: ProjectInfoProps = {
       <ProjectCTAPanel
         slot="center"
         client:only="react"
-        galaxyId={projectId}
+        galaxyId={galaxyIdParam}
         projectName={projectData.title}
       />
     )
