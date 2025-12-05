@@ -32,6 +32,7 @@ const DemoCongratulationsDialog: React.FC<DemoCongratulationsDialogProps> = ({
         <PageLikePanel title="Congratulations!" titleCenter={true}>
           <div className="space-y-6">
             {/* Users Display */}
+            <h2 className="text-lg text-slate-600 dark:text-slate-400">Your demo users</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {users.map((user, index) => (
                 <div
@@ -65,15 +66,23 @@ const DemoCongratulationsDialog: React.FC<DemoCongratulationsDialogProps> = ({
             </div>
 
             {/* Message */}
-            <p className="text-slate-600 dark:text-slate-400 text-center text-lg">
-              😊 You have a $50 demo coupon for {demoProjectName} project. Next, buy starshines.
-            </p>
+            <div className="text-slate-600 dark:text-slate-400 text-center space-y-2">
+              <p className="text-lg font-medium">
+                🎉 Welcome to your demo experience!
+              </p>
+              <p className="text-base">
+                You have received a <span className="font-semibold text-blue-600 dark:text-blue-400">$50 demo coupon</span> for the <span className="font-semibold">{demoProjectName}</span> project.
+              </p>
+              <p className="text-base">
+                To get started, navigate to the project and purchase starshines to begin contributing.
+              </p>
+            </div>
 
             {/* Action Button */}
             <div className="flex justify-center">
               <Link uri={`/project?galaxy=${demoProjectName}`}>
                 <Button variant="primary" size="lg">
-                  Go to {demoProjectName}
+                  '{demoProjectName}' galaxy
                 </Button>
               </Link>
             </div>

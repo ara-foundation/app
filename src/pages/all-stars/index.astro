@@ -110,3 +110,27 @@ const allGalaxies = mockTopGalaxies.map((galaxy, index) => ({
     galaxyY={selectedGalaxy?.y || 0}
   />
 </GalaxyLayout>
+
+<style is:global>
+  /* Hide scrollbars but allow scrolling */
+  html,
+  body {
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE and Edge */
+  }
+
+  html::-webkit-scrollbar,
+  body::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
+  }
+
+  /* Hide scrollbars on all elements */
+  * {
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE and Edge */
+  }
+
+  *::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
+  }
+</style>
