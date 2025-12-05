@@ -57,8 +57,10 @@ const DemoAuthPanel: React.FC<DemoAuthPanelProps> = ({ children, className }) =>
     }, [])
 
     return (
-        <div className={cn('relative pointer-events-none', className)}>
-            {children}
+        <div className={cn('relative', className)}>
+            <div className={isLoggedIn ? 'pointer-events-auto' : 'pointer-events-none opacity-70'}>
+                {children}
+            </div>
             {!isLoggedIn && (
                 <div
                     className={cn(
