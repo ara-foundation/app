@@ -1,22 +1,76 @@
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import BlurText from '@/components/BlurText';
 import { getIcon } from '@/components/icon';
 import NumberFlow from '@number-flow/react';
 import Tooltip from '@/components/custom-ui/Tooltip';
+import { actions } from 'astro:actions';
+import { type AllStarStats } from '@/scripts/all-stars';
 
-interface UniverseHeroProps {
-    totalGalaxies: number;
-    totalStars: number;
-    totalUsers: number;
-    totalSunshines?: number;
+/**
+ * Custom hook to fetch and poll all star stats every 10 seconds
+ */
+function useAllStarStats(): AllStarStats {
+    const [stats, setStats] = useState<AllStarStats>({
+        totalGalaxies: 0,
+        totalStars: 0,
+        totalUsers: 0,
+        totalSunshines: 0,
+    });
+    const intervalRef = useRef<NodeJS.Timeout | null>(null);
+
+    useEffect(() => {
+        // Initial fetch
+        const fetchStats = async () => {
+            try {
+                const formData = new FormData();
+                const result = await actions.allStarStats(formData);
+
+                if (result.error) {
+                    console.error('Error fetching all star stats:', result.error);
+                    return;
+                }
+
+                if (result.data) {
+                    setStats((prevStats) => {
+                        // Deep comparison to check if stats changed
+                        const hasChanged =
+                            prevStats.totalGalaxies !== result.data.totalGalaxies ||
+                            prevStats.totalStars !== result.data.totalStars ||
+                            prevStats.totalUsers !== result.data.totalUsers ||
+                            prevStats.totalSunshines !== result.data.totalSunshines;
+
+                        if (hasChanged) {
+                            return result.data;
+                        }
+                        return prevStats;
+                    });
+                }
+            } catch (error) {
+                console.error('Error fetching all star stats:', error);
+            }
+        };
+
+        // Fetch immediately
+        fetchStats();
+
+        // Set up polling every 10 seconds
+        intervalRef.current = setInterval(fetchStats, 10000);
+
+        // Cleanup on unmount
+        return () => {
+            if (intervalRef.current) {
+                clearInterval(intervalRef.current);
+            }
+        };
+    }, []);
+
+    return stats;
 }
 
-const UniverseHero: React.FC<UniverseHeroProps> = ({
-    totalGalaxies,
-    totalStars,
-    totalUsers,
-    totalSunshines = 0,
-}) => {
+const UniverseHero: React.FC = () => {
+    const stats = useAllStarStats();
+    const { totalGalaxies, totalStars, totalUsers, totalSunshines = 0 } = stats;
+
     // Calculate funds amount from sunshines
     const fundsAmount = totalSunshines / 1.80;
     return (

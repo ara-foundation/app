@@ -213,15 +213,6 @@ export const mockUserStars: UserStarData[] = [
   }
 ];
 
-export interface UniverseStats {
-  totalGalaxies: number;
-  totalStars: number;
-  totalUsers: number;
-  totalSunshines?: number;
-}
-
-
-
 export interface ContestData {
   prizePool: number;
   fromDate: Date;
@@ -234,13 +225,6 @@ export interface LibraryData {
   name: string;
   dependsOn: number; // Number of projects using this library
 }
-
-export const mockUniverseStats: UniverseStats = {
-  totalGalaxies: 1247,
-  totalStars: 45678.5,
-  totalUsers: 8923,
-  totalSunshines: 16444260, // Example: sum of all sunshines across all galaxies
-};
 
 export const mockContestData: ContestData = {
   prizePool: 125000,

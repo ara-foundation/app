@@ -11,7 +11,7 @@ import BackButton from "@/components/custom-ui/BackButton";
 import NewGalaxyButton from "@/components/galactic/NewGalaxyButton";
 import DemoCtaPanel from "@/components/project/DemoCtaPanel";
 import { isCookieExist } from "@/scripts/demo";
-import { mockUniverseStats, mockContestData } from "@/data/mock-data";
+import { mockContestData } from "@/data/mock-data";
 import { getAllGalaxies, getGalaxyById } from "@/scripts/galaxy";
 import { setupDemoGalaxies } from "@/scripts/demo-setup";
 
@@ -67,14 +67,7 @@ const allGalaxies = allGalaxiesData.map((galaxy, index) => ({
     <NewGalaxyButton client:only="react" />
   </div>
 
-  <UniverseHero
-    slot="center"
-    client:only="react"
-    totalGalaxies={mockUniverseStats.totalGalaxies}
-    totalStars={mockUniverseStats.totalStars}
-    totalUsers={mockUniverseStats.totalUsers}
-    totalSunshines={mockUniverseStats.totalSunshines}
-  />
+  <UniverseHero slot="center" client:only="react" />
   {shouldShowDemoCta && <DemoCtaPanel slot="center" client:only="react" />}
 
   <AllStarsContestPanel
