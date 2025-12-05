@@ -5,19 +5,16 @@ import { getIcon } from '@/components/icon';
 import Link from '@/components/custom-ui/Link';
 import Tooltip from '@/components/custom-ui/Tooltip';
 import NumberFlow from '@number-flow/react';
-import { LibraryData } from '@/data/mock-data';
 import { GalaxyModel } from '@/scripts/galaxy';
 import { BorderSize } from '@/types/eventTypes';
 import { cn } from '@/lib/utils';
 
 interface AllStarsLeaderboardPanelsProps {
     topGalaxies?: GalaxyModel[];
-    topLibraries?: LibraryData[];
 }
 
 const AllStarsLeaderboardPanels: React.FC<AllStarsLeaderboardPanelsProps> = ({
     topGalaxies = [],
-    topLibraries = [],
 }) => {
     const [expandedPanel, setExpandedPanel] = useState<string | null>(null);
     const containerRef = useRef<HTMLDivElement>(null);

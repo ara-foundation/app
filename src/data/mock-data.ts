@@ -250,13 +250,3 @@ export const mockContestData: ContestData = {
 };
 
 
-export const mockTopLibraries: LibraryData[] = [
-  { id: 'react', name: 'React', dependsOn: 892 },
-  { id: 'typescript', name: 'TypeScript', dependsOn: 756 },
-  { id: 'astro', name: 'Astro', dependsOn: 623 },
-  { id: 'tailwindcss', name: 'Tailwind CSS', dependsOn: 589 },
-  { id: 'nodejs', name: 'Node.js', dependsOn: 534 },
-  { id: 'express', name: 'Express', dependsOn: 478 },
-  { id: 'nextjs', name: 'Next.js', dependsOn: 445 },
-  { id: 'vue', name: 'Vue.js', dependsOn: 412 },
-];
