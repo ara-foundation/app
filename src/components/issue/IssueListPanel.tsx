@@ -1,20 +1,105 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import FilterableList from '@/components/list/FilterableList'
 import IssueLink from '@/components/issue/IssueLink'
 import BasePanel from '@/components/panel/Panel'
-import { Issue } from '@/components/issue/types'
+import type { Issue, IssueModelClient } from '@/scripts/issue'
 import DraggableIssueLink from './DraggableIssueLink'
 import { FilterOption } from '@/components/list/FilterToggle'
 import { getIcon } from '../icon'
+import { actions } from 'astro:actions'
 
 interface Props {
   title?: string
   filterable?: boolean
   draggable?: boolean
   description?: string
+  galaxyId?: string
 }
 
-const ContentArea: React.FC<Props> = ({ title = 'Issues', draggable = false, filterable: filerable = false, description }) => {
+const ContentArea: React.FC<Props> = ({ title = 'Issues', draggable = false, filterable: filerable = false, description, galaxyId }) => {
+  const [issues, setIssues] = useState<Issue[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Fetch issues based on title
+  useEffect(() => {
+    const fetchIssues = async () => {
+      if (!galaxyId) {
+        setIsLoading(false);
+        return;
+      }
+
+      try {
+        // Actions return serialized data (ObjectIds are already strings)
+        let issueModels: any[] = [];
+
+        if (title === 'Shining Issues') {
+          const result = await actions.getShiningIssues({ galaxyId });
+          issueModels = result.data?.data || [];
+        } else if (title === 'Public Backlog') {
+          const result = await actions.getPublicBacklogIssues({ galaxyId });
+          issueModels = result.data?.data || [];
+        } else {
+          // For other tabs, fetch all issues (can be filtered later)
+          const result = await actions.getIssuesByGalaxy({ galaxyId });
+          issueModels = result.data?.issues || [];
+        }
+
+        // Transform serialized IssueModel (with string IDs) to Issue
+        const transformedIssues: Issue[] = await Promise.all(
+          issueModels.map(async (issueModel: any) => {
+            // Serialized ObjectIds are already strings
+            const maintainerId = typeof issueModel.maintainer === 'string'
+              ? issueModel.maintainer
+              : issueModel.maintainer?.toString() || '';
+
+            // Fetch maintainer user data
+            const maintainerResult = await actions.getUserById({ userId: maintainerId });
+            const maintainer = maintainerResult.data?.data;
+
+            return {
+              id: typeof issueModel._id === 'string' ? issueModel._id : issueModel._id?.toString() || undefined,
+              uri: issueModel.uri,
+              number: issueModel.number,
+              title: issueModel.title,
+              description: issueModel.description,
+              type: issueModel.type,
+              storage: issueModel.storage,
+              author: maintainer ? {
+                uri: maintainer.uri || `/profile?email=${maintainer.email}`,
+                children: maintainer.nickname || maintainer.email?.split('@')[0] || 'Unknown',
+                icon: maintainer.src,
+                rating: maintainer.role === 'maintainer' ? {
+                  ratingType: 'maintainer',
+                  lvl: Math.floor((maintainer.stars || 0) * 2),
+                  maxLvl: 10,
+                  top: 0
+                } : undefined
+              } : undefined,
+              projectId: issueModel.projectId,
+              categoryId: issueModel.categoryId,
+              stats: issueModel.stats,
+              createdTime: issueModel.createdTime
+                ? (typeof issueModel.createdTime === 'string'
+                  ? issueModel.createdTime
+                  : new Date(issueModel.createdTime).toISOString())
+                : undefined,
+              sunshines: issueModel.sunshines,
+              usersCount: issueModel.users?.length || 0
+            } as Issue;
+          })
+        );
+
+        setIssues(transformedIssues);
+      } catch (error) {
+        console.error('Error fetching issues:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchIssues();
+  }, [galaxyId, title]);
+
   // Create filters based on IssueType
   const filters: FilterOption[] = [
     {
@@ -87,78 +172,15 @@ const ContentArea: React.FC<Props> = ({ title = 'Issues', draggable = false, fil
     console.log('Filter changed:', { filterId, sortId })
   }
 
-  const issues: Issue[] = [
-    {
-      id: 1,
-      uri: '/issues/1',
-      number: '#1234',
-      title: "Fix responsive layout on tablet devices",
-      description: "The dashboard layout breaks on iPad and other tablet devices in landscape orientation. Elements overlap and some controls become inaccessible.",
-      type: 'bug',
-      storage: 'arada-',
-      author: {
-        uri: '/profile/serkan',
-        name: 'Serkan Bulgurcu',
-        avatar: 'https://dummyimage.com/32x32/4FC3F7/ffffff?text=S',
-        rating: {
-          ratingType: 'maintainer',
-          lvl: 3,
-          maxLvl: 5,
-          top: 10
-        }
-      },
-      projectId: 'project-1',
-      categoryId: 'category-1',
-      createdTime: '2023-10-05T00:00:00Z',
-      stats: {
-        'follower': {
-          type: 'follower',
-          hint: 'Followers',
-          children: 5
-        },
-        'chat': {
-          type: 'chat',
-          hint: 'Messages',
-          children: 5
-        }
-      }
-    },
-    {
-      id: 2,
-      uri: '/issues/2',
-      number: '#1235',
-      title: "Data export feature crashes with large datasets",
-      description: "When attempting to export data sets larger than 10,000 records, the application crashes. We need to implement pagination or streaming.",
-      type: 'wish',
-      storage: 'arada-',
-      author: {
-        uri: '/profile/serkan',
-        name: 'Serkan Bulgurcu',
-        avatar: 'https://dummyimage.com/32x32/4FC3F7/ffffff?text=S',
-        rating: {
-          ratingType: 'maintainer',
-          lvl: 4,
-          maxLvl: 5,
-          top: 5
-        }
-      },
-      projectId: 'project-1',
-      categoryId: 'category-1',
-      createdTime: '2023-10-05T00:00:00Z',
-      stats: {
-        'follower': {
-          type: 'follower',
-          hint: 'Followers',
-          children: 5
-        },
-        'chat': {
-          type: 'chat',
-          hint: 'Messages',
-          children: 5
-        }
-      }
-    }
-  ]
+  if (isLoading) {
+    return (
+      <BasePanel className="max-w-6xl mx-auto">
+        <div className="text-center py-8">
+          <p className="text-slate-600 dark:text-slate-400">Loading issues...</p>
+        </div>
+      </BasePanel>
+    );
+  }
 
   return (
     <BasePanel className="max-w-6xl mx-auto">

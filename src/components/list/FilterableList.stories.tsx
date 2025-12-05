@@ -5,7 +5,7 @@ import { FilterOption } from './FilterToggle'
 import IssueLinkPanel4 from '@/components/issue/IssueLink'
 import UserCard from '@/components/profile/panel/ProfileLinkPanel'
 import DependencyCard from '@/components/maintainer/DepInfoPanel'
-import { Issue } from '@/components/issue/types'
+import { Issue } from '@/scripts/issue'
 import { getIcon } from '@/components/icon'
 
 // Types for stories

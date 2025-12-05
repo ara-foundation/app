@@ -1,7 +1,7 @@
 import React from 'react'
 import PageLikePanel from '@/components/panel/PageLikePanel'
 import IssueLink from '@/components/issue/IssueLink'
-import { Issue } from '../issue/types'
+import { Issue } from '@/scripts/issue'
 
 const HighlightedIssues: React.FC = () => {
   const issues: Issue[] = [

@@ -25,16 +25,16 @@ interface Props {
 
 const C: React.FC<Props> = ({ activeTab: initialTab, tabs, id }) => {
   const [activeTab, setTab] = useState<string | undefined>(initialTab);
-  const baseClassName = "flex-1 rounded-md hover:bg-accent/50 rounded-b-none hover:border-b-2 hover:border-blue-500 hover:shadow-md"
+  const baseClassName = "flex-1 rounded-md hover:bg-accent/50 rounded-b-none hover:border-b-2 hover:border-blue-500 hover:shadow-md backdrop-blur-sm"
 
   return (
     <Tabs
       onValueChange={setTab}
-      value={activeTab as any} className="relative mb-6 bg-blue-100 dark:bg-transparent text-slate-600 dark:text-slate-400 py-1">
+      value={activeTab as any} className="relative mb-6 bg-blue-100 dark:bg-transparent text-slate-600 dark:text-slate-400 py-1 backdrop-blur-sm">
       <TabsHighlight className="">
-        <TabsList className="h-10 inline-flex p-0 w-full ">
+        <TabsList className="h-10 inline-flex p-0 w-full backdrop-blur-sm bg-white/50 dark:bg-slate-900/50">
           {tabs.map((tab) =>
-            <TabsHighlightItem key={tab.key} value={tab.key} className={baseClassName + (activeTab === tab.key ? ' bg-white dark:bg-slate-700 shadow-none shadow-b-none' : 'bg-blue-200/50 dark:bg-slate-800/50 border-b-2 border-blue-200 dark:border-slate-700')}>
+            <TabsHighlightItem key={tab.key} value={tab.key} className={baseClassName + (activeTab === tab.key ? ' bg-white dark:bg-slate-700 shadow-none shadow-b-none' : 'bg-blue-200/50 dark:bg-slate-800/50 border-b-2 border-blue-200/50 dark:border-slate-700/50')}>
               <TabsTrigger
                 value={tab.key}
                 className={"hyperlink h-full leading-0 w-full text-sm text-blue-500 dark:text-blue-300 cursor-pointer " + (tab.className || '')}

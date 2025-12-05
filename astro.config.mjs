@@ -18,14 +18,14 @@ export default defineConfig({
       css: {
         devSourcemap: true,
         transformer: "postcss"
+      },
+      rollupOptions: {
+        external: ['mongodb', 'util', 'crypto']
       }
     },
     ssr: {
-      noExternal: ['timeago-react']
-    },
-    ssr: {
       noExternal: ['timeago-react'],
-      external: ['util'],
+      external: ['mongodb', 'util', 'crypto'],
     },
     resolve: {
       conditions: ['import', 'module', 'browser', 'default'],

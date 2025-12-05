@@ -2,11 +2,49 @@
 import Layout from "@/layouts/PanelViewLayout.astro";
 import MenuPanel from "@/components/menu/MenuPanel";
 import { MenuName } from "@/components/navbar/WorkNavbar.astro";
-
+import { ObjectId } from "mongodb";
+import { getGalaxyById } from "@/scripts/galaxy";
+import { getProjectById } from "@/scripts/project";
 import WorkPanel from "@/components/maintainer/WorkPanel";
+
+// Get galaxy ID from query parameter
+const galaxyIdParam = Astro.url.searchParams.get("galaxy");
+
+// Validate galaxy ID
+if (!galaxyIdParam) {
+  return Astro.redirect("/project/404?method=getGalaxyParam");
+}
+
+// Validate ObjectId format
+let galaxyId: ObjectId;
+try {
+  galaxyId = new ObjectId(galaxyIdParam);
+} catch (error) {
+  return Astro.redirect("/project/404?method=validateGalaxyId");
+}
+
+// Fetch galaxy from database
+const galaxy = await getGalaxyById(galaxyIdParam);
+if (!galaxy || !galaxy.projectLink) {
+  return Astro.redirect("/project/404?method=getGalaxyById");
+}
+
+// Fetch project from database
+const project = await getProjectById(galaxy.projectLink);
+if (!project) {
+  return Astro.redirect("/project/404?method=getProjectById");
+}
 ---
 
 <Layout hideLinks={Object.keys(MenuName)}>
-  <MenuPanel activeMenuItem="issues" slot="left" />
-  <WorkPanel slot="center" client:only="react" />
+  <MenuPanel
+    activeMenuItem="issues"
+    slot="left"
+    galaxy={galaxy}
+    projectIcon={project.socialLinks.find((link) => link.type === "project")
+      ?.uri}
+    projectName={galaxy.name}
+    starCount={galaxy.stars}
+  />
+  <WorkPanel slot="center" client:only="react" galaxyId={galaxyIdParam} />
 </Layout>

@@ -6,6 +6,7 @@ import Tooltip from '@/components/custom-ui/Tooltip';
 import { getIcon } from '@/components/icon';
 import Link from '@/components/custom-ui/Link';
 import Galaxy from '../Galaxy';
+import { GalaxyModel } from '@/scripts/galaxy';
 
 type MenuName = 'ihistory' | 'iwork' | 'balance' | 'cbalance' | 'project' | 'marketing' | 'work' | 'cwork' | 'guide' | 'dependencies' | 'roadmap' | 'issues' | 'share-btn' | 'donations';
 
@@ -18,6 +19,7 @@ interface Props {
   projectIcon?: string
   projectName?: string
   starCount?: number
+  galaxy?: GalaxyModel
 }
 
 const isOnlyInfluencerMenu = (activeMenuItem: MenuName): boolean => {
@@ -30,7 +32,8 @@ const GalaxyObject: React.FC<{
   starCount?: number
   active?: boolean
   focus?: boolean
-}> = ({ projectIcon, projectName = 'Ara', starCount = 0, active, focus }) => {
+  galaxyId?: string
+}> = ({ projectIcon, projectName = 'Ara', starCount = 0, active, focus, galaxyId }) => {
   const isZeroStars = starCount === 0;
   const starColorClass = isZeroStars ? 'text-rose-500' : '';
 
@@ -66,11 +69,13 @@ const GalaxyObject: React.FC<{
     </div>
   );
 
+  const projectUri = galaxyId ? `/project?galaxy=${galaxyId}` : '/project';
+
   return (
     <Tooltip content={tooltipContent} openDelay={300}>
       <div className="w-full">
         <Link
-          uri="/project"
+          uri={projectUri}
           className={`flex flex-col items-center justify-center py-4 px-3 rounded-sm cursor-pointer transition-colors relative ${active
             ? 'bg-blue-100 dark:bg-blue-700'
             : 'hover:bg-slate-100 dark:hover:bg-slate-900'
@@ -108,7 +113,8 @@ const maintainerMainItems = (
   focusMenuItem?: MenuName,
   projectIcon?: string,
   projectName?: string,
-  starCount?: number
+  starCount?: number,
+  galaxyId?: string
 ): React.ReactNode[] => {
   return [
     <GalaxyObject
@@ -118,6 +124,7 @@ const maintainerMainItems = (
       starCount={starCount}
       active={activeMenuItem === 'project'}
       focus={focusMenuItem === 'project'}
+      galaxyId={galaxyId}
     />,
   ]
 }
@@ -133,58 +140,69 @@ const influencerMainItems = (activeMenuItem: MenuName, focusMenuItem?: MenuName)
   ]
 }
 
-const maintainerCollabItems = (activeMenuItem: MenuName, focusMenuItem?: MenuName): React.ReactNode[] => {
+const maintainerCollabItems = (activeMenuItem: MenuName, focusMenuItem?: MenuName, galaxyId?: string): React.ReactNode[] => {
+  const baseUri = (path: string) => galaxyId ? `${path}?galaxy=${galaxyId}` : path;
+  
   return [
     <MenuItem
+      key="guide"
       icon="info"
       label="Guide"
-      uri="/project/guide"
+      uri={baseUri("/project/guide")}
       active={activeMenuItem === 'guide'}
       focus={focusMenuItem === 'guide'}
     />,
     <MenuItem
+      key="dependencies"
       icon="connection"
       label="Dependencies"
-      uri="/project/dependencies"
+      uri={baseUri("/project/dependencies")}
       active={activeMenuItem === 'dependencies'}
       focus={focusMenuItem === 'dependencies'}
     />,
     <MenuItem
+      key="roadmap"
       icon="navigation"
       label="Roadmap"
-      uri="/project/roadmap"
+      uri={baseUri("/project/roadmap")}
       active={activeMenuItem === 'roadmap'}
       focus={focusMenuItem === 'roadmap'}
     />,
     <MenuItem
+      key="issues"
       icon="issue"
       label="Issues"
-      uri="/project/issues"
+      uri={baseUri("/project/issues")}
       active={activeMenuItem === 'issues'}
       focus={focusMenuItem === 'issues'}
     />,
     <MenuItem
+      key="share-btn"
       icon="arrow-right"
       label="Share Button"
-      uri="/project/share-btn"
+      uri={baseUri("/project/share-btn")}
       active={activeMenuItem === 'share-btn'}
       focus={focusMenuItem === 'share-btn'}
     />,
     <MenuItem
+      key="donations"
       icon="money"
       label="Donations"
-      uri="/project/donations"
+      uri={baseUri("/project/donations")}
       active={activeMenuItem === 'donations'}
       focus={focusMenuItem === 'donations'}
     />
   ]
 }
-const influencerCollabItems = (activeMenuItem: MenuName, focusMenuItem?: MenuName): React.ReactNode[] => {
+const influencerCollabItems = (activeMenuItem: MenuName, focusMenuItem?: MenuName, galaxyId?: string): React.ReactNode[] => {
+  const baseUri = (path: string) => galaxyId ? `${path}?galaxy=${galaxyId}` : path;
+  
   return [
     <MenuItem
+      key="iwork"
       icon="influencer-work"
       label="Influencer Work"
-      uri="/influencer/work"
+      uri={baseUri("/influencer/work")}
       focus={focusMenuItem === 'iwork'}
       active={activeMenuItem === 'iwork'}
     />
@@ -208,19 +226,26 @@ const Panel: React.FC<Props> = ({
   children,
   projectIcon,
   projectName,
-  starCount
+  starCount,
+  galaxy
 }) => {
   const titleC = <div className='text-sm font-medium   text-gray-500'>{title}</div>
+  const galaxyId = galaxy?._id?.toString();
+  
+  // Get project icon from galaxy's project if available, otherwise use provided projectIcon or default to cascadefund logo
+  const finalProjectIcon = projectIcon || (galaxy ? undefined : undefined); // Will use cascadefund logo if not provided
+  const finalProjectName = projectName || galaxy?.name || 'Ara';
+  const finalStarCount = starCount !== undefined ? starCount : (galaxy?.stars || 0);
 
   return <PageLikePanel interactive={false} title={titleC} >
     <div className="p-1 z-10 w-full overflow-hidden justify-between">
       {onlyCustomChildren && !children ? noChildren : children}
-      {!onlyCustomChildren && (!isOnlyInfluencerMenu(activeMenuItem) ? maintainerMainItems(activeMenuItem, focusMenuItem, projectIcon, projectName, starCount) : influencerMainItems(activeMenuItem, focusMenuItem))}
+      {!onlyCustomChildren && (!isOnlyInfluencerMenu(activeMenuItem) ? maintainerMainItems(activeMenuItem, focusMenuItem, finalProjectIcon, finalProjectName, finalStarCount, galaxyId) : influencerMainItems(activeMenuItem, focusMenuItem))}
       {!onlyCustomChildren &&
         (<>
           <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-3 mt-3">Collaboration Menu</h3>
           <div className="p-1 w-full overflow-hidden justify-between">
-            {!isOnlyInfluencerMenu(activeMenuItem) ? maintainerCollabItems(activeMenuItem, focusMenuItem) : influencerCollabItems(activeMenuItem, focusMenuItem)}
+            {!isOnlyInfluencerMenu(activeMenuItem) ? maintainerCollabItems(activeMenuItem, focusMenuItem, galaxyId) : influencerCollabItems(activeMenuItem, focusMenuItem, galaxyId)}
           </div>
         </>)}
     </div>

@@ -1,7 +1,8 @@
 import React from 'react'
 import Link from '../custom-ui/Link'
 import { getIcon, IconType } from '../icon'
-import { getIssueStatIcon, Issue } from './types'
+import type { Issue } from '@/scripts/issue'
+import { getIssueStatIcon } from './utils'
 import Badge from '../badge/Badge'
 import PanelFooter from '../panel/PanelFooter'
 import PanelStat from '../panel/PanelStat'
@@ -16,7 +17,10 @@ import AvatarList from '../AvatarList'
 
 
 const IssueLinkPanel4: React.FC<Issue & { actions?: ActionProps[] }> = (issue) => {
-  // Check if this is a rating issue (has voting power > 0)
+  // Determine if issue is shining (has sunshines > 0)
+  const isShining = issue.sunshines !== undefined && issue.sunshines > 0;
+
+  // Check if this is a rating issue (has voting power > 0) - legacy support
   const votingPower = issue.stats?.['voting-power']?.children
   const isRatingIssue = issue.storage === 'arada-' && votingPower && Number(votingPower) > 0
 
@@ -41,6 +45,7 @@ const IssueLinkPanel4: React.FC<Issue & { actions?: ActionProps[] }> = (issue) =
     </Button>
   </>
 
+  // Legacy VP support - only show if old VP properties exist
   const ratingActions = isRatingIssue && issue.vpAmount && issue.currentVP !== undefined && issue.topVP !== undefined && issue.minVP !== undefined ? (
     <VotePopover
       vpAmount={issue.vpAmount}
@@ -77,8 +82,14 @@ const IssueLinkPanel4: React.FC<Issue & { actions?: ActionProps[] }> = (issue) =
         <div className='flex justify-between items-center mb-1 ml-0.5'>
           <div className="flex items-center gap-2">
             <span className="text-lg font-medium text-slate-700 dark:text-slate-300/80">{issue.title}</span>
-            {/* Voting power badge for arada- storage */}
-            {issue.storage === 'arada-' && (
+            {/* Shining badge - based on sunshines */}
+            {issue.sunshines !== undefined && (
+              <Badge variant={isShining ? 'success' : 'gray'} static={true}>
+                {isShining ? 'Shining' : 'Public Backlog'}
+              </Badge>
+            )}
+            {/* Legacy voting power badge for arada- storage (if no sunshines) */}
+            {issue.sunshines === undefined && issue.storage === 'arada-' && (
               <Badge variant={isRatingIssue ? 'success' : 'gray'} static={true}>
                 {isRatingIssue ? 'Rating Issue' : 'Non-Rating Issue'}
               </Badge>
@@ -116,8 +127,31 @@ const IssueLinkPanel4: React.FC<Issue & { actions?: ActionProps[] }> = (issue) =
               {issue.actions && <PanelAction className='' actions={issue.actions} />}
               {ratingActions}
             </div>
+            {/* Display sunshines if available */}
+            {issue.sunshines !== undefined && (
+              <PanelStat
+                triggerClassName='text-sm'
+                iconType="money"
+                hint="Total sunshines"
+                fill={true}
+              >
+                {issue.sunshines}
+              </PanelStat>
+            )}
+            {/* Display users count if available */}
+            {issue.usersCount !== undefined && (
+              <PanelStat
+                triggerClassName='text-sm'
+                iconType="user"
+                hint="Contributors"
+                fill={true}
+              >
+                {issue.usersCount}
+              </PanelStat>
+            )}
             {issue.stats && Object.values(issue.stats).map((stat) => (
               <PanelStat
+                key={stat.type}
                 triggerClassName='text-sm'
                 iconType={getIssueStatIcon(stat.type)}
                 hint={stat.hint}

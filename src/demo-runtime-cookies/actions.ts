@@ -4,6 +4,7 @@ import { getDemoByEmail, createDemo, updateDemoStep } from '@/demo-runtime-cooki
 import { UserModel, Roles, emailToNickname, createUsers, getUserByIds, getUserById, updateUserSunshines } from '@/scripts/user'
 import { getGalaxyById, getGalaxyByName, updateGalaxySunshines, GalaxyModel } from '@/scripts/galaxy'
 import { processPayment } from '@/scripts/payment-gateway'
+import { getIssuesByGalaxy, getShiningIssues, getPublicBacklogIssues, IssueModel } from '@/scripts/issue'
 
 /**
  * Generate a random user with profile picture from DiceBear
@@ -291,6 +292,92 @@ export const server = {
                     success: false,
                     error: 'An error occurred while obtaining sunshines',
                 }
+            }
+        },
+    }),
+    getIssuesByGalaxy: defineAction({
+        input: z.object({
+            galaxyId: z.string(),
+        }),
+        handler: async ({ galaxyId }): Promise<{ success: boolean; issues?: IssueModel[]; error?: string }> => {
+            try {
+                const issues = await getIssuesByGalaxy(galaxyId);
+                return {
+                    success: true,
+                    issues,
+                };
+            } catch (error) {
+                console.error('Error getting issues by galaxy:', error);
+                return {
+                    success: false,
+                    error: 'An error occurred while getting issues',
+                };
+            }
+        },
+    }),
+    getShiningIssues: defineAction({
+        input: z.object({
+            galaxyId: z.string(),
+        }),
+        handler: async ({ galaxyId }): Promise<{ success: boolean; data?: IssueModel[]; error?: string }> => {
+            try {
+                const issues = await getShiningIssues(galaxyId);
+                return {
+                    success: true,
+                    data: issues,
+                };
+            } catch (error) {
+                console.error('Error getting shining issues:', error);
+                return {
+                    success: false,
+                    error: 'An error occurred while getting shining issues',
+                };
+            }
+        },
+    }),
+    getPublicBacklogIssues: defineAction({
+        input: z.object({
+            galaxyId: z.string(),
+        }),
+        handler: async ({ galaxyId }): Promise<{ success: boolean; data?: IssueModel[]; error?: string }> => {
+            try {
+                const issues = await getPublicBacklogIssues(galaxyId);
+                return {
+                    success: true,
+                    data: issues,
+                };
+            } catch (error) {
+                console.error('Error getting public backlog issues:', error);
+                return {
+                    success: false,
+                    error: 'An error occurred while getting public backlog issues',
+                };
+            }
+        },
+    }),
+    getUserById: defineAction({
+        input: z.object({
+            userId: z.string(),
+        }),
+        handler: async ({ userId }): Promise<{ success: boolean; data?: UserModel; error?: string }> => {
+            try {
+                const user = await getUserById(userId);
+                if (user) {
+                    return {
+                        success: true,
+                        data: user,
+                    };
+                }
+                return {
+                    success: false,
+                    error: 'User not found',
+                };
+            } catch (error) {
+                console.error('Error getting user by id:', error);
+                return {
+                    success: false,
+                    error: 'An error occurred while getting user',
+                };
             }
         },
     }),
