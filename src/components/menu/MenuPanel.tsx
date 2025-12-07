@@ -77,8 +77,8 @@ const GalaxyObject: React.FC<{
         <Link
           uri={projectUri}
           className={`flex flex-col items-center justify-center py-4 px-3 rounded-sm cursor-pointer transition-colors relative ${active
-            ? 'bg-blue-100 dark:bg-blue-700'
-            : 'hover:bg-slate-100 dark:hover:bg-slate-900'
+            ? 'bg-slate-100/60 dark:bg-slate-700/40'
+            : 'hover:bg-slate-50/40 dark:hover:bg-slate-800/30'
             }`}
           focus={focus}
         >
@@ -142,7 +142,7 @@ const influencerMainItems = (activeMenuItem: MenuName, focusMenuItem?: MenuName)
 
 const maintainerCollabItems = (activeMenuItem: MenuName, focusMenuItem?: MenuName, galaxyId?: string): React.ReactNode[] => {
   const baseUri = (path: string) => galaxyId ? `${path}?galaxy=${galaxyId}` : path;
-  
+
   return [
     <MenuItem
       key="guide"
@@ -196,7 +196,7 @@ const maintainerCollabItems = (activeMenuItem: MenuName, focusMenuItem?: MenuNam
 }
 const influencerCollabItems = (activeMenuItem: MenuName, focusMenuItem?: MenuName, galaxyId?: string): React.ReactNode[] => {
   const baseUri = (path: string) => galaxyId ? `${path}?galaxy=${galaxyId}` : path;
-  
+
   return [
     <MenuItem
       key="iwork"
@@ -210,7 +210,7 @@ const influencerCollabItems = (activeMenuItem: MenuName, focusMenuItem?: MenuNam
 }
 
 
-const noChildren = <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+const noChildren = <div className="text-center py-8 text-slate-500 dark:text-slate-400">
   <svg viewBox="0 0 24 24" className="w-12 h-12 mx-auto mb-4 text-gray-300 dark:text-gray-400" fill="currentColor">
     <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.58L19 8l-9 9z" />
   </svg>
@@ -229,9 +229,9 @@ const Panel: React.FC<Props> = ({
   starCount,
   galaxy
 }) => {
-  const titleC = <div className='text-sm font-medium   text-gray-500'>{title}</div>
+  const titleC = <div className='text-sm font-medium text-slate-500 dark:text-slate-400'>{title}</div>
   const galaxyId = galaxy?._id?.toString();
-  
+
   // Get project icon from galaxy's project if available, otherwise use provided projectIcon or default to cascadefund logo
   const finalProjectIcon = projectIcon || (galaxy ? undefined : undefined); // Will use cascadefund logo if not provided
   const finalProjectName = projectName || galaxy?.name || 'Ara';
@@ -243,7 +243,7 @@ const Panel: React.FC<Props> = ({
       {!onlyCustomChildren && (!isOnlyInfluencerMenu(activeMenuItem) ? maintainerMainItems(activeMenuItem, focusMenuItem, finalProjectIcon, finalProjectName, finalStarCount, galaxyId) : influencerMainItems(activeMenuItem, focusMenuItem))}
       {!onlyCustomChildren &&
         (<>
-          <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-3 mt-3">Collaboration Menu</h3>
+          <h3 className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-3 mt-3">Collaboration Menu</h3>
           <div className="p-1 w-full overflow-hidden justify-between">
             {!isOnlyInfluencerMenu(activeMenuItem) ? maintainerCollabItems(activeMenuItem, focusMenuItem, galaxyId) : influencerCollabItems(activeMenuItem, focusMenuItem, galaxyId)}
           </div>

@@ -13,9 +13,9 @@ export interface MenuItemProps {
 }
 
 const MenuItem: React.FC<MenuItemProps> = ({ icon, label, badges, uri, active, focus = false, className = '' }) => {
-  const baseClassName = `no-underline! flex items-center justify-between px-3 py-1 rounded-sm cursor-pointer`
-  const activeClassName = `bg-blue-100 dark:bg-blue-700 text-blue-700 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-600 dark:hover:text-blue-300 `
-  const inactiveClassName = `text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900 hover:text-teal-900 dark:hover:text-teal-600! `
+  const baseClassName = `no-underline! flex items-center justify-between px-3 py-1 rounded-sm cursor-pointer transition-colors`
+  const activeClassName = `bg-slate-100/60 dark:bg-slate-700/40 text-slate-700 dark:text-slate-300 hover:bg-slate-100/80 dark:hover:bg-slate-700/60`
+  const inactiveClassName = `text-slate-600 dark:text-slate-400 hover:bg-slate-50/40 dark:hover:bg-slate-800/30 hover:text-slate-700 dark:hover:text-slate-300`
   const linkClassName = `${baseClassName} ${active ? activeClassName : inactiveClassName} ${className}`
   return (
     <Link focus={focus} uri={uri} className={linkClassName}>
