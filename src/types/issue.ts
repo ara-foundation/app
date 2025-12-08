@@ -39,5 +39,6 @@ export interface Issue {
     createdTime?: number; // Unix timestamp
     sunshines: number;
     users: IssueUser[];
+    author?: string; // ID of the user who created the issue
 }
 

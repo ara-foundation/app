@@ -55,6 +55,16 @@ const ContentArea: React.FC<Props> = ({ title = 'Issues', draggable = false, fil
     };
 
     fetchIssues();
+
+    // Listen for issue creation events to refresh
+    const handleIssueCreated = () => {
+      fetchIssues();
+    };
+
+    window.addEventListener('issue-created', handleIssueCreated);
+    return () => {
+      window.removeEventListener('issue-created', handleIssueCreated);
+    };
   }, [galaxyId, title]);
 
   // Create filters based on IssueTag

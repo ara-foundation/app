@@ -1,10 +1,11 @@
 import { defineAction } from 'astro:actions'
 import { z } from 'astro:schema'
+import { ObjectId } from 'mongodb'
 import { getDemoByEmail, createDemo, updateDemoStep } from '@/demo-runtime-cookies/server-side'
 import { emailToNickname, createUsers, getUserByIds, getUserById, updateUserSunshines } from '@/scripts/user'
 import { getGalaxyById, getGalaxyByName, updateGalaxySunshines } from '@/scripts/galaxy'
 import { processPayment } from '@/scripts/payment-gateway'
-import { getIssuesByGalaxy, getShiningIssues, getPublicBacklogIssues } from '@/scripts/issue'
+import { getIssuesByGalaxy, getShiningIssues, getPublicBacklogIssues, createIssue, IssueTag } from '@/scripts/issue'
 import type { User, Roles } from '@/types/user'
 import type { Galaxy } from '@/types/galaxy'
 import type { Issue, IssueUser, IssueStat, IssueStatType } from '@/types/issue'
@@ -94,7 +95,7 @@ export const server = {
 
                 // Create new demo with three users
                 const users = await generateDemoUsers(email)
-                const created = await createDemo(email, users.map(user => user._id!))
+                const created = await createDemo(email, users.map(user => new ObjectId(user._id!)))
 
                 if (!created) {
                     return {
@@ -296,34 +297,57 @@ export const server = {
             try {
                 const issues = await getIssuesByGalaxy(galaxyId);
                 // Serialize IssueModel to IssueModelClient (convert ObjectIds and Dates to unix timestamps)
-                const serializedIssues: Issue[] = issues.map(issue => ({
-                    _id: issue._id?.toString(),
-                    galaxy: issue.galaxy?.toString() || '',
-                    uri: issue.uri,
-                    title: issue.title,
-                    description: issue.description,
-                    tags: issue.tags,
-                    maintainer: issue.maintainer?.toString() || '',
-                    categoryId: issue.categoryId,
-                    stats: issue.stats ? Object.entries(issue.stats).reduce((acc, [key, stat]) => {
-                        if (stat) {
-                            acc[key as IssueStatType] = {
-                                type: stat.type,
-                                hint: typeof stat.hint === 'string' ? stat.hint : String(stat.hint || ''),
-                                filled: stat.filled,
-                                children: typeof stat.children === 'number' ? stat.children : (typeof stat.children === 'string' ? stat.children : String(stat.children || ''))
-                            } as IssueStat;
-                        }
-                        return acc;
-                    }, {} as { [key in IssueStatType]?: IssueStat }) : undefined,
-                    createdTime: issue.createdTime ? (issue.createdTime instanceof Date ? Math.floor(issue.createdTime.getTime() / 1000) : (typeof issue.createdTime === 'number' ? issue.createdTime : Math.floor(new Date(issue.createdTime).getTime() / 1000))) : undefined,
-                    sunshines: issue.sunshines,
-                    users: issue.users?.map(user => ({
-                        username: user.username,
-                        starshineAmount: user.starshineAmount,
-                        transactionDate: user.transactionDate instanceof Date ? Math.floor(user.transactionDate.getTime() / 1000) : (typeof user.transactionDate === 'number' ? user.transactionDate : Math.floor(new Date(user.transactionDate).getTime() / 1000))
-                    } as IssueUser)) || []
+                const serializedIssues: Issue[] = await Promise.all(issues.map(async (issue) => {
+                    // Get author from authorId
+                    const authorUser = await getUserById(issue.author!);
+
+                    const baseIssue: any = {
+                        _id: issue._id?.toString(),
+                        galaxy: issue.galaxy?.toString() || '',
+                        uri: issue.uri,
+                        title: issue.title,
+                        description: issue.description,
+                        tags: issue.tags,
+                        maintainer: issue.maintainer?.toString() || '',
+                        categoryId: issue.categoryId,
+                        stats: issue.stats ? Object.entries(issue.stats).reduce((acc, [key, stat]) => {
+                            if (stat) {
+                                acc[key as IssueStatType] = {
+                                    type: stat.type,
+                                    hint: typeof stat.hint === 'string' ? stat.hint : String(stat.hint || ''),
+                                    filled: stat.filled,
+                                    children: typeof stat.children === 'number' ? stat.children : (typeof stat.children === 'string' ? stat.children : String(stat.children || ''))
+                                } as IssueStat;
+                            }
+                            return acc;
+                        }, {} as { [key in IssueStatType]?: IssueStat }) : undefined,
+                        createdTime: issue.createdTime ? (typeof issue.createdTime === 'number' ? issue.createdTime : Math.floor(new Date(issue.createdTime as any).getTime() / 1000)) : undefined,
+                        sunshines: issue.sunshines,
+                        users: issue.users?.map(user => ({
+                            username: user.username,
+                            starshineAmount: user.starshineAmount,
+                            transactionDate: typeof user.transactionDate === 'number' ? user.transactionDate : Math.floor(new Date(user.transactionDate as any).getTime() / 1000)
+                        } as IssueUser)) || []
+                    };
+
+                    // Add author information if user found
+                    if (authorUser) {
+                        baseIssue.author = {
+                            icon: authorUser.src,
+                            uri: authorUser.uri || `/profile?email=${authorUser.email || ''}`,
+                            children: authorUser.nickname || authorUser.email?.split('@')[0] || 'Unknown',
+                            rating: authorUser.role === 'maintainer' ? {
+                                ratingType: 'maintainer',
+                                lvl: Math.floor((authorUser.stars || 0) * 2),
+                                maxLvl: 10,
+                                top: 0,
+                            } : undefined,
+                        };
+                    }
+
+                    return baseIssue;
                 }));
+
                 return {
                     success: true,
                     issues: serializedIssues,
@@ -345,34 +369,40 @@ export const server = {
             try {
                 const issues = await getShiningIssues(galaxyId);
                 // Serialize IssueModel to IssueModelClient (convert ObjectIds and Dates to unix timestamps)
-                const serializedIssues: Issue[] = issues.map(issue => ({
-                    _id: issue._id?.toString(),
-                    galaxy: issue.galaxy?.toString() || '',
-                    uri: issue.uri,
-                    title: issue.title,
-                    description: issue.description,
-                    tags: issue.tags,
-                    maintainer: issue.maintainer?.toString() || '',
-                    categoryId: issue.categoryId,
-                    stats: issue.stats ? Object.entries(issue.stats).reduce((acc, [key, stat]) => {
-                        if (stat) {
-                            acc[key as IssueStatType] = {
-                                type: stat.type,
-                                hint: typeof stat.hint === 'string' ? stat.hint : String(stat.hint || ''),
-                                filled: stat.filled,
-                                children: typeof stat.children === 'number' ? stat.children : (typeof stat.children === 'string' ? stat.children : String(stat.children || ''))
-                            } as IssueStat;
-                        }
-                        return acc;
-                    }, {} as { [key in IssueStatType]?: IssueStat }) : undefined,
-                    createdTime: issue.createdTime ? (issue.createdTime instanceof Date ? Math.floor(issue.createdTime.getTime() / 1000) : (typeof issue.createdTime === 'number' ? issue.createdTime : Math.floor(new Date(issue.createdTime).getTime() / 1000))) : undefined,
-                    sunshines: issue.sunshines,
-                    users: issue.users?.map(user => ({
-                        username: user.username,
-                        starshineAmount: user.starshineAmount,
-                        transactionDate: user.transactionDate instanceof Date ? Math.floor(user.transactionDate.getTime() / 1000) : (typeof user.transactionDate === 'number' ? user.transactionDate : Math.floor(new Date(user.transactionDate).getTime() / 1000))
-                    } as IssueUser)) || []
+                const serializedIssues: Issue[] = await Promise.all(issues.map(async (issue) => {
+                    const baseIssue: any = {
+                        _id: issue._id?.toString(),
+                        galaxy: issue.galaxy?.toString() || '',
+                        uri: issue.uri,
+                        title: issue.title,
+                        description: issue.description,
+                        tags: issue.tags,
+                        maintainer: issue.maintainer?.toString() || '',
+                        author: issue.author?.toString() || '',
+                        categoryId: issue.categoryId,
+                        stats: issue.stats ? Object.entries(issue.stats).reduce((acc, [key, stat]) => {
+                            if (stat) {
+                                acc[key as IssueStatType] = {
+                                    type: stat.type,
+                                    hint: typeof stat.hint === 'string' ? stat.hint : String(stat.hint || ''),
+                                    filled: stat.filled,
+                                    children: typeof stat.children === 'number' ? stat.children : (typeof stat.children === 'string' ? stat.children : String(stat.children || ''))
+                                } as IssueStat;
+                            }
+                            return acc;
+                        }, {} as { [key in IssueStatType]?: IssueStat }) : undefined,
+                        createdTime: issue.createdTime ? (typeof issue.createdTime === 'number' ? issue.createdTime : Math.floor(new Date(issue.createdTime as any).getTime() / 1000)) : undefined,
+                        sunshines: issue.sunshines,
+                        users: issue.users?.map(user => ({
+                            username: user.username,
+                            starshineAmount: user.starshineAmount,
+                            transactionDate: typeof user.transactionDate === 'number' ? user.transactionDate : Math.floor(new Date(user.transactionDate as any).getTime() / 1000)
+                        } as IssueUser)) || []
+                    };
+
+                    return baseIssue;
                 }));
+
                 return {
                     success: true,
                     data: serializedIssues,
@@ -394,34 +424,42 @@ export const server = {
             try {
                 const issues = await getPublicBacklogIssues(galaxyId);
                 // Serialize IssueModel to IssueModelClient (convert ObjectIds and Dates to unix timestamps)
-                const serializedIssues: Issue[] = issues.map(issue => ({
-                    _id: issue._id?.toString(),
-                    galaxy: issue.galaxy?.toString() || '',
-                    uri: issue.uri,
-                    title: issue.title,
-                    description: issue.description,
-                    tags: issue.tags,
-                    maintainer: issue.maintainer?.toString() || '',
-                    categoryId: issue.categoryId,
-                    stats: issue.stats ? Object.entries(issue.stats).reduce((acc, [key, stat]) => {
-                        if (stat) {
-                            acc[key as IssueStatType] = {
-                                type: stat.type,
-                                hint: typeof stat.hint === 'string' ? stat.hint : String(stat.hint || ''),
-                                filled: stat.filled,
-                                children: typeof stat.children === 'number' ? stat.children : (typeof stat.children === 'string' ? stat.children : String(stat.children || ''))
-                            } as IssueStat;
-                        }
-                        return acc;
-                    }, {} as { [key in IssueStatType]?: IssueStat }) : undefined,
-                    createdTime: issue.createdTime ? (issue.createdTime instanceof Date ? Math.floor(issue.createdTime.getTime() / 1000) : (typeof issue.createdTime === 'number' ? issue.createdTime : Math.floor(new Date(issue.createdTime).getTime() / 1000))) : undefined,
-                    sunshines: issue.sunshines,
-                    users: issue.users?.map(user => ({
-                        username: user.username,
-                        starshineAmount: user.starshineAmount,
-                        transactionDate: user.transactionDate instanceof Date ? Math.floor(user.transactionDate.getTime() / 1000) : (typeof user.transactionDate === 'number' ? user.transactionDate : Math.floor(new Date(user.transactionDate).getTime() / 1000))
-                    } as IssueUser)) || []
+                const serializedIssues: Issue[] = await Promise.all(issues.map(async (issue) => {
+                    // Get author from authorId
+
+                    const baseIssue: any = {
+                        _id: issue._id?.toString(),
+                        galaxy: issue.galaxy?.toString() || '',
+                        uri: issue.uri,
+                        title: issue.title,
+                        description: issue.description,
+                        tags: issue.tags,
+                        maintainer: issue.maintainer?.toString() || '',
+                        author: issue.author?.toString() || '',
+                        categoryId: issue.categoryId,
+                        stats: issue.stats ? Object.entries(issue.stats).reduce((acc, [key, stat]) => {
+                            if (stat) {
+                                acc[key as IssueStatType] = {
+                                    type: stat.type,
+                                    hint: typeof stat.hint === 'string' ? stat.hint : String(stat.hint || ''),
+                                    filled: stat.filled,
+                                    children: typeof stat.children === 'number' ? stat.children : (typeof stat.children === 'string' ? stat.children : String(stat.children || ''))
+                                } as IssueStat;
+                            }
+                            return acc;
+                        }, {} as { [key in IssueStatType]?: IssueStat }) : undefined,
+                        createdTime: issue.createdTime ? (typeof issue.createdTime === 'number' ? issue.createdTime : Math.floor(new Date(issue.createdTime as any).getTime() / 1000)) : undefined,
+                        sunshines: issue.sunshines,
+                        users: issue.users?.map(user => ({
+                            username: user.username,
+                            starshineAmount: user.starshineAmount,
+                            transactionDate: typeof user.transactionDate === 'number' ? user.transactionDate : Math.floor(new Date(user.transactionDate as any).getTime() / 1000)
+                        } as IssueUser)) || []
+                    };
+
+                    return baseIssue;
                 }));
+
                 return {
                     success: true,
                     data: serializedIssues,
@@ -435,28 +473,118 @@ export const server = {
             }
         },
     }),
-    getUserById: defineAction({
+    createIssue: defineAction({
+        accept: 'json',
         input: z.object({
+            galaxyId: z.string(),
             userId: z.string(),
+            email: z.string().email(),
+            title: z.string().min(1),
+            description: z.string().min(1),
+            tags: z.array(z.nativeEnum(IssueTag)),
+            categoryId: z.string().default('general'),
+            sunshines: z.number().min(0),
         }),
-        handler: async ({ userId }): Promise<{ success: boolean; data?: User; error?: string }> => {
+        handler: async ({ galaxyId, userId, email, title, description, tags, categoryId, sunshines }): Promise<{ success: boolean; error?: string }> => {
             try {
-                const user = await getUserById(userId);
-                if (user) {
+                // Get demo and validate
+                const demo = await getDemoByEmail(email);
+                if (!demo) {
                     return {
-                        success: true,
-                        data: user,
+                        success: false,
+                        error: 'Demo not found',
                     };
                 }
+
+                // Get galaxy
+                const galaxy = await getGalaxyById(galaxyId);
+                if (!galaxy || !galaxy.maintainer) {
+                    return {
+                        success: false,
+                        error: 'Galaxy not found',
+                    };
+                }
+
+                // Get current user
+                const user = await getUserById(userId);
+                if (!user) {
+                    return {
+                        success: false,
+                        error: 'User not found',
+                    };
+                }
+
+                // Validate sunshines allocation
+                if (sunshines > 0) {
+                    const availableSunshines = user.sunshines || 0;
+                    if (sunshines > availableSunshines) {
+                        return {
+                            success: false,
+                            error: `Insufficient sunshines. Available: ${availableSunshines}`,
+                        };
+                    }
+
+                    // Deduct sunshines from user
+                    const userUpdated = await updateUserSunshines(userId, -sunshines);
+                    if (!userUpdated) {
+                        return {
+                            success: false,
+                            error: 'Failed to update user sunshines',
+                        };
+                    }
+
+                    // Update galaxy sunshines
+                    const galaxyUpdated = await updateGalaxySunshines(galaxyId, sunshines);
+                    if (!galaxyUpdated) {
+                        // Rollback user sunshines if galaxy update fails
+                        await updateUserSunshines(userId, sunshines);
+                        return {
+                            success: false,
+                            error: 'Failed to update galaxy sunshines',
+                        };
+                    }
+                }
+
+                // Create issue with authorId
+                const issue: Issue = {
+                    galaxy: galaxyId,
+                    uri: `/issue?galaxy=${galaxyId}`,
+                    title,
+                    description,
+                    tags,
+                    maintainer: galaxy.maintainer,
+                    categoryId,
+                    createdTime: Math.floor(Date.now() / 1000),
+                    sunshines,
+                    users: [{
+                        username: user.nickname || user.email?.split('@')[0] || 'unknown',
+                        starshineAmount: sunshines,
+                        transactionDate: Math.floor(Date.now() / 1000),
+                    }],
+                    author: userId,
+                };
+
+                const created = await createIssue(issue);
+                if (!created) {
+                    // Rollback sunshines if issue creation fails
+                    if (sunshines > 0) {
+                        await updateUserSunshines(userId, sunshines);
+                        await updateGalaxySunshines(galaxyId, -sunshines);
+                    }
+                    return {
+                        success: false,
+                        error: 'Failed to create issue',
+                    };
+                }
+
                 return {
-                    success: false,
-                    error: 'User not found',
+                    success: true,
                 };
             } catch (error) {
-                console.error('Error getting user by id:', error);
+                console.error('Error creating issue:', error);
                 return {
                     success: false,
-                    error: 'An error occurred while getting user',
+                    error: 'An error occurred while creating issue',
                 };
             }
         },

@@ -1,6 +1,6 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import Link from '../custom-ui/Link'
-import { getIcon, IconType } from '../icon'
+import { getIcon } from '../icon'
 import type { Issue } from '@/types/issue'
 import { getIssueStatIcon } from './utils'
 import Badge from '../badge/Badge'
@@ -8,70 +8,54 @@ import PanelFooter from '../panel/PanelFooter'
 import PanelStat from '../panel/PanelStat'
 import MenuAvatar from '../MenuAvatar'
 import TimeAgo from 'timeago-react';
-import Button from '../custom-ui/Button'
 import { ActionProps } from '@/types/eventTypes'
 import PanelAction from '../panel/PanelAction'
-import VotePopover from './VotePopover'
 import ProfileRating from '../rating/ProfileRating'
-import AvatarList from '../AvatarList'
-
+import { actions } from 'astro:actions'
+import type { User } from '@/types/user'
+import { Spinner } from '@/components/ui/shadcn-io/spinner'
 
 const IssueLinkPanel4: React.FC<Issue & { actions?: ActionProps[] }> = (issue) => {
+  const [authorUser, setAuthorUser] = useState<User | null>(null);
+  const [isLoadingAuthor, setIsLoadingAuthor] = useState(false);
+
   // Determine if issue is shining (has sunshines > 0)
-  const isShining = issue.sunshines !== undefined && issue.sunshines > 0;
+  const isShining = issue.sunshines > 0;
 
-  // Check if this is a rating issue (has voting power > 0) - legacy support
-  const votingPower = issue.stats?.['voting-power']?.children
-  const isRatingIssue = issue.storage === 'arada-' && votingPower && Number(votingPower) > 0
+  // Get issue number from _id
+  const issueNumber = issue._id ? `#${issue._id.slice(-6)}` : '#0';
 
-  // Handle VP change from VotePopover
-  const handleVPChange = (newVP: number) => {
-    console.log(`VP changed for issue ${issue.id}: ${newVP}`)
-    // Here you would typically update the issue's VP in your state management
-  }
+  // Get primary tag (first tag)
+  const primaryTag = issue.tags && issue.tags.length > 0 ? issue.tags[0] : undefined;
 
-  const nonRatingActions = <>
-    <Button onClick={() => console.log('Liked')} variant="secondary" size="sm" className="h-7 px-2 text-xs">
-      {getIcon({ iconType: 'likes', className: 'w-3 h-3 mr-1' })}
-      Like
-    </Button>
-    <Button variant="secondary" size="sm" className="h-7 px-2 text-xs">
-      {getIcon({ iconType: 'likes', className: 'w-3 h-3 mr-1' })}
-      Dislike
-    </Button>
-    <Button variant="primary" size="sm" className="h-7 px-2 text-xs">
-      {getIcon({ iconType: 'vote-priority', className: 'w-3 h-3 mr-1' })}
-      Turn To Voting Power
-    </Button>
-  </>
-
-  // Legacy VP support - only show if old VP properties exist
-  const ratingActions = isRatingIssue && issue.vpAmount && issue.currentVP !== undefined && issue.topVP !== undefined && issue.minVP !== undefined ? (
-    <VotePopover
-      vpAmount={issue.vpAmount}
-      currentVP={issue.currentVP}
-      topVP={issue.topVP}
-      minVP={issue.minVP}
-      onApply={handleVPChange}
-    />
-  ) : null
-
-  const defaultActionClassName = ' py-0 px-1 h-6 text-sm'
-  if (Array.isArray(issue.actions) && issue.actions.length > 0) {
-    issue.actions.map((action, i) => {
-      issue.actions![i].className = action.className ? action.className + defaultActionClassName : defaultActionClassName
-    })
-  }
+  // Fetch author user by authorId
+  useEffect(() => {
+    if (issue.author && typeof issue.author === 'string') {
+      setIsLoadingAuthor(true);
+      actions.getUserById({ userId: issue.author })
+        .then((result) => {
+          if (result.data?.success && result.data.data) {
+            setAuthorUser(result.data.data);
+          }
+        })
+        .catch((error) => {
+          console.error('Error fetching author:', error);
+        })
+        .finally(() => {
+          setIsLoadingAuthor(false);
+        });
+    }
+  }, [issue.author]);
 
   return (
     <div className='flex flex-row gap-1 items-start w-full'>
       {/* Issue storage and number */}
       <div className="flex items-center space-x-3 mt-0.5">
-        <Link uri={issue.uri} asNewTab={issue.storage !== 'arada-'}>
+        <Link uri={issue.uri} asNewTab={false}>
           <Badge variant='info' static={true}>
             <div className="flex items-center space-x-1">
-              {getIcon(issue.storage as IconType || 'ara')}
-              <span className="text-xs font-medium">{issue.number}</span>
+              {getIcon('ara')}
+              <span className="text-xs font-medium">{issueNumber}</span>
             </div>
           </Badge>
         </Link>
@@ -83,55 +67,55 @@ const IssueLinkPanel4: React.FC<Issue & { actions?: ActionProps[] }> = (issue) =
           <div className="flex items-center gap-2">
             <span className="text-lg font-medium text-slate-700 dark:text-slate-300/80">{issue.title}</span>
             {/* Shining badge - based on sunshines */}
-            {issue.sunshines !== undefined && (
-              <Badge variant={isShining ? 'success' : 'gray'} static={true}>
-                {isShining ? 'Shining' : 'Public Backlog'}
-              </Badge>
-            )}
-            {/* Legacy voting power badge for arada- storage (if no sunshines) */}
-            {issue.sunshines === undefined && issue.storage === 'arada-' && (
-              <Badge variant={isRatingIssue ? 'success' : 'gray'} static={true}>
-                {isRatingIssue ? 'Rating Issue' : 'Non-Rating Issue'}
-              </Badge>
-            )}
+            <Badge variant={isShining ? 'success' : 'gray'} static={true}>
+              {isShining ? 'Shining' : 'Public Backlog'}
+            </Badge>
           </div>
-          <Badge variant={issue.type === 'bug' ? 'danger' : issue.type === 'feature' ? 'blue' : issue.type === 'improvement' ? 'success' : issue.type === 'enhancement' ? 'warning' : 'info'} static={true}>
-            {issue.type}
-          </Badge>
+          {primaryTag && (
+            <Badge variant={
+              primaryTag === 'bug' ? 'danger' :
+                primaryTag === 'feature' ? 'blue' :
+                  primaryTag === 'improvement' ? 'success' :
+                    primaryTag === 'enhancement' ? 'warning' :
+                      'info'
+            } static={true}>
+              {primaryTag}
+            </Badge>
+          )}
         </div>
         <p className="text-base text-slate-600 dark:text-slate-400">{issue.description}</p>
 
         {/* Issue author and created time */}
         {(issue.author || issue.createdTime) &&
-          <div className="flex justify-end items-center space-x-1 text-slate-500 dark:text-slate-900 gap-1 text-xs">
-            {issue.author && <>
-              By {Array.isArray(issue.author) ? (
-                <AvatarList contributors={issue.author} showLastRating={true} />
-              ) : (
-                <>
-                  <MenuAvatar src={issue.author?.icon} uri={issue.author?.uri} className='w-7! h-7!' />
-                  {issue.author.rating && <ProfileRating {...issue.author.rating} />}
-                </>
-              )}
-            </>}
+          <div className="flex justify-end items-center space-x-1 text-slate-600 dark:text-slate-400 gap-1 text-xs">
+            {issue.author && (
+              <>
+                By {isLoadingAuthor ? (
+                  <div className="w-7 h-7 flex items-center justify-center">
+                    <Spinner className='w-7 h-7' variant='ellipsis' />
+                  </div>
+                ) : authorUser ? (
+                  <MenuAvatar user={authorUser} className='w-7! h-7!' />
+                ) : null}
+              </>
+            )}
             {issue.createdTime &&
-              <TimeAgo datetime={issue.createdTime} />
+              <TimeAgo datetime={issue.createdTime * 1000} />
             }
           </div>
         }
 
         {/* Issue status and actions */}
-        {(issue.stats || issue.actions || (issue.storage === 'arada-')) &&
+        {(issue.stats || issue.actions || issue.sunshines >= 0) &&
           <PanelFooter className='flex flex-row justify-between items-center mt-2'>
             <div className="flex items-center gap-2">
               {issue.actions && <PanelAction className='' actions={issue.actions} />}
-              {ratingActions}
             </div>
-            {/* Display sunshines if available */}
-            {issue.sunshines !== undefined && (
+            {/* Display sunshines */}
+            {issue.sunshines >= 0 && (
               <PanelStat
                 triggerClassName='text-sm'
-                iconType="money"
+                iconType="sunshine"
                 hint="Total sunshines"
                 fill={true}
               >
@@ -139,14 +123,14 @@ const IssueLinkPanel4: React.FC<Issue & { actions?: ActionProps[] }> = (issue) =
               </PanelStat>
             )}
             {/* Display users count if available */}
-            {issue.usersCount !== undefined && (
+            {issue.users && issue.users.length > 0 && (
               <PanelStat
                 triggerClassName='text-sm'
                 iconType="user"
                 hint="Contributors"
                 fill={true}
               >
-                {issue.usersCount}
+                {issue.users.length}
               </PanelStat>
             )}
             {issue.stats && Object.values(issue.stats).map((stat) => (

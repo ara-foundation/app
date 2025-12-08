@@ -36,6 +36,7 @@ interface IssueModel {
     createdTime?: Date;
     sunshines: number; // Cached sum of users sunshines
     users: IssueUserServer[]; // Array of users with their contributions
+    author?: ObjectId; // Reference to UserModel who created the issue
 }
 
 // Serialization functions
@@ -97,6 +98,7 @@ function issueModelToIssue(model: IssueModel | null): Issue | null {
         createdTime: model.createdTime ? Math.floor(model.createdTime.getTime() / 1000) : undefined,
         sunshines: model.sunshines,
         users: model.users.map(issueUserServerToIssueUser),
+        author: model.author?.toString(),
     }
 }
 
@@ -119,6 +121,7 @@ function issueToIssueModel(issue: Issue): IssueModel {
         createdTime: issue.createdTime ? new Date(issue.createdTime * 1000) : undefined,
         sunshines: issue.sunshines,
         users: issue.users.map(issueUserToIssueUserServer),
+        author: issue.author ? new ObjectId(issue.author) : undefined,
     }
 }
 

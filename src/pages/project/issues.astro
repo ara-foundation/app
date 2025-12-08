@@ -6,6 +6,7 @@ import { ObjectId } from "mongodb";
 import { getGalaxyById } from "@/scripts/galaxy";
 import { getProjectById } from "@/scripts/project";
 import WorkPanel from "@/components/maintainer/WorkPanel";
+import CreateIssueCTA from "@/components/issue/CreateIssueCTA";
 
 // Get galaxy ID from query parameter
 const galaxyIdParam = Astro.url.searchParams.get("galaxy");
@@ -46,4 +47,5 @@ if (!project) {
     starCount={galaxy.stars}
   />
   <WorkPanel slot="center" client:only="react" galaxyId={galaxyIdParam} />
+  <CreateIssueCTA slot="center" client:only="react" galaxyId={galaxyIdParam} />
 </Layout>
