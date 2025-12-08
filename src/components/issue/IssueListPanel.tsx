@@ -9,6 +9,7 @@ import { FilterOption } from '@/components/list/FilterToggle'
 import { getIcon } from '../icon'
 import type { ActionProps } from '@/types/eventTypes'
 import { getIssues } from './client-side'
+import { PATCH_KEYWORD } from '@/types/patch'
 
 interface Props {
   tabType: IssueTabKey
@@ -38,7 +39,7 @@ const IssueListPanel: React.FC<Props> = ({ tabType, draggable = false, filterabl
 
       // Exclude issues that are already in the patcher list
       const visibleIssues = fetchedIssues.filter(
-        issue => !(issue.listHistory || []).includes('patcher')
+        issue => !(issue.listHistory || []).includes(PATCH_KEYWORD)
       );
 
       setIssues(visibleIssues);

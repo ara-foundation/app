@@ -8,6 +8,7 @@ import { actions } from 'astro:actions';
 import { getDemo } from '@/demo-runtime-cookies/client-side';
 import { ISSUE_EVENT_TYPES, ISSUE_TAB_TITLES, IssueTabKey, isPatchable } from '@/types/issue';
 import type { Issue } from '@/types/issue';
+import { PATCH_KEYWORD } from '@/types/patch';
 import { cn } from '@/lib/utils';
 import Button from '@/components/custom-ui/Button';
 import Tooltip from '@/components/custom-ui/Tooltip';
@@ -45,7 +46,7 @@ const PatcherContainer: React.FC<PatcherContainerProps> = () => {
         try {
             const allIssues = await getIssues(galaxy, tab);
             const patched = allIssues.filter(
-                issue => issue.listHistory?.includes('patcher')
+                issue => issue.listHistory?.includes(PATCH_KEYWORD)
             ) as PatchedIssue[];
             const hasPatchableIssues = allIssues.some(issue => isPatchable(issue));
             setIsVisible(patched.length > 0 || hasPatchableIssues);

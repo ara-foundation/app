@@ -1,6 +1,7 @@
 import { ObjectId } from 'mongodb';
 import { getCollection, create } from './db';
 import type { IssueTag, IssueStatType, Issue, IssueStat, IssueUser } from '@/types/issue'
+import { PATCH_KEYWORD } from '@/types/patch'
 
 // Re-export types for backward compatibility
 export { IssueTag, type IssueStatType, type Issue, type IssueStat, type IssueUser } from '@/types/issue'
@@ -422,9 +423,9 @@ export async function patchIssue(
         }
 
         const currentListHistory = issue.listHistory || [];
-        const updatedListHistory = currentListHistory.includes('patcher')
+        const updatedListHistory = currentListHistory.includes(PATCH_KEYWORD)
             ? currentListHistory
-            : [...currentListHistory, 'patcher'];
+            : [...currentListHistory, PATCH_KEYWORD];
 
         // Build update operations
         const updateOps: any = {

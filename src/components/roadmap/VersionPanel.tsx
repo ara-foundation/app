@@ -12,9 +12,9 @@ import { Checkbox, CheckboxIndicator } from '@/components/animate-ui/primitives/
 import ByAuthor from '../ByAuthor'
 import { ProfileLink } from '../profile/types'
 import LoadingSpinner from '../LoadingSpinner'
+import DropTarget from '../DropTarget'
 import type { Version, Patch } from '@/types/roadmap'
 import type { User } from '@/types/user'
-import type { Issue } from '@/types/issue'
 import { actions } from 'astro:actions'
 
 const ProjectVersionPanel: React.FC<Version> = ({
@@ -260,55 +260,64 @@ const ProjectVersionPanel: React.FC<Version> = ({
             Patches
           </h4>
         </Tooltip>
-        <ul className="space-y-2">
-          {patchesList.map((patch) => {
-            const patchTooltipContent = (
-              <div className="text-sm space-y-3">
-                <Link
-                  uri={`/data/issue?id=${patch.issueId}`}
-                  className="text-blue-400 hover:text-blue-300 dark:text-blue-500 dark:hover:text-blue-400 text-xs underline"
-                >
-                  Click to see more about this issue
-                </Link>
-              </div>
-            )
-
-            return (
-              <li key={patch.issueId} className="flex items-center space-x-2">
-                <Checkbox
-                  checked={patch.completed || status === 'completed'}
-                  disabled
-                  className="w-4 h-4 rounded-sm border-2 border-slate-400 dark:border-slate-600 bg-white dark:bg-slate-600 data-[state=checked]:bg-slate-600 dark:data-[state=checked]:bg-slate-400 data-[state=checked]:border-slate-600 dark:data-[state=checked]:border-slate-400 flex items-center justify-center"
-                >
-                  <CheckboxIndicator className="w-3 h-3 text-white dark:text-slate-700" />
-                </Checkbox>
-                <Tooltip content={patchTooltipContent}>
+        <DropTarget
+          id={`patches-drop-${versionId || 'unknown'}`}
+          accept={['patch']}
+          onDrop={() => {
+            alert('heyya!');
+          }}
+          className="min-h-[100px]"
+        >
+          <ul className="space-y-2">
+            {patchesList.map((patch) => {
+              const patchTooltipContent = (
+                <div className="text-sm space-y-3">
                   <Link
                     uri={`/data/issue?id=${patch.issueId}`}
-                    className="text-sm text-slate-700 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 cursor-pointer"
+                    className="text-blue-400 hover:text-blue-300 dark:text-blue-500 dark:hover:text-blue-400 text-xs underline"
                   >
-                    {patch.title}
+                    Click to see more about this issue
                   </Link>
-                </Tooltip>
-                {!patch.completed && status !== 'completed' && (
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    disabled={revertingIssueId === patch.issueId}
-                    onClick={() => handleRevertPatch(patch.issueId)}
-                    className="ml-auto"
+                </div>
+              )
+
+              return (
+                <li key={patch.issueId} className="flex items-center space-x-2">
+                  <Checkbox
+                    checked={patch.completed || status === 'completed'}
+                    disabled
+                    className="w-4 h-4 rounded-sm border-2 border-slate-400 dark:border-slate-600 bg-white dark:bg-slate-600 data-[state=checked]:bg-slate-600 dark:data-[state=checked]:bg-slate-400 data-[state=checked]:border-slate-600 dark:data-[state=checked]:border-slate-400 flex items-center justify-center"
                   >
-                    {revertingIssueId === patch.issueId ? (
-                      <LoadingSpinner />
-                    ) : (
-                      getIcon({ iconType: 'revert', className: 'w-4 h-4' })
-                    )}
-                  </Button>
-                )}
-              </li>
-            )
-          })}
-        </ul>
+                    <CheckboxIndicator className="w-3 h-3 text-white dark:text-slate-700" />
+                  </Checkbox>
+                  <Tooltip content={patchTooltipContent}>
+                    <Link
+                      uri={`/data/issue?id=${patch.issueId}`}
+                      className="text-sm text-slate-700 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 cursor-pointer"
+                    >
+                      {patch.title}
+                    </Link>
+                  </Tooltip>
+                  {!patch.completed && status !== 'completed' && (
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      disabled={revertingIssueId === patch.issueId}
+                      onClick={() => handleRevertPatch(patch.issueId)}
+                      className="ml-auto"
+                    >
+                      {revertingIssueId === patch.issueId ? (
+                        <LoadingSpinner />
+                      ) : (
+                        getIcon({ iconType: 'revert', className: 'w-4 h-4' })
+                      )}
+                    </Button>
+                  )}
+                </li>
+              )
+            })}
+          </ul>
+        </DropTarget>
         {notificationMessage && (
           <div className="mt-4 p-3 bg-green-50/10 border border-green-200 dark:border-green-700 rounded-xs text-green-700 dark:text-green-400 text-sm">
             {notificationMessage}
