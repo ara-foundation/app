@@ -5,7 +5,7 @@ import { getDemoByEmail, createDemo, updateDemoStep } from '@/demo-runtime-cooki
 import { emailToNickname, createUsers, getUserByIds, getUserById, updateUserSunshines } from '@/scripts/user'
 import { getGalaxyById, getGalaxyByName, updateGalaxySunshines } from '@/scripts/galaxy'
 import { processPayment } from '@/scripts/payment-gateway'
-import { getIssuesByGalaxy, getShiningIssues, getPublicBacklogIssues, createIssue, updateIssueSunshines, getIssueById, setIssueContributor, unsetIssueContributor, IssueTag } from '@/scripts/issue'
+import { getIssuesByGalaxy, getShiningIssues, getPublicBacklogIssues, createIssue, updateIssueSunshines, getIssueById, setIssueContributor, unsetIssueContributor, updateIssue, patchIssue, unpatchIssue, IssueTag } from '@/scripts/issue'
 import type { User, Roles } from '@/types/user'
 import type { Galaxy } from '@/types/galaxy'
 import type { Issue, IssueUser, IssueStat, IssueStatType } from '@/types/issue'
@@ -309,7 +309,6 @@ export const server = {
                         description: issue.description,
                         tags: issue.tags,
                         maintainer: issue.maintainer?.toString() || '',
-                        categoryId: issue.categoryId,
                         stats: issue.stats ? Object.entries(issue.stats).reduce((acc, [key, stat]) => {
                             if (stat) {
                                 acc[key as IssueStatType] = {
@@ -380,7 +379,6 @@ export const server = {
                         maintainer: issue.maintainer?.toString() || '',
                         author: issue.author?.toString() || '',
                         contributor: issue.contributor?.toString() || '',
-                        categoryId: issue.categoryId,
                         stats: issue.stats ? Object.entries(issue.stats).reduce((acc, [key, stat]) => {
                             if (stat) {
                                 acc[key as IssueStatType] = {
@@ -464,7 +462,6 @@ export const server = {
                         maintainer: issue.maintainer?.toString() || '',
                         author: issue.author?.toString() || '',
                         contributor: issue.contributor?.toString() || '',
-                        categoryId: issue.categoryId,
                         stats: issue.stats ? Object.entries(issue.stats).reduce((acc, [key, stat]) => {
                             if (stat) {
                                 acc[key as IssueStatType] = {
@@ -510,10 +507,9 @@ export const server = {
             title: z.string().min(1),
             description: z.string().min(1),
             tags: z.array(z.nativeEnum(IssueTag)),
-            categoryId: z.string().default('general'),
             sunshines: z.number().min(0),
         }),
-        handler: async ({ galaxyId, userId, email, title, description, tags, categoryId, sunshines }): Promise<{ success: boolean; error?: string }> => {
+        handler: async ({ galaxyId, userId, email, title, description, tags, sunshines }): Promise<{ success: boolean; error?: string }> => {
             try {
                 // Get demo and validate
                 const demo = await getDemoByEmail(email);
@@ -581,7 +577,6 @@ export const server = {
                     description,
                     tags,
                     maintainer: galaxy.maintainer,
-                    categoryId,
                     createdTime: Math.floor(Date.now() / 1000),
                     sunshines,
                     users: [{
@@ -837,6 +832,135 @@ export const server = {
                 return {
                     success: false,
                     error: 'An error occurred while unsetting contributor',
+                };
+            }
+        },
+    }),
+    updateIssue: defineAction({
+        accept: 'json',
+        input: z.object({
+            issueId: z.string(),
+            email: z.string().email(),
+            listHistory: z.array(z.string()).optional(),
+        }),
+        handler: async ({ issueId, email, listHistory }): Promise<{ success: boolean; error?: string }> => {
+            try {
+                // Get demo and validate
+                const demo = await getDemoByEmail(email);
+                if (!demo) {
+                    return {
+                        success: false,
+                        error: 'Demo not found',
+                    };
+                }
+
+                // Update issue
+                const updates: { listHistory?: string[] } = {};
+                if (listHistory !== undefined) {
+                    updates.listHistory = listHistory;
+                }
+
+                const updated = await updateIssue(issueId, updates);
+                if (!updated) {
+                    return {
+                        success: false,
+                        error: 'Failed to update issue',
+                    };
+                }
+
+                return {
+                    success: true,
+                };
+            } catch (error) {
+                console.error('Error updating issue:', error);
+                return {
+                    success: false,
+                    error: 'An error occurred while updating issue',
+                };
+            }
+        },
+    }),
+    patchIssue: defineAction({
+        accept: 'json',
+        input: z.object({
+            issueId: z.string(),
+            email: z.string().email(),
+        }),
+        handler: async ({ issueId, email }): Promise<{ success: boolean; error?: string }> => {
+            try {
+                // Get demo and validate
+                const demo = await getDemoByEmail(email);
+                if (!demo) {
+                    return {
+                        success: false,
+                        error: 'Demo not found',
+                    };
+                }
+
+                // Get current issue to preserve original if not provided
+                const issue = await getIssueById(issueId);
+                if (!issue) {
+                    return {
+                        success: false,
+                        error: 'Issue not found',
+                    };
+                }
+
+                // Patch issue
+                const updated = await patchIssue(issueId);
+                if (!updated) {
+                    return {
+                        success: false,
+                        error: 'Failed to patch issue',
+                    };
+                }
+
+                return {
+                    success: true,
+                };
+            } catch (error) {
+                console.error('Error patching issue:', error);
+                return {
+                    success: false,
+                    error: 'An error occurred while patching issue',
+                };
+            }
+        },
+    }),
+    unpatchIssue: defineAction({
+        accept: 'json',
+        input: z.object({
+            issueId: z.string(),
+            email: z.string().email(),
+        }),
+        handler: async ({ issueId, email }): Promise<{ success: boolean; error?: string }> => {
+            try {
+                // Get demo and validate
+                const demo = await getDemoByEmail(email);
+                if (!demo) {
+                    return {
+                        success: false,
+                        error: 'Demo not found',
+                    };
+                }
+
+                // Unpatch issue
+                const updated = await unpatchIssue(issueId);
+                if (!updated) {
+                    return {
+                        success: false,
+                        error: 'Failed to unpatch issue',
+                    };
+                }
+
+                return {
+                    success: true,
+                };
+            } catch (error) {
+                console.error('Error unpatching issue:', error);
+                return {
+                    success: false,
+                    error: 'An error occurred while unpatching issue',
                 };
             }
         },

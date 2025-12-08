@@ -19,7 +19,6 @@ const CreateIssueForm: React.FC<CreateIssueFormProps> = ({ galaxyId, onSuccess, 
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
     const [selectedTags, setSelectedTags] = useState<IssueTag[]>([]);
-    const [categoryId, setCategoryId] = useState('general');
     const [sunshines, setSunshines] = useState(0);
     const [availableSunshines, setAvailableSunshines] = useState(0);
     const [isLoading, setIsLoading] = useState(false);
@@ -28,7 +27,6 @@ const CreateIssueForm: React.FC<CreateIssueFormProps> = ({ galaxyId, onSuccess, 
     const scrollContainerRef = useRef<HTMLDivElement>(null);
     const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
     const titleInputRef = useRef<HTMLInputElement>(null);
-    const categoryInputRef = useRef<HTMLInputElement>(null);
 
     // Fetch user sunshines
     useEffect(() => {
@@ -166,7 +164,6 @@ const CreateIssueForm: React.FC<CreateIssueFormProps> = ({ galaxyId, onSuccess, 
                 title: title.trim(),
                 description: description.trim(),
                 tags: selectedTags,
-                categoryId,
                 sunshines,
             });
 
@@ -305,35 +302,7 @@ const CreateIssueForm: React.FC<CreateIssueFormProps> = ({ galaxyId, onSuccess, 
                         </div>
                     </ScrollStackItem>
 
-                    {/* Card 4: Category */}
-                    <ScrollStackItem
-                        itemClassName="bg-white/5 dark:bg-slate-900/10 backdrop-blur-md border border-white/10 dark:border-slate-700/20 transition-all duration-300"
-                    >
-                        <div
-                            ref={(el) => { cardRefs.current[3] = el; }}
-                            className="space-y-4"
-                        >
-                            <label className="block text-lg font-semibold text-slate-700 dark:text-slate-300">
-                                Category
-                            </label>
-                            <input
-                                ref={categoryInputRef}
-                                type="text"
-                                value={categoryId}
-                                onChange={(e) => setCategoryId(e.target.value)}
-                                onKeyDown={(e) => {
-                                    if (e.key === 'Enter') {
-                                        e.preventDefault();
-                                        scrollToNextCard();
-                                    }
-                                }}
-                                placeholder="e.g., performance, feature, bug"
-                                className="w-full px-3 py-2 border border-gray-300/50 dark:border-slate-700/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white/30 dark:bg-slate-900/40 backdrop-blur-md"
-                            />
-                        </div>
-                    </ScrollStackItem>
-
-                    {/* Card 5: Sunshines Slider */}
+                    {/* Card 4: Sunshines Slider */}
                     <ScrollStackItem
                         itemClassName="bg-white/5 dark:bg-slate-900/10 backdrop-blur-md border border-white/10 dark:border-slate-700/20 transition-all duration-300"
                     >

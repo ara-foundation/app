@@ -3,7 +3,7 @@ import FilterableList from '@/components/list/FilterableList'
 import IssueLink from '@/components/issue/IssueLink'
 import BasePanel from '@/components/panel/Panel'
 import type { Issue } from '@/types/issue'
-import { IssueTag } from '@/types/issue'
+import { IssueTag, ISSUE_EVENT_TYPES } from '@/types/issue'
 import DraggableIssueLink from './DraggableIssueLink'
 import { FilterOption } from '@/components/list/FilterToggle'
 import { getIcon } from '../icon'
@@ -18,7 +18,7 @@ interface Props {
   galaxyId?: string
 }
 
-const ContentArea: React.FC<Props> = ({ title = 'Issues', draggable = false, filterable: filerable = false, description, galaxyId }) => {
+const IssueListPanel: React.FC<Props> = ({ title = 'Issues', draggable = false, filterable: filerable = false, description, galaxyId }) => {
   const [issues, setIssues] = useState<Issue[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -36,7 +36,6 @@ const ContentArea: React.FC<Props> = ({ title = 'Issues', draggable = false, fil
 
         if (title === 'Shining Issues') {
           const result = await actions.getShiningIssues({ galaxyId });
-          console.log('shining issues result', result);
           fetchedIssues = result.data?.data || [];
         } else if (title === 'Public Backlog') {
           const result = await actions.getPublicBacklogIssues({ galaxyId });
@@ -48,6 +47,22 @@ const ContentArea: React.FC<Props> = ({ title = 'Issues', draggable = false, fil
         }
 
         setIssues(fetchedIssues);
+
+        // Check if any issue has both contributor and maintainer (patchable)
+        const hasPatchableIssues = fetchedIssues.some(
+          issue => issue.contributor && issue.maintainer
+        );
+
+        // Broadcast patchable-issues-exist event
+        if (galaxyId) {
+          window.dispatchEvent(new CustomEvent(ISSUE_EVENT_TYPES.PATCHABLE_ISSUES_EXIST, {
+            detail: {
+              exists: hasPatchableIssues,
+              galaxyId: galaxyId,
+              title: title,
+            },
+          }));
+        }
       } catch (error) {
         console.error('Error fetching issues:', error);
       } finally {
@@ -62,11 +77,20 @@ const ContentArea: React.FC<Props> = ({ title = 'Issues', draggable = false, fil
       fetchIssues();
     };
 
-    window.addEventListener('issue-created', handleIssueCreated);
-    return () => {
-      window.removeEventListener('issue-created', handleIssueCreated);
+    window.addEventListener(ISSUE_EVENT_TYPES.ISSUE_CREATED, handleIssueCreated);
+
+    // Listen for issue-unpatched event to refresh
+    const handleIssueUnpatched = () => {
+      fetchIssues();
     };
-  }, [galaxyId, title]);
+
+    window.addEventListener(ISSUE_EVENT_TYPES.ISSUE_UNPATCHED, handleIssueUnpatched);
+
+    return () => {
+      window.removeEventListener(ISSUE_EVENT_TYPES.ISSUE_CREATED, handleIssueCreated);
+      window.removeEventListener(ISSUE_EVENT_TYPES.ISSUE_UNPATCHED, handleIssueUnpatched);
+    };
+  }, []);
 
   // Create filters based on IssueTag
   const filters: FilterOption[] = [
@@ -209,4 +233,4 @@ const ContentArea: React.FC<Props> = ({ title = 'Issues', draggable = false, fil
   )
 }
 
-export default ContentArea
+export default IssueListPanel

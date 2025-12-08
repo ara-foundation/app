@@ -32,7 +32,7 @@ export interface Issue {
     description: string;
     tags: IssueTag[];
     maintainer: string;
-    categoryId: string;
+    listHistory?: string[]; // Track issue location history (e.g., ['patcher'])
     stats?: {
         [key in IssueStatType]?: IssueStat;
     };
@@ -44,6 +44,10 @@ export interface Issue {
 }
 
 export const ISSUE_EVENT_TYPES = {
+    ISSUE_CREATED: 'issue-created',
     ISSUE_UPDATE: 'issue-update',
+    PATCHABLE_ISSUES_EXIST: 'patchable-issues-exist',
+    ISSUE_UNPATCHED: 'issue-unpatched',
+    ISSUES_TAB_CHANGED: 'patchable-tab-changed',
 } as const
 

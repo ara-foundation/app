@@ -331,6 +331,39 @@ function HoleBackground({
       )}
       {...props}
     >
+      {/* Grid backdrop to match GridBackgrounded, softly masked */}
+      <div
+        aria-hidden
+        className={cn(
+          'absolute inset-0 z-0 pointer-events-none',
+          '[background-size:20px_20px]',
+          '[background-image:linear-gradient(to_right,#e4e4e7_1px,transparent_1px),linear-gradient(to_bottom,#e4e4e7_1px,transparent_1px)]',
+          'dark:[background-image:linear-gradient(to_right,#262626_1px,transparent_1px),linear-gradient(to_bottom,#262626_1px,transparent_1px)]',
+          'opacity-50 dark:opacity-40',
+          '[mask-image:radial-gradient(ellipse_at_center,transparent_10%,black_80%)]'
+        )}
+      />
+
+      {/* Squished grid to create the “hole” effect */}
+      <div
+        aria-hidden
+        className={cn(
+          'absolute inset-0 z-[1] pointer-events-none',
+          '[background-size:20px_20px]',
+          '[background-image:linear-gradient(to_right,#e4e4e7_1px,transparent_1px),linear-gradient(to_bottom,#e4e4e7_1px,transparent_1px)]',
+          'dark:[background-image:linear-gradient(to_right,#262626_1px,transparent_1px),linear-gradient(to_bottom,#262626_1px,transparent_1px)]',
+          'opacity-65 dark:opacity-55',
+          'mix-blend-multiply dark:mix-blend-screen'
+        )}
+        style={{
+          transform: 'perspective(900px) rotateX(72deg) scale(1.05)',
+          transformOrigin: '50% 40%',
+          maskImage: 'radial-gradient(ellipse at 50% 55%, black 35%, transparent 75%)',
+          WebkitMaskImage: 'radial-gradient(ellipse at 50% 55%, black 35%, transparent 75%)',
+          filter: 'blur(0.6px)',
+        }}
+      />
+
       {children}
       <canvas
         ref={canvasRef}

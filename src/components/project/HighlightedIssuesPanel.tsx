@@ -21,10 +21,8 @@ const HighlightedIssues: React.FC = () => {
         }
       },
       uri: '',
-      number: '',
       type: 'improvement',
       projectId: '',
-      categoryId: ''
     },
     {
       title: 'Fix Linux memory leak',
@@ -42,10 +40,8 @@ const HighlightedIssues: React.FC = () => {
         }
       },
       uri: '',
-      number: '',
       type: 'improvement',
       projectId: '',
-      categoryId: ''
     },
     {
       title: 'Consult me how the code work for internal project',
@@ -63,10 +59,8 @@ const HighlightedIssues: React.FC = () => {
         }
       },
       uri: '',
-      number: '',
       type: 'improvement',
       projectId: '',
-      categoryId: ''
     },
     {
       title: 'Better documentation for beginners',
@@ -84,10 +78,8 @@ const HighlightedIssues: React.FC = () => {
         }
       },
       uri: '',
-      number: '',
       type: 'improvement',
       projectId: '',
-      categoryId: ''
     }
   ]
 

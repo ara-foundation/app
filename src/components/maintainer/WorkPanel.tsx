@@ -9,6 +9,7 @@ import { getDemo } from '@/demo-runtime-cookies/client-side'
 import { DEMO_EVENT_TYPES } from '@/demo-runtime-cookies/index'
 import { actions } from 'astro:actions'
 import type { User } from '@/types/user'
+import { ISSUE_EVENT_TYPES } from '@/types/issue'
 
 interface WorkPanelProps {
   galaxyId: string
@@ -17,6 +18,7 @@ interface WorkPanelProps {
 const C: React.FC<WorkPanelProps> = ({ galaxyId }) => {
   const [, setCurrentUser] = useState<User | null>(null);
   const [isMaintainer, setIsMaintainer] = useState(false);
+  const [activeTab, setActiveTab] = useState<'shining' | 'public' | 'interesting' | 'boring' | 'closed'>('shining');
 
   // Check user role and listen for changes
   useEffect(() => {
@@ -46,6 +48,16 @@ const C: React.FC<WorkPanelProps> = ({ galaxyId }) => {
       window.removeEventListener(DEMO_EVENT_TYPES.ROLE_CHANGED, handleRoleChange);
     };
   }, []);
+
+  const dispatchTabChanged = (tabKey: string) => {
+    window.dispatchEvent(new CustomEvent(ISSUE_EVENT_TYPES.ISSUES_TAB_CHANGED, {
+      detail: { title: tabKey, galaxyId },
+    }));
+    // Reset patchable state for new tab until it reports
+    window.dispatchEvent(new CustomEvent(ISSUE_EVENT_TYPES.PATCHABLE_ISSUES_EXIST, {
+      detail: { exists: false, galaxyId, title: tabKey },
+    }));
+  }
 
   const tabs: TabProps[] = isMaintainer ? [
     {
@@ -113,7 +125,14 @@ const C: React.FC<WorkPanelProps> = ({ galaxyId }) => {
   ]
 
   return (
-    <Tabs id="work" activeTab='shining' tabs={tabs} />
+    <Tabs
+      onTabChange={(newTab => {
+        setActiveTab(newTab as any);
+        dispatchTabChanged(newTab);
+      })}
+      activeTab={activeTab}
+      tabs={tabs}
+    />
   )
 }
 

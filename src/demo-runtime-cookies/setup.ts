@@ -6,7 +6,7 @@ import { getOrCreateProject } from '../scripts/project'
 import { createIssue } from '../scripts/issue'
 import type { Galaxy } from '../types/galaxy'
 import type { Project } from '../types/project'
-import type { Issue, IssueTag } from '../types/issue'
+import { Issue, IssueTag } from '../types/issue'
 
 // Internal model types for direct MongoDB operations
 interface GalaxyModel {
@@ -22,24 +22,6 @@ interface GalaxyModel {
     x: number
     y: number
     tags?: string[]
-}
-
-interface IssueModel {
-    _id?: ObjectId
-    galaxy: ObjectId
-    uri: string
-    title: string
-    description: string
-    tags: IssueTag[]
-    maintainer: ObjectId
-    categoryId: string
-    createdTime?: Date
-    sunshines: number
-    users: Array<{
-        username: string
-        starshineAmount: number
-        transactionDate: Date
-    }>
 }
 
 // Initial galaxy data for demo setup
@@ -136,7 +118,6 @@ async function setupIssues(projectIds: ObjectId[], existingCount: number, collec
                         description: `This issue focuses on optimizing the performance of ${galaxy.name}. We need to reduce load times and improve overall responsiveness.`,
                         tags: [IssueTag.IMPROVEMENT],
                         maintainer: maintainerId.toString(),
-                        categoryId: 'performance',
                         createdTime: Math.floor(Date.now() / 1000),
                         sunshines: 150 + Math.floor(Math.random() * 100),
                         users: [
@@ -163,7 +144,6 @@ async function setupIssues(projectIds: ObjectId[], existingCount: number, collec
                         description: `This issue proposes adding a new feature that would enhance ${galaxy.name}'s capabilities.`,
                         tags: [IssueTag.FEATURE],
                         maintainer: maintainerId.toString(),
-                        categoryId: 'feature',
                         createdTime: Math.floor(Date.now() / 1000),
                         sunshines: 200 + Math.floor(Math.random() * 150),
                         users: [
@@ -190,7 +170,6 @@ async function setupIssues(projectIds: ObjectId[], existingCount: number, collec
                         description: `This is a minor bug that doesn't affect core functionality but should be addressed.`,
                         tags: [IssueTag.BUG],
                         maintainer: maintainerId.toString(),
-                        categoryId: 'bug',
                         createdTime: Math.floor(Date.now() / 1000),
                         sunshines: 0,
                         users: [
@@ -208,7 +187,6 @@ async function setupIssues(projectIds: ObjectId[], existingCount: number, collec
                         description: `Update the documentation to reflect recent changes and improvements.`,
                         tags: [IssueTag.WISH],
                         maintainer: maintainerId.toString(),
-                        categoryId: 'documentation',
                         createdTime: Math.floor(Date.now() / 1000),
                         sunshines: 0,
                         users: [

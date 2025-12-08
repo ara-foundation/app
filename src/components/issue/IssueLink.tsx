@@ -168,7 +168,7 @@ const IssueLinkPanel4: React.FC<IssueLinkProps> = (issue) => {
               >
                 <Badge
                   variant='orange'
-                  static={false}
+                  static={true}
                   className="cursor-pointer select-none shadow-sm"
                 >
                   <span className="flex items-center gap-1">

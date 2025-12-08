@@ -7,15 +7,17 @@ import { Issue } from '@/types/issue'
 type DraggableIssueProps = Issue & { actions?: ActionProps[]; patchable?: boolean; draggable?: boolean }
 
 const IssueCard: React.FC<DraggableIssueProps> = memo((props) => {
+  const dragType = props.patchable ? 'patch' : 'issue';
+
   const [{ opacity }, drag] = useDrag(
     () => ({
-      type: 'issue',
+      type: dragType,
       item: { id: props._id, title: props.title },
       collect: (monitor) => ({
         opacity: monitor.isDragging() ? 0.4 : 1,
       }),
     }),
-    [props._id, props.title],
+    [props._id, props.title, dragType],
   )
 
   const borderClasses = props.patchable

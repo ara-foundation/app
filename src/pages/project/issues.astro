@@ -7,6 +7,7 @@ import { getGalaxyById } from "@/scripts/galaxy";
 import { getProjectById } from "@/scripts/project";
 import WorkPanel from "@/components/maintainer/WorkPanel";
 import CreateIssueCTA from "@/components/issue/CreateIssueCTA";
+import PatcherPanel from "@/components/patcher/PatcherPanel";
 
 // Get galaxy ID from query parameter
 const galaxyIdParam = Astro.url.searchParams.get("galaxy");
@@ -48,4 +49,5 @@ if (!project) {
   />
   <WorkPanel slot="center" client:only="react" galaxyId={galaxyIdParam} />
   <CreateIssueCTA slot="center" client:only="react" galaxyId={galaxyIdParam} />
+  <PatcherPanel slot="right" client:only="react" />
 </Layout>

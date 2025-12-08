@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import {
   Tabs,
   TabsContent,
@@ -18,14 +18,18 @@ export type TabProps = {
 }
 
 interface Props {
-  id: string
   activeTab: string
   tabs: TabProps[]
+  onTabChange?: (tab: string) => void
 }
 
-const C: React.FC<Props> = ({ activeTab: initialTab, tabs, id }) => {
-  const [activeTab, setTab] = useState<string | undefined>(initialTab);
+const C: React.FC<Props> = ({ activeTab: initialTab, tabs, onTabChange }) => {
+  const [activeTab, setTab] = useState<string>(initialTab);
   const baseClassName = "flex-1 rounded-md hover:bg-accent/50 rounded-b-none hover:border-b-2 hover:border-blue-500 hover:shadow-md backdrop-blur-sm"
+
+  useEffect(() => {
+    onTabChange?.(activeTab)
+  }, [activeTab])
 
   return (
     <Tabs

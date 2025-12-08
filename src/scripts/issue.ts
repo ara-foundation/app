@@ -29,7 +29,7 @@ interface IssueModel {
     description: string;
     tags: IssueTag[];
     maintainer: ObjectId; // Reference to UserModel
-    categoryId: string;
+    listHistory?: string[]; // Track issue location history (e.g., ['patcher'])
     stats?: {
         [key in IssueStatType]?: IssueStatServer;
     };
@@ -89,7 +89,7 @@ function issueModelToIssue(model: IssueModel | null): Issue | null {
         description: model.description,
         tags: model.tags,
         maintainer: model.maintainer.toString(),
-        categoryId: model.categoryId,
+        listHistory: model.listHistory,
         stats: model.stats ? Object.fromEntries(
             Object.entries(model.stats).map(([key, value]) => [
                 key,
@@ -113,7 +113,7 @@ function issueToIssueModel(issue: Issue): IssueModel {
         description: issue.description,
         tags: issue.tags,
         maintainer: new ObjectId(issue.maintainer),
-        categoryId: issue.categoryId,
+        listHistory: issue.listHistory,
         stats: issue.stats ? Object.fromEntries(
             Object.entries(issue.stats).map(([key, value]) => [
                 key,
@@ -349,6 +349,108 @@ export async function unsetIssueContributor(
         return result.modifiedCount > 0;
     } catch (error) {
         console.error('Error unsetting issue contributor:', error);
+        return false;
+    }
+}
+
+/**
+ * Update issue fields listHistory
+ */
+export async function updateIssue(
+    issueId: string | ObjectId,
+    updates: { listHistory?: string[] }
+): Promise<boolean> {
+    try {
+        const collection = await getCollection<IssueModel>('issues');
+        const issueObjectId = typeof issueId === 'string' ? new ObjectId(issueId) : issueId;
+
+        const updateOps: any = {};
+        if (updates.listHistory !== undefined) {
+            updateOps.listHistory = updates.listHistory;
+        }
+
+        if (Object.keys(updateOps).length === 0) {
+            return false;
+        }
+
+        const result = await collection.updateOne(
+            { _id: issueObjectId },
+            { $set: updateOps }
+        );
+        return result.modifiedCount > 0;
+    } catch (error) {
+        console.error('Error updating issue:', error);
+        return false;
+    }
+}
+
+/**
+ * Patch an issue: remove add 'patcher' to listHistory
+ */
+export async function patchIssue(
+    issueId: string | ObjectId,
+): Promise<boolean> {
+    try {
+        const collection = await getCollection<IssueModel>('issues');
+        const issueObjectId = typeof issueId === 'string' ? new ObjectId(issueId) : issueId;
+
+        // Get current issue to preserve existing listHistory
+        const issue = await collection.findOne({ _id: issueObjectId });
+        if (!issue) {
+            return false;
+        }
+
+        const currentListHistory = issue.listHistory || [];
+        const updatedListHistory = currentListHistory.includes('patcher')
+            ? currentListHistory
+            : [...currentListHistory, 'patcher'];
+
+        // Build update operations
+        const updateOps: any = {
+            listHistory: updatedListHistory,
+        };
+
+        const result = await collection.updateOne(
+            { _id: issueObjectId },
+            { $set: updateOps }
+        );
+        return result.modifiedCount > 0;
+    } catch (error) {
+        console.error('Error patching issue:', error);
+        return false;
+    }
+}
+
+/**
+ * Unpatch an issue: remove 'patcher' from listHistory
+ */
+export async function unpatchIssue(
+    issueId: string | ObjectId,
+): Promise<boolean> {
+    try {
+        const collection = await getCollection<IssueModel>('issues');
+        const issueObjectId = typeof issueId === 'string' ? new ObjectId(issueId) : issueId;
+
+        // Get current issue
+        const issue = await collection.findOne({ _id: issueObjectId });
+        if (!issue) {
+            return false;
+        }
+
+        const currentListHistory = issue.listHistory || [];
+        const updatedListHistory = currentListHistory.filter(item => item !== 'patcher');
+
+        const updateOps: any = {
+            listHistory: updatedListHistory,
+        };
+
+        const result = await collection.updateOne(
+            { _id: issueObjectId },
+            { $set: updateOps }
+        );
+        return result.modifiedCount > 0;
+    } catch (error) {
+        console.error('Error unpatching issue:', error);
         return false;
     }
 }

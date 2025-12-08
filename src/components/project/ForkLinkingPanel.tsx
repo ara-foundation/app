@@ -43,7 +43,6 @@ const ForkLinkingPanel: React.FC<ForkLinkingPanelProps> = ({ className, onAction
       }
       ,
       projectId: '',
-      categoryId: ''
     },
     {
       uri: 'https://github.com/example/repo/issues/156',
@@ -58,7 +57,6 @@ const ForkLinkingPanel: React.FC<ForkLinkingPanelProps> = ({ className, onAction
         icon: 'https://avatars.githubusercontent.com/u/1234567?v=4'
       },
       projectId: '',
-      categoryId: ''
     },
     {
       uri: 'https://github.com/example/repo/issues/189',
@@ -73,7 +71,6 @@ const ForkLinkingPanel: React.FC<ForkLinkingPanelProps> = ({ className, onAction
         icon: 'https://avatars.githubusercontent.com/u/1234567?v=4'
       },
       projectId: '',
-      categoryId: ''
     },
     {
       uri: 'https://github.com/example/repo/issues/201',
@@ -88,7 +85,6 @@ const ForkLinkingPanel: React.FC<ForkLinkingPanelProps> = ({ className, onAction
         icon: 'https://avatars.githubusercontent.com/u/1234567?v=4'
       },
       projectId: '',
-      categoryId: ''
     },
     {
       uri: 'https://app.ara.foundation/issues/custom',
@@ -103,7 +99,6 @@ const ForkLinkingPanel: React.FC<ForkLinkingPanelProps> = ({ className, onAction
         icon: 'https://avatars.githubusercontent.com/u/1234567?v=4'
       },
       projectId: '',
-      categoryId: ''
     }
   ]
 
