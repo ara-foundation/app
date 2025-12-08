@@ -89,11 +89,11 @@ const PatcherContainer: React.FC<PatcherContainerProps> = () => {
         window.addEventListener(ISSUE_EVENT_TYPES.ISSUE_UPDATE, handleIssueUpdate);
 
         // Check if we missed the initial event (use requestAnimationFrame to allow event to fire first)
+        // Note: This is expected if PatcherPanel mounts before WorkPanel dispatches the initial event
         requestAnimationFrame(() => {
             if (!hasReceivedEvent) {
-                // Try to get the current active tab from WorkPanel by checking if event was already dispatched
-                // This is a fallback - the event should normally fire
-                console.warn('PatcherPanel: No initial tab change event received, may need to wait for WorkPanel to mount');
+                // The event will be received when WorkPanel mounts and dispatches it
+                // This is normal behavior, no action needed
             }
         });
 
@@ -196,8 +196,7 @@ const PatcherContainer: React.FC<PatcherContainerProps> = () => {
     }, []);
 
     if (!isVisible) {
-        console.warn('not visible');
-        // return null;
+        return null;
     }
 
     const truncateTitle = (title: string, maxLength: number = 58) => {

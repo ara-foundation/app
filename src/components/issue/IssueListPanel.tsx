@@ -69,11 +69,50 @@ const IssueListPanel: React.FC<Props> = ({ tabType, draggable = false, filterabl
       }
     };
 
+    const handleIssueUpdate = (event: Event) => {
+      const customEvent = event as CustomEvent<Issue>;
+      const updatedIssue = customEvent.detail;
+
+      if (!updatedIssue || !activeTabRef.current) {
+        return;
+      }
+
+      // Check if the issue's listHistory no longer contains the current tabType
+      const issueListHistory = updatedIssue.listHistory || [];
+      const shouldBeInThisList = issueListHistory.includes(tabType);
+
+      // For SHINING and PUBLIC tabs, they don't use listHistory, so we don't remove them
+      if (tabType === IssueTabKey.SHINING || tabType === IssueTabKey.PUBLIC) {
+        refetchIssues();
+        return;
+      }
+
+      // If the issue should not be in this list, remove it immediately
+      if (!shouldBeInThisList) {
+        setIssues(prevIssues => prevIssues.filter(issue => issue._id !== updatedIssue._id));
+      } else {
+        // If it should be in this list, update it in place or refetch
+        setIssues(prevIssues => {
+          const index = prevIssues.findIndex(issue => issue._id === updatedIssue._id);
+          if (index >= 0) {
+            // Update the issue in place
+            const newIssues = [...prevIssues];
+            newIssues[index] = updatedIssue;
+            return newIssues;
+          } else {
+            // Issue is new to this list, refetch to get it
+            refetchIssues();
+            return prevIssues;
+          }
+        });
+      }
+    };
+
     // Set up listeners synchronously before paint
     window.addEventListener(ISSUE_EVENT_TYPES.ISSUES_TAB_CHANGED, handleTabChanged);
     window.addEventListener(ISSUE_EVENT_TYPES.ISSUE_CREATED, refetchIssues);
     window.addEventListener(ISSUE_EVENT_TYPES.ISSUE_UNPATCHED, refetchIssues);
-    window.addEventListener(ISSUE_EVENT_TYPES.ISSUE_UPDATE, refetchIssues);
+    window.addEventListener(ISSUE_EVENT_TYPES.ISSUE_UPDATE, handleIssueUpdate);
 
     // Check if this is the initial active tab (SHINING is the default)
     // Use requestAnimationFrame to check after current frame, allowing event to fire first
@@ -99,7 +138,7 @@ const IssueListPanel: React.FC<Props> = ({ tabType, draggable = false, filterabl
       window.removeEventListener(ISSUE_EVENT_TYPES.ISSUES_TAB_CHANGED, handleTabChanged);
       window.removeEventListener(ISSUE_EVENT_TYPES.ISSUE_CREATED, refetchIssues);
       window.removeEventListener(ISSUE_EVENT_TYPES.ISSUE_UNPATCHED, refetchIssues);
-      window.removeEventListener(ISSUE_EVENT_TYPES.ISSUE_UPDATE, refetchIssues);
+      window.removeEventListener(ISSUE_EVENT_TYPES.ISSUE_UPDATE, handleIssueUpdate);
     };
   }, [tabType, galaxyId, fetchIssues]);
 

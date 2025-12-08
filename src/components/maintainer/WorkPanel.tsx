@@ -10,6 +10,7 @@ import { DEMO_EVENT_TYPES } from '@/demo-runtime-cookies/index'
 import { actions } from 'astro:actions'
 import type { User } from '@/types/user'
 import { ISSUE_EVENT_TYPES, IssueTabKey } from '@/types/issue'
+import { emitIssueUpdate } from '@/components/issue/client-side'
 
 interface WorkPanelProps {
   galaxyId: string
@@ -54,7 +55,7 @@ const C: React.FC<WorkPanelProps> = ({ galaxyId }) => {
     // This is especially important for PatcherPanel which might mount after WorkPanel
     const timeoutId = setTimeout(() => {
       dispatchTabChanged(activeTab);
-    }, 0);
+    }, 100);
 
     return () => {
       clearTimeout(timeoutId);
@@ -65,6 +66,37 @@ const C: React.FC<WorkPanelProps> = ({ galaxyId }) => {
     window.dispatchEvent(new CustomEvent(ISSUE_EVENT_TYPES.ISSUES_TAB_CHANGED, {
       detail: { tabType, galaxyId },
     }));
+  }
+
+  const changeIssueList = async (issueId: string, listKey: IssueTabKey) => {
+    try {
+      const demo = getDemo();
+      if (!demo.email) {
+        console.error('No demo email found');
+        return;
+      }
+
+      // Update issue listHistory to only contain this list key
+      const updateResult = await actions.updateIssue({
+        issueId,
+        email: demo.email,
+        listHistory: [listKey],
+      });
+
+      if (!updateResult.data?.success) {
+        console.error('Failed to update issue:', updateResult.data?.error);
+        return;
+      }
+
+      // Fetch the updated issue
+      const issueResult = await actions.getIssueById({ issueId });
+      if (issueResult.data?.success && issueResult.data.data) {
+        // Broadcast ISSUE_UPDATE event
+        emitIssueUpdate(issueResult.data.data);
+      }
+    } catch (error) {
+      console.error('Error changing issue list:', error);
+    }
   }
 
   const tabs: TabProps[] = isMaintainer ? [
@@ -84,7 +116,7 @@ const C: React.FC<WorkPanelProps> = ({ galaxyId }) => {
       </DndProvider>
     },
     {
-      label: <DndProvider backend={HTML5Backend}><DropTarget id={IssueTabKey.INTERESTING} accept={["issue"]} onDrop={(e) => console.log(e)}>Interesting Issues</DropTarget></DndProvider>,
+      label: <DndProvider backend={HTML5Backend}><DropTarget id={IssueTabKey.INTERESTING} accept={["issue"]} onDrop={(item) => changeIssueList(item.id, IssueTabKey.INTERESTING)}>Interesting Issues</DropTarget></DndProvider>,
       key: IssueTabKey.INTERESTING,
       content: <DndProvider backend={HTML5Backend}>
         <IssueListPanel tabType={IssueTabKey.INTERESTING} draggable={true} description="Interesting issues for the maintainer. It could mean anything, but basically its worth maintainer's attention" galaxyId={galaxyId} />
@@ -92,14 +124,14 @@ const C: React.FC<WorkPanelProps> = ({ galaxyId }) => {
       className: ' p-0!',
     },
     {
-      label: <DndProvider backend={HTML5Backend}><DropTarget id={IssueTabKey.BORING} accept={["issue"]} onDrop={(e) => console.log(e)}>Boring Issues</DropTarget></DndProvider>,
+      label: <DndProvider backend={HTML5Backend}><DropTarget id={IssueTabKey.BORING} accept={["issue"]} onDrop={(item) => changeIssueList(item.id, IssueTabKey.BORING)}>Boring Issues</DropTarget></DndProvider>,
       key: IssueTabKey.BORING,
       content: <DndProvider backend={HTML5Backend}>
         <IssueListPanel tabType={IssueTabKey.BORING} draggable={true} description="Issues that are boring for the maintainer. It could be for any reason, but basically maintainer will not spend time on them." galaxyId={galaxyId} />
       </DndProvider>
     },
     {
-      label: <DndProvider backend={HTML5Backend}><DropTarget id={IssueTabKey.CLOSED} accept={["issue"]} onDrop={(e) => console.log(e)}><span className="flex items-center gap-1.5">{getIcon({ iconType: 'lock', className: 'w-4 h-4' })}Closed</span></DropTarget></DndProvider>,
+      label: <DndProvider backend={HTML5Backend}><DropTarget id={IssueTabKey.CLOSED} accept={["issue"]} onDrop={(item) => changeIssueList(item.id, IssueTabKey.CLOSED)}><span className="flex items-center gap-1.5">{getIcon({ iconType: 'lock', className: 'w-4 h-4' })}Closed</span></DropTarget></DndProvider>,
       key: IssueTabKey.CLOSED,
       content: <IssueListPanel tabType={IssueTabKey.CLOSED} galaxyId={galaxyId} />
     },

@@ -130,12 +130,21 @@ function issueToIssueModel(issue: Issue): IssueModel {
 
 /**
  * Get issues by galaxy ID
+ * @param galaxyId - The galaxy ID
+ * @param tabKey - Optional tab key to filter issues by listHistory
  */
-export async function getIssuesByGalaxy(galaxyId: string | ObjectId): Promise<Issue[]> {
+export async function getIssuesByGalaxy(galaxyId: string | ObjectId, tabKey?: string): Promise<Issue[]> {
     try {
         const collection = await getCollection<IssueModel>('issues');
         const objectId = typeof galaxyId === 'string' ? new ObjectId(galaxyId) : galaxyId;
-        const result = await collection.find({ galaxy: objectId }).toArray();
+
+        // Build query based on whether tabKey is provided
+        const query: any = { galaxy: objectId };
+        if (tabKey) {
+            query.listHistory = { $in: [tabKey] };
+        }
+
+        const result = await collection.find(query).toArray();
         return result.map(issueModelToIssue).filter((i): i is Issue => i !== null);
     } catch (error) {
         console.error('Error getting issues by galaxy:', error);

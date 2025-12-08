@@ -292,15 +292,13 @@ export const server = {
     getIssuesByGalaxy: defineAction({
         input: z.object({
             galaxyId: z.string(),
+            tabKey: z.string().optional(),
         }),
-        handler: async ({ galaxyId }): Promise<{ success: boolean; issues?: Issue[]; error?: string }> => {
+        handler: async ({ galaxyId, tabKey }): Promise<{ success: boolean; issues?: Issue[]; error?: string }> => {
             try {
-                const issues = await getIssuesByGalaxy(galaxyId);
+                const issues = await getIssuesByGalaxy(galaxyId, tabKey);
                 // Serialize IssueModel to IssueModelClient (convert ObjectIds and Dates to unix timestamps)
                 const serializedIssues: Issue[] = await Promise.all(issues.map(async (issue) => {
-                    // Get author from authorId
-                    const authorUser = await getUserById(issue.author!);
-
                     const baseIssue: any = {
                         _id: issue._id?.toString(),
                         galaxy: issue.galaxy?.toString() || '',
@@ -326,23 +324,10 @@ export const server = {
                             username: user.username,
                             starshineAmount: user.starshineAmount,
                             transactionDate: typeof user.transactionDate === 'number' ? user.transactionDate : Math.floor(new Date(user.transactionDate as any).getTime() / 1000)
-                        } as IssueUser)) || []
+                        } as IssueUser)) || [],
+                        listHistory: issue.listHistory || [],
                     };
 
-                    // Add author information if user found
-                    if (authorUser) {
-                        baseIssue.author = {
-                            icon: authorUser.src,
-                            uri: authorUser.uri || `/profile?email=${authorUser.email || ''}`,
-                            children: authorUser.nickname || authorUser.email?.split('@')[0] || 'Unknown',
-                            rating: authorUser.role === 'maintainer' ? {
-                                ratingType: 'maintainer',
-                                lvl: Math.floor((authorUser.stars || 0) * 2),
-                                maxLvl: 10,
-                                top: 0,
-                            } : undefined,
-                        };
-                    }
 
                     return baseIssue;
                 }));

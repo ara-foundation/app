@@ -22,8 +22,8 @@ export async function getIssues(galaxyId: string, tabType: IssueTabKey): Promise
         const result = await actions.getPublicBacklogIssues({ galaxyId });
         fetchedIssues = result.data?.data || [];
     } else {
-        // For other tabs, fetch all issues (can be filtered later)
-        const result = await actions.getIssuesByGalaxy({ galaxyId });
+        // For INTERESTING, BORING, and CLOSED tabs, pass tabKey to filter by listHistory
+        const result = await actions.getIssuesByGalaxy({ galaxyId, tabKey: tabType });
         fetchedIssues = result.data?.issues || [];
     }
 
