@@ -379,6 +379,7 @@ export const server = {
                         tags: issue.tags,
                         maintainer: issue.maintainer?.toString() || '',
                         author: issue.author?.toString() || '',
+                        contributor: issue.contributor?.toString() || '',
                         categoryId: issue.categoryId,
                         stats: issue.stats ? Object.entries(issue.stats).reduce((acc, [key, stat]) => {
                             if (stat) {
@@ -462,6 +463,7 @@ export const server = {
                         tags: issue.tags,
                         maintainer: issue.maintainer?.toString() || '',
                         author: issue.author?.toString() || '',
+                        contributor: issue.contributor?.toString() || '',
                         categoryId: issue.categoryId,
                         stats: issue.stats ? Object.entries(issue.stats).reduce((acc, [key, stat]) => {
                             if (stat) {

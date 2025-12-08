@@ -20,6 +20,7 @@ import Tooltip from '../custom-ui/Tooltip'
 interface IssueLinkProps extends Issue {
   actions?: ActionProps[];
   draggable?: boolean;
+  patchable?: boolean;
 }
 
 const IssueLinkPanel4: React.FC<IssueLinkProps> = (issue) => {
@@ -27,13 +28,11 @@ const IssueLinkPanel4: React.FC<IssueLinkProps> = (issue) => {
   const [isLoadingAuthor, setIsLoadingAuthor] = useState(false);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [availableSunshines, setAvailableSunshines] = useState(0);
-  const [isUpdating, setIsUpdating] = useState(false);
+  const [, setIsUpdating] = useState(false);
 
   // Determine if issue is shining (has sunshines > 0)
   const isShining = issue.sunshines > 0;
-
-  // Get issue number from _id
-  const issueNumber = issue._id ? `#${issue._id.slice(-6)}` : '#0';
+  const isPatchable = Boolean(issue.patchable);
 
   // Get primary tag (first tag)
   const primaryTag = issue.tags && issue.tags.length > 0 ? issue.tags[0] : undefined;
@@ -159,6 +158,25 @@ const IssueLinkPanel4: React.FC<IssueLinkProps> = (issue) => {
             <Badge variant={isShining ? 'success' : 'gray'} static={true}>
               {isShining ? 'Shining' : 'Public Backlog'}
             </Badge>
+            {isPatchable && (
+              <Tooltip
+                content={
+                  <div className="text-sm max-w-xs leading-snug">
+                    This issue is patchable. Drag and drop into Patching hole.
+                  </div>
+                }
+              >
+                <Badge
+                  variant='orange'
+                  static={false}
+                  className="cursor-pointer select-none shadow-sm"
+                >
+                  <span className="flex items-center gap-1">
+                    Patchable {getIcon('info')}
+                  </span>
+                </Badge>
+              </Tooltip>
+            )}
           </div>
           {primaryTag && (
             <Badge variant={

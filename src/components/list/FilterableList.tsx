@@ -61,8 +61,8 @@ const FilterableList = <T,>({
     contentHeight,
 }: FilterableListProps<T>) => {
     const [searchQuery, setSearchQuery] = useState('')
-    const [currentFilter, setCurrentFilter] = useState<string | undefined>()
-    const [currentSort, setCurrentSort] = useState<string | undefined>()
+    const [, setCurrentFilter] = useState<string | undefined>()
+    const [, setCurrentSort] = useState<string | undefined>()
 
     // Get searchable fields - either provided or auto-detect string fields
     const getSearchableFields = (): (keyof T)[] => {

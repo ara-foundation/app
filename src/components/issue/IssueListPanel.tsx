@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import FilterableList from '@/components/list/FilterableList'
 import IssueLink from '@/components/issue/IssueLink'
 import BasePanel from '@/components/panel/Panel'
@@ -8,6 +8,7 @@ import DraggableIssueLink from './DraggableIssueLink'
 import { FilterOption } from '@/components/list/FilterToggle'
 import { getIcon } from '../icon'
 import { actions } from 'astro:actions'
+import type { ActionProps } from '@/types/eventTypes'
 
 interface Props {
   title?: string
@@ -139,6 +140,24 @@ const ContentArea: React.FC<Props> = ({ title = 'Issues', draggable = false, fil
     console.log('Filter changed:', { filterId, sortId })
   }
 
+  const decoratedIssues = useMemo(() => {
+    return issues.map(issue => {
+      const isPatchable = Boolean(issue.contributor && issue.maintainer);
+      return {
+        ...issue,
+        draggable: draggable,
+        patchable: isPatchable,
+      };
+    });
+  }, [draggable, issues]);
+
+  const ItemComponent: React.FC<Issue & { actions?: ActionProps[]; patchable?: boolean; draggable?: boolean }> = (itemProps) => {
+    if (itemProps.patchable || draggable) {
+      return <DraggableIssueLink {...itemProps} patchable={itemProps.patchable} draggable={true} />
+    }
+    return <IssueLink {...itemProps} />
+  }
+
   if (isLoading) {
     return (
       <BasePanel className="max-w-6xl mx-auto max-h-[150vh] overflow-y-auto">
@@ -177,8 +196,8 @@ const ContentArea: React.FC<Props> = ({ title = 'Issues', draggable = false, fil
       {/* FilterableList without title prop since we're showing it above */}
       <FilterableList
         className='mt-2'
-        items={issues.map(issue => ({ ...issue, draggable }))}
-        itemComponent={draggable ? DraggableIssueLink : IssueLink}
+        items={decoratedIssues}
+        itemComponent={ItemComponent as any}
         title={undefined}
         titleCenter={false}
         searchPlaceholder="Search issues..."

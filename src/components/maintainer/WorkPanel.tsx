@@ -15,7 +15,7 @@ interface WorkPanelProps {
 }
 
 const C: React.FC<WorkPanelProps> = ({ galaxyId }) => {
-  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [, setCurrentUser] = useState<User | null>(null);
   const [isMaintainer, setIsMaintainer] = useState(false);
 
   // Check user role and listen for changes
