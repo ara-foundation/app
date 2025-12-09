@@ -7,9 +7,10 @@ export { type Patch, type Version } from '@/types/roadmap'
 
 // Server-side PatchModel
 interface PatchModel {
-    issueId: ObjectId; // Reference to IssueModel
+    id: ObjectId; // Reference to IssueModel
     completed: boolean;
     title: string;
+    sunshines?: number;
 }
 
 // Server-side VersionModel (uses ObjectId)
@@ -26,17 +27,19 @@ interface VersionModel {
 // Serialization functions
 function patchModelToPatch(model: PatchModel): Patch {
     return {
-        id: model.issueId.toString(),
+        id: model.id.toString(),
         completed: model.completed,
         title: model.title,
+        sunshines: model.sunshines,
     }
 }
 
 function patchToPatchModel(patch: Patch): PatchModel {
     return {
-        issueId: new ObjectId(patch.id),
+        id: new ObjectId(patch.id),
         completed: patch.completed,
         title: patch.title,
+        sunshines: patch.sunshines,
     }
 }
 
@@ -159,7 +162,7 @@ export async function revertPatch(
 
         // Remove the patch from patches array
         const updatedPatches = version.patches.filter(
-            patch => !patch.issueId.equals(issueObjectId)
+            patch => !patch.id.equals(issueObjectId)
         );
 
         const result = await collection.updateOne(
@@ -222,13 +225,45 @@ export async function removePatch(
             { _id: versionObjectId },
             {
                 $pull: {
-                    patches: { issueId: patchObjectId },
+                    patches: { id: patchObjectId },
                 },
             }
         );
         return result.modifiedCount > 0;
     } catch (error) {
         console.error('Error removing patch:', error);
+        return false;
+    }
+}
+
+/**
+ * Update a single patch's completion status in a version
+ */
+export async function completePatch(
+    versionId: string | ObjectId,
+    patchId: string | ObjectId,
+    completed: boolean
+): Promise<boolean> {
+    try {
+        const collection = await getCollection<VersionModel>('versions');
+        const versionObjectId = typeof versionId === 'string' ? new ObjectId(versionId) : versionId;
+        const patchObjectId = typeof patchId === 'string' ? new ObjectId(patchId) : patchId;
+
+        // Use positional operator to update the specific patch's completed field
+        const result = await collection.updateOne(
+            {
+                _id: versionObjectId,
+                'patches.id': patchObjectId
+            },
+            {
+                $set: {
+                    'patches.$.completed': completed,
+                },
+            }
+        );
+        return result.modifiedCount > 0;
+    } catch (error) {
+        console.error('Error completing patch:', error);
         return false;
     }
 }

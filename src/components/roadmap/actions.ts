@@ -1,6 +1,6 @@
 import { defineAction } from 'astro:actions'
 import { z } from 'astro:schema'
-import { getVersionsByGalaxy, getVersionById, updateVersionStatus, revertPatch, createVersion, updatePatches, removePatch } from '@/scripts/roadmap'
+import { getVersionsByGalaxy, getVersionById, updateVersionStatus, revertPatch, createVersion, updatePatches, removePatch, completePatch } from '@/scripts/roadmap'
 import type { Version, Patch } from '@/types/roadmap'
 
 export const server = {
@@ -226,6 +226,33 @@ export const server = {
                 return {
                     success: false,
                     error: 'An error occurred while removing patch',
+                };
+            }
+        },
+    }),
+    completePatch: defineAction({
+        input: z.object({
+            versionId: z.string(),
+            patchId: z.string(),
+            complete: z.boolean(),
+        }),
+        handler: async ({ versionId, patchId, complete }): Promise<{ success: boolean; error?: string }> => {
+            try {
+                const updated = await completePatch(versionId, patchId, complete);
+                if (!updated) {
+                    return {
+                        success: false,
+                        error: 'Failed to update patch completion status',
+                    };
+                }
+                return {
+                    success: true,
+                };
+            } catch (error) {
+                console.error('Error completing patch:', error);
+                return {
+                    success: false,
+                    error: 'An error occurred while updating patch completion status',
                 };
             }
         },

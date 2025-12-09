@@ -2,7 +2,6 @@ import React, { useState, useMemo, useEffect, memo, useRef } from 'react'
 import PageLikePanel from '@/components/panel/PageLikePanel'
 import Button from '../custom-ui/Button'
 import Tooltip from '../custom-ui/Tooltip'
-import Link from '../custom-ui/Link'
 import { getIcon } from '../icon'
 import PanelFooter from '../panel/PanelFooter'
 import PanelStat from '../panel/PanelStat'
@@ -15,6 +14,8 @@ import LoadingSpinner from '../LoadingSpinner'
 import DropTarget from '../DropTarget'
 import type { Version, Patch } from '@/types/roadmap'
 import type { User } from '@/types/user'
+import type { Issue } from '@/types/issue'
+import MenuAvatar from '../MenuAvatar'
 import { actions } from 'astro:actions'
 import { DndProvider, useDrag } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
@@ -287,6 +288,7 @@ const ProjectVersionPanel: React.FC<Version> = ({
         id: item.id,
         title: item.title,
         completed: completed,
+        sunshines: item.sunshines,
       };
       updatedPatches.push(newPatch);
 
@@ -336,17 +338,100 @@ const ProjectVersionPanel: React.FC<Version> = ({
 
   // Minimal draggable patch component
   const MinimalDraggablePatch: React.FC<{ patch: Patch }> = memo(({ patch }) => {
+    const [patchCompleted, setPatchCompleted] = useState<boolean>(patch.completed || false)
+    const [issue, setIssue] = useState<Issue | null>(null)
+    const [currentUser, setCurrentUser] = useState<User | null>(null)
+    const [contributorUser, setContributorUser] = useState<User | null>(null)
+    const [maintainerUser, setMaintainerUser] = useState<User | null>(null)
+    const [isLoadingIssue, setIsLoadingIssue] = useState<boolean>(false)
+    const [isToggling, setIsToggling] = useState<boolean>(false)
+
     const [{ opacity, isDragging }, drag] = useDrag(
       () => ({
         type: 'patch',
-        item: { id: patch.id, title: patch.title, sunshines: patch.sunshines, versionId: versionId || '' },
+        item: { id: patch.id, title: patch.title, sunshines: patch.sunshines, versionId: versionId || '', completed: patchCompleted },
         collect: (monitor) => ({
           opacity: monitor.isDragging() ? 0.4 : 1,
           isDragging: monitor.isDragging(),
         }),
       }),
-      [patch.id, patch.title, patch.sunshines, versionId],
+      [patch.id, patch.title, patch.sunshines, versionId, patchCompleted],
     );
+
+    // Sync patchCompleted with patch.completed prop
+    useEffect(() => {
+      setPatchCompleted(patch.completed || false)
+    }, [patch.completed])
+
+    // Fetch issue data
+    useEffect(() => {
+      setIsLoadingIssue(true)
+      actions.getIssueById({ issueId: patch.id })
+        .then((result: { data?: { success?: boolean; data?: Issue; error?: string } }) => {
+          if (result.data?.success && result.data.data) {
+            setIssue(result.data.data)
+          }
+        })
+        .catch((error: unknown) => {
+          console.error('Error fetching issue:', error)
+        })
+        .finally(() => {
+          setIsLoadingIssue(false)
+        })
+    }, [patch.id])
+
+    // Fetch current demo user
+    useEffect(() => {
+      const demo = getDemo()
+      if (demo.email && demo.users && demo.role) {
+        const user = demo.users.find(u => u.role === demo.role) || demo.users[0]
+        if (user && user._id) {
+          actions.getUserById({ userId: user._id.toString() })
+            .then((result: { data?: { success?: boolean; data?: User; error?: string } }) => {
+              if (result.data?.success && result.data.data) {
+                setCurrentUser(result.data.data)
+              }
+            })
+            .catch((error: unknown) => {
+              console.error('Error fetching current user:', error)
+            })
+        }
+      }
+    }, [])
+
+    // Fetch contributor user
+    useEffect(() => {
+      if (issue?.contributor && typeof issue.contributor === 'string') {
+        actions.getUserById({ userId: issue.contributor })
+          .then((result: { data?: { success?: boolean; data?: User; error?: string } }) => {
+            if (result.data?.success && result.data.data) {
+              setContributorUser(result.data.data)
+            }
+          })
+          .catch((error: unknown) => {
+            console.error('Error fetching contributor:', error)
+          })
+      } else {
+        setContributorUser(null)
+      }
+    }, [issue?.contributor])
+
+    // Fetch maintainer user (from issue)
+    useEffect(() => {
+      if (issue?.maintainer && typeof issue.maintainer === 'string') {
+        actions.getUserById({ userId: issue.maintainer })
+          .then((result: { data?: { success?: boolean; data?: User; error?: string } }) => {
+            if (result.data?.success && result.data.data) {
+              setMaintainerUser(result.data.data)
+            }
+          })
+          .catch((error: unknown) => {
+            console.error('Error fetching maintainer:', error)
+          })
+      } else {
+        setMaintainerUser(null)
+      }
+    }, [issue?.maintainer])
 
     // Track when dragging starts/ends to disable DropTarget in parent
     useEffect(() => {
@@ -361,6 +446,90 @@ const ProjectVersionPanel: React.FC<Version> = ({
       }
     }, [isDragging]);
 
+    const togglePatchCompletion = async () => {
+      if (isToggling || !versionId) return
+
+      setIsToggling(true)
+      try {
+        const newCompleted = !patchCompleted
+        const result = await actions.completePatch({
+          versionId,
+          patchId: patch.id,
+          complete: newCompleted,
+        })
+
+        if (result.data?.success) {
+          setPatchCompleted(newCompleted)
+          // Update patchesList to keep it in sync
+          setPatchesList(prevPatches =>
+            prevPatches.map(p =>
+              p.id === patch.id ? { ...p, completed: newCompleted } : p
+            )
+          )
+        } else {
+          console.error('Error toggling patch completion:', result.data?.error)
+        }
+      } catch (error) {
+        console.error('Error calling completePatch:', error)
+      } finally {
+        setIsToggling(false)
+      }
+    }
+
+    // Determine permissions
+    const isContributor = currentUser && issue?.contributor && currentUser._id === issue.contributor
+    const isMaintainer = currentUser && issue?.maintainer && currentUser._id === issue.maintainer
+
+    // Checkbox disabled logic
+    const isCheckboxDisabled = !(
+      (patchCompleted && (isMaintainer || isContributor)) ||
+      (!patchCompleted && isContributor)
+    )
+
+    // Tooltip content logic
+    const getTooltipContent = () => {
+      if (isLoadingIssue) {
+        return <div className="text-sm">Loading...</div>
+      }
+
+      if (!issue) {
+        return <div className="text-sm">Issue not found</div>
+      }
+
+      if (issue.contributor === currentUser?._id && !patchCompleted) {
+        return <div className="text-sm">You are a contributor. Mark as completed.</div>
+      }
+
+      if (issue.contributor !== currentUser?._id && !patchCompleted) {
+        return (
+          <div className="text-sm flex items-center gap-2">
+            <span>contributor</span>
+            {contributorUser && <MenuAvatar user={contributorUser} />}
+            <span>is working on this issue :)</span>
+          </div>
+        )
+      }
+
+      if (patchCompleted && (issue.maintainer === currentUser?._id || issue.contributor === currentUser?._id)) {
+        return <div className="text-sm">Unmark if the issue isn't solved</div>
+      }
+
+      if (patchCompleted && issue.maintainer !== currentUser?._id && issue.contributor !== currentUser?._id) {
+        return (
+          <div className="text-sm flex items-center gap-2">
+            <span>contributor</span>
+            {contributorUser && <MenuAvatar user={contributorUser} />}
+            <span>worked.</span>
+            <span>maintainer</span>
+            {maintainerUser && <MenuAvatar user={maintainerUser} />}
+            <span>reviewed.</span>
+          </div>
+        )
+      }
+
+      return <div className="text-sm">Patch completion status</div>
+    }
+
     return (
       <div
         ref={drag as any}
@@ -374,13 +543,16 @@ const ProjectVersionPanel: React.FC<Version> = ({
           'flex items-center justify-between gap-2',
         )}
       >
-        <Checkbox
-          checked={patch.completed || status === 'completed'}
-          disabled
-          className="w-4 h-4 rounded-sm border-2 border-slate-400 dark:border-slate-600 bg-white dark:bg-slate-600 data-[state=checked]:bg-slate-600 dark:data-[state=checked]:bg-slate-400 data-[state=checked]:border-slate-600 dark:data-[state=checked]:border-slate-400 flex items-center justify-center"
-        >
-          <CheckboxIndicator className="w-3 h-3 text-white dark:text-slate-700" />
-        </Checkbox>
+        <Tooltip content={getTooltipContent()}>
+          <Checkbox
+            checked={patchCompleted || status === 'completed'}
+            disabled={isCheckboxDisabled || status === 'completed' || isToggling}
+            onCheckedChange={togglePatchCompletion}
+            className="w-4 h-4 rounded-sm border-2 border-slate-400 dark:border-slate-600 bg-white dark:bg-slate-600 data-[state=checked]:bg-slate-600 dark:data-[state=checked]:bg-slate-400 data-[state=checked]:border-slate-600 dark:data-[state=checked]:border-slate-400 flex items-center justify-center"
+          >
+            <CheckboxIndicator className="w-3 h-3 text-white dark:text-slate-700" />
+          </Checkbox>
+        </Tooltip>
         <span className="text-sm text-slate-700 dark:text-slate-300 flex-1 truncate">
           {truncateStr(patch.title)}
         </span>

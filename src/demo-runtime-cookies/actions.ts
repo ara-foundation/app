@@ -410,6 +410,7 @@ export const server = {
         handler: async ({ issueId }): Promise<{ success: boolean; data?: Issue; error?: string }> => {
             try {
                 const issue = await getIssueById(issueId);
+                console.log(`${issueId} action succeed ${issue ? 'true' : 'false'}`)
                 if (!issue) {
                     return {
                         success: false,

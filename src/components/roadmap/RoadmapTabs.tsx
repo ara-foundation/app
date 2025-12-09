@@ -17,6 +17,7 @@ const RoadmapTabs: React.FC<RoadmapTabsProps> = ({ galaxyId }) => {
     try {
       setLoading(true)
       const versions = await getVersions(galaxyId)
+      console.log('versions', versions)
       setAllVersions(versions)
     } catch (error) {
       console.error('Error fetching versions:', error)
