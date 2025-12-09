@@ -39,17 +39,17 @@ const mockActiveVersion: Version = {
     status: "active",
     patches: [
         {
-            issueId: "issue-1",
+            id: "issue-1",
             title: "Dark mode implementation",
             completed: true,
         },
         {
-            issueId: "issue-2",
+            id: "issue-2",
             title: "Tablet responsive layout fixes",
             completed: false,
         },
         {
-            issueId: "issue-3",
+            id: "issue-3",
             title: "Google Calendar integration",
             completed: false,
         }
@@ -64,12 +64,12 @@ const mockPlannedVersion: Version = {
     status: "planned",
     patches: [
         {
-            issueId: "issue-4",
+            id: "issue-4",
             title: "Advanced filtering options",
             completed: false,
         },
         {
-            issueId: "issue-5",
+            id: "issue-5",
             title: "API rate limit improvements",
             completed: false,
         }
@@ -84,17 +84,17 @@ const mockCompletedVersion: Version = {
     status: "completed",
     patches: [
         {
-            issueId: "issue-6",
+            id: "issue-6",
             title: "Discovered authentication system",
             completed: true,
         },
         {
-            issueId: "issue-7",
+            id: "issue-7",
             title: "New dashboard experience",
             completed: true,
         },
         {
-            issueId: "issue-8",
+            id: "issue-8",
             title: "Performance optimizations",
             completed: true,
         }

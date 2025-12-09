@@ -13,6 +13,7 @@ export interface DropTargetProps {
     roundedClassName?: string
     innerClassName?: string
     children?: any
+    disabled?: boolean
 }
 
 export const C: FC<DropTargetProps> = memo(function C({
@@ -23,13 +24,15 @@ export const C: FC<DropTargetProps> = memo(function C({
     roundedClassName,
     innerClassName,
     children,
+    disabled = false,
 }) {
     const [{ isOver, canDrop }, drop] = useDrop({
         accept,
-        drop: onDrop,
+        drop: disabled ? undefined : onDrop,
+        canDrop: () => !disabled,
         collect: (monitor) => ({
             isOver: monitor.isOver(),
-            canDrop: monitor.canDrop(),
+            canDrop: !disabled && monitor.canDrop(),
         }),
     })
 

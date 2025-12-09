@@ -26,7 +26,7 @@ interface VersionModel {
 // Serialization functions
 function patchModelToPatch(model: PatchModel): Patch {
     return {
-        issueId: model.issueId.toString(),
+        id: model.issueId.toString(),
         completed: model.completed,
         title: model.title,
     }
@@ -34,7 +34,7 @@ function patchModelToPatch(model: PatchModel): Patch {
 
 function patchToPatchModel(patch: Patch): PatchModel {
     return {
-        issueId: new ObjectId(patch.issueId),
+        issueId: new ObjectId(patch.id),
         completed: patch.completed,
         title: patch.title,
     }
@@ -173,6 +173,62 @@ export async function revertPatch(
         return result.modifiedCount > 0;
     } catch (error) {
         console.error('Error reverting patch:', error);
+        return false;
+    }
+}
+
+/**
+ * Update patches array for a version
+ */
+export async function updatePatches(
+    versionId: string | ObjectId,
+    patches: Patch[]
+): Promise<boolean> {
+    try {
+        const collection = await getCollection<VersionModel>('versions');
+        const objectId = typeof versionId === 'string' ? new ObjectId(versionId) : versionId;
+
+        const patchModels = patches.map(patchToPatchModel);
+
+        const result = await collection.updateOne(
+            { _id: objectId },
+            {
+                $set: {
+                    patches: patchModels,
+                },
+            }
+        );
+        return result.modifiedCount > 0;
+    } catch (error) {
+        console.error('Error updating patches:', error);
+        return false;
+    }
+}
+
+/**
+ * Remove a patch from a version by patchId
+ */
+export async function removePatch(
+    patchId: string | ObjectId,
+    versionId: string | ObjectId
+): Promise<boolean> {
+    try {
+        const collection = await getCollection<VersionModel>('versions');
+        const versionObjectId = typeof versionId === 'string' ? new ObjectId(versionId) : versionId;
+        const patchObjectId = typeof patchId === 'string' ? new ObjectId(patchId) : patchId;
+
+        // Find version and remove patch in one operation
+        const result = await collection.updateOne(
+            { _id: versionObjectId },
+            {
+                $pull: {
+                    patches: { issueId: patchObjectId },
+                },
+            }
+        );
+        return result.modifiedCount > 0;
+    } catch (error) {
+        console.error('Error removing patch:', error);
         return false;
     }
 }

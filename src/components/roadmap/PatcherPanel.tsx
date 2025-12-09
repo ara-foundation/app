@@ -6,13 +6,16 @@ import { useDrag } from 'react-dnd';
 import { ReversedHoleBackground } from '@/components/animate-ui/components/backgrounds/reversed-hole';
 import { getIcon } from '@/components/icon';
 import { actions } from 'astro:actions';
-import { PATCH_KEYWORD } from '@/types/patch';
+import { PATCH_KEYWORD, PATCH_EVENT_TYPES } from '@/types/patch';
 import type { Issue } from '@/types/issue';
-import { cn } from '@/lib/utils';
+import { cn, truncateStr } from '@/lib/utils';
 import Tooltip from '@/components/custom-ui/Tooltip';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import NumberFlow from '@number-flow/react';
+import DropTarget from '@/components/DropTarget';
+import { getDemo } from '@/demo-runtime-cookies/client-side';
+import { emitIssueUpdate } from '@/components/issue/client-side';
 
 interface PatcherPanelProps {
     galaxyId: string;
@@ -52,22 +55,108 @@ const PatcherPanel: React.FC<PatcherPanelProps> = ({ galaxyId }) => {
         fetchIssues();
     }, [fetchIssues]);
 
-    const truncateTitle = (title: string, maxLength: number = 58) => {
-        if (title.length <= maxLength) return title;
-        return title.substring(0, maxLength) + '...';
-    };
+    // Listen for PATCH_CREATED and PATCH_REMOVED events
+    useEffect(() => {
+        const handlePatchCreated = () => {
+            // Remove issue from patchable issues list
+            fetchIssues();
+        };
+
+        const handlePatchRemoved = (event: Event) => {
+            // Add issue back to patchable issues list
+            fetchIssues();
+        };
+
+        window.addEventListener(PATCH_EVENT_TYPES.PATCH_CREATED, handlePatchCreated);
+        window.addEventListener(PATCH_EVENT_TYPES.PATCH_REMOVED, handlePatchRemoved);
+
+        return () => {
+            window.removeEventListener(PATCH_EVENT_TYPES.PATCH_CREATED, handlePatchCreated);
+            window.removeEventListener(PATCH_EVENT_TYPES.PATCH_REMOVED, handlePatchRemoved);
+        };
+    }, [fetchIssues]);
+
+    // Handle drop of patch into patcher
+    const handlePatchDrop = useCallback(async (item: { id: string; title: string; versionId: string }) => {
+        const demo = getDemo();
+        if (!demo.email) {
+            console.error('No email found in demo');
+            return;
+        }
+
+        try {
+            // Get issue
+            const issueResult = await actions.getIssueById({ issueId: item.id });
+            if (!issueResult.data?.success || !issueResult.data.data) {
+                console.error('Issue not found');
+                return;
+            }
+
+            const issue = issueResult.data.data;
+            const originalListHistory = issue.listHistory || [];
+
+            // Update issue listHistory: add 'patcher', remove all 'version-*' prefixed items
+            const filteredListHistory = originalListHistory.filter(
+                (key: string) => !key.startsWith('version-')
+            );
+            const newListHistory = [...filteredListHistory, PATCH_KEYWORD];
+
+            // Update issue
+            const updateResult = await actions.updateIssue({
+                issueId: item.id,
+                email: demo.email,
+                listHistory: newListHistory,
+            });
+
+            if (!updateResult.data?.success) {
+                console.error('Failed to update issue:', updateResult.data?.error);
+                return;
+            }
+
+            // Remove patch from version
+            await actions.removePatch({
+                patchId: item.id,
+                versionId: item.versionId,
+            });
+
+            // Fetch the updated issue and broadcast issue update
+            const updatedIssueResult = await actions.getIssueById({ issueId: item.id });
+            if (updatedIssueResult.data?.success && updatedIssueResult.data.data) {
+                emitIssueUpdate(updatedIssueResult.data.data);
+            }
+
+            // Add issue to patchable issues list
+            fetchIssues();
+
+            // Broadcast PATCH_REMOVED event
+            window.dispatchEvent(new CustomEvent(PATCH_EVENT_TYPES.PATCH_REMOVED, {
+                detail: {
+                    patch: {
+                        id: item.id,
+                        title: item.title,
+                        completed: false,
+                    },
+                    versionId: item.versionId,
+                },
+            }));
+        } catch (error) {
+            console.error('Error handling patch drop:', error);
+        }
+    }, [fetchIssues]);
+
+
 
     // Minimal draggable issue component
     const MinimalDraggableIssue: React.FC<{ issue: Issue }> = memo(({ issue }) => {
         const [{ opacity }, drag] = useDrag(
             () => ({
-                type: 'patch',
-                item: { id: issue._id, title: issue.title },
+                type: 'issue',
+                item: { id: issue._id, title: issue.title, sunshines: issue.sunshines },
                 collect: (monitor) => ({
                     opacity: monitor.isDragging() ? 0.4 : 1,
                 }),
             }),
-            [issue._id, issue.title],
+            [issue._id, issue.title, issue.sunshines],
         );
 
         return (
@@ -84,7 +173,7 @@ const PatcherPanel: React.FC<PatcherPanelProps> = ({ galaxyId }) => {
                 )}
             >
                 <span className="text-sm text-slate-700 dark:text-slate-300 flex-1 truncate">
-                    {truncateTitle(issue.title)}
+                    {truncateStr(issue.title)}
                 </span>
                 <div className="flex items-center gap-1 text-amber-600 dark:text-amber-400">
                     {getIcon({ iconType: 'sunshine', className: 'w-4 h-4', fill: 'currentColor' })}
@@ -120,6 +209,17 @@ const PatcherPanel: React.FC<PatcherPanelProps> = ({ galaxyId }) => {
                             <Tooltip content="Issues with 'patcher' in listHistory can be dragged to roadmap patches.">
                                 {getIcon({ iconType: 'info', className: 'w-6 h-6 text-slate-600 dark:text-slate-300', fill: 'none' })}
                             </Tooltip>
+                        </div>
+                        {/* Drop target for patches */}
+                        <div className="absolute top-30 left-1/2 -translate-x-1/2 z-30 flex items-center justify-center w-36 h-48 rounded-full shadow-lg overflow-hidden">
+                            <DropTarget
+                                id="patcher-patch-drop"
+                                accept={['patch']}
+                                onDrop={handlePatchDrop}
+                                className="w-full h-full"
+                                roundedClassName="rounded-full"
+                                innerClassName="rounded-full"
+                            />
                         </div>
 
                         {/* Issues list below the hole */}

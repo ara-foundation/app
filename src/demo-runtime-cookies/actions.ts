@@ -869,6 +869,11 @@ export const server = {
             }
         },
     }),
+    /**
+     * Adds 'patcher' to listHistory property of the issue, marking as the patchable issue.
+     * @requires issueId to identify the issue
+     * @requires email to verify the demo session
+     */
     patchIssue: defineAction({
         accept: 'json',
         input: z.object({
@@ -877,7 +882,6 @@ export const server = {
         }),
         handler: async ({ issueId, email }): Promise<{ success: boolean; error?: string }> => {
             try {
-                // Get demo and validate
                 const demo = await getDemoByEmail(email);
                 if (!demo) {
                     return {
@@ -886,7 +890,6 @@ export const server = {
                     };
                 }
 
-                // Get current issue to preserve original if not provided
                 const issue = await getIssueById(issueId);
                 if (!issue) {
                     return {
@@ -895,7 +898,6 @@ export const server = {
                     };
                 }
 
-                // Patch issue
                 const updated = await patchIssue(issueId);
                 if (!updated) {
                     return {
@@ -916,6 +918,9 @@ export const server = {
             }
         },
     }),
+    /**
+     * Reverse of patchIssue, remove 'patcher' from listHistory
+     */
     unpatchIssue: defineAction({
         accept: 'json',
         input: z.object({

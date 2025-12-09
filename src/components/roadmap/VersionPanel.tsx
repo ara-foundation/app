@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react'
+import React, { useState, useMemo, useEffect, memo, useRef } from 'react'
 import PageLikePanel from '@/components/panel/PageLikePanel'
 import Button from '../custom-ui/Button'
 import Tooltip from '../custom-ui/Tooltip'
@@ -16,6 +16,13 @@ import DropTarget from '../DropTarget'
 import type { Version, Patch } from '@/types/roadmap'
 import type { User } from '@/types/user'
 import { actions } from 'astro:actions'
+import { DndProvider, useDrag } from 'react-dnd'
+import { HTML5Backend } from 'react-dnd-html5-backend'
+import { getDemo } from '@/demo-runtime-cookies/client-side'
+import { emitIssueUpdate } from '@/components/issue/client-side'
+import { updatePatches } from './client-side'
+import { PATCH_EVENT_TYPES, PATCH_KEYWORD } from '@/types/patch'
+import { cn, truncateStr } from '@/lib/utils'
 
 const ProjectVersionPanel: React.FC<Version> = ({
   tag,
@@ -35,6 +42,8 @@ const ProjectVersionPanel: React.FC<Version> = ({
   const [isLoadingMaintainer, setIsLoadingMaintainer] = useState<boolean>(false)
   const [totalSunshines, setTotalSunshines] = useState<number>(0)
   const [isLoadingSunshines, setIsLoadingSunshines] = useState<boolean>(false)
+  const [isDraggingFromThisPanel, setIsDraggingFromThisPanel] = useState<boolean>(false)
+  const draggingPatchesCountRef = useRef<number>(0)
 
   // Fetch maintainer user data from maintainer ID
   useEffect(() => {
@@ -68,7 +77,7 @@ const ProjectVersionPanel: React.FC<Version> = ({
     const fetchSunshines = async () => {
       try {
         const issuePromises = patchesList.map(patch =>
-          actions.getIssueById({ issueId: patch.issueId })
+          actions.getIssueById({ issueId: patch.id })
         )
         const results = await Promise.all(issuePromises)
         const total = results.reduce((sum, result) => {
@@ -87,6 +96,50 @@ const ProjectVersionPanel: React.FC<Version> = ({
 
     fetchSunshines()
   }, [patchesList])
+
+  // Listen for PATCH_UPDATE and PATCH_REMOVED events
+  useEffect(() => {
+    if (!versionId) return;
+
+    const handlePatchUpdate = (event: Event) => {
+      const customEvent = event as CustomEvent<import('@/types/patch').PatchUpdateEventDetail>;
+      const { fromVersionId, toVersionId, patch } = customEvent.detail;
+
+      // Only handle if this component is not the source of the update
+      // (i.e., if toVersionId matches, we already updated our state, so skip)
+      if (fromVersionId === versionId && toVersionId !== versionId) {
+        // Remove patch from UI and patches array (client-side only)
+        setPatchesList(prevPatches => prevPatches.filter(p => p.id !== patch.id));
+      } else if (toVersionId === versionId && fromVersionId !== versionId) {
+        // Add patch to UI and patches array (only if coming from another version)
+        setPatchesList(prevPatches => {
+          // Check if already exists
+          if (prevPatches.some(p => p.id === patch.id)) {
+            return prevPatches;
+          }
+          return [...prevPatches, patch];
+        });
+      }
+    };
+
+    const handlePatchRemoved = (event: Event) => {
+      const customEvent = event as CustomEvent<import('@/types/patch').PatchRemovedEventDetail>;
+      const { versionId: eventVersionId, patch } = customEvent.detail;
+
+      if (eventVersionId === versionId) {
+        // Remove patch from UI and patches array (client-side only)
+        setPatchesList(prevPatches => prevPatches.filter(p => p.id !== patch.id));
+      }
+    };
+
+    window.addEventListener(PATCH_EVENT_TYPES.PATCH_UPDATE, handlePatchUpdate);
+    window.addEventListener(PATCH_EVENT_TYPES.PATCH_REMOVED, handlePatchRemoved);
+
+    return () => {
+      window.removeEventListener(PATCH_EVENT_TYPES.PATCH_UPDATE, handlePatchUpdate);
+      window.removeEventListener(PATCH_EVENT_TYPES.PATCH_REMOVED, handlePatchRemoved);
+    };
+  }, [versionId])
 
   // Calculate completedIssues and totalIssues dynamically from patches
   const completedIssues = useMemo(() => {
@@ -167,7 +220,7 @@ const ProjectVersionPanel: React.FC<Version> = ({
 
       if (result.data?.success) {
         // Remove patch from list
-        setPatchesList(prevPatches => prevPatches.filter(patch => patch.issueId !== issueId))
+        setPatchesList(prevPatches => prevPatches.filter(patch => patch.id !== issueId))
         // Show notification
         setNotificationMessage('Issue was added to the Issue page.')
         setTimeout(() => setNotificationMessage(null), 3000)
@@ -182,6 +235,169 @@ const ProjectVersionPanel: React.FC<Version> = ({
       setRevertingIssueId(null)
     }
   }
+
+  const changePatchList = async (item: { id: string; title: string, sunshines?: number }, versionId: string, completed: boolean = false) => {
+    try {
+      const demo = getDemo();
+      if (!demo.email) {
+        console.error('No demo email found');
+        return;
+      }
+
+      // Get issue
+      const issueResult = await actions.getIssueById({ issueId: item.id });
+      if (!issueResult.data?.success || !issueResult.data.data) {
+        alert('Internal error: issue not found');
+        return;
+      }
+
+      const issue = issueResult.data.data;
+      const originalListHistory = issue.listHistory || [];
+      const hadPatcher = originalListHistory.includes(PATCH_KEYWORD);
+
+      // Extract fromVersionId before filtering (for PATCH_UPDATE event)
+      const versionPrefix = originalListHistory.find((key: string) => key.startsWith('version-'));
+      const fromVersionId = versionPrefix ? versionPrefix.replace('version-', '') : '';
+
+      // Filter listHistory: remove 'patcher' if present, remove all 'version-*' prefixed items
+      const filteredListHistory = originalListHistory.filter(
+        (key: string) => key !== PATCH_KEYWORD && !key.startsWith('version-')
+      );
+
+      // Add version-<versionId> to listHistory
+      const newListHistory = [...filteredListHistory, `version-${versionId}`];
+
+      // Update issue
+      const updateResult = await actions.updateIssue({
+        issueId: item.id,
+        email: demo.email,
+        listHistory: newListHistory,
+      });
+
+      if (!updateResult.data?.success) {
+        console.error('Failed to update issue:', updateResult.data?.error);
+        return;
+      }
+
+      // Update patches array: remove existing patch with matching issueId, add new patch
+      // Calculate updated patches (we'll update state after DB update to ensure consistency)
+      const currentPatches = patchesList; // This might be stale, but we'll update from DB if needed
+      const updatedPatches = currentPatches.filter(patch => patch.id !== item.id);
+      const newPatch: Patch = {
+        id: item.id,
+        title: item.title,
+        completed: completed,
+      };
+      updatedPatches.push(newPatch);
+
+      // Update patches in database first
+      await updatePatches(versionId, updatedPatches);
+
+      // If patch was moved from another version, remove it from that version
+      if (fromVersionId) {
+        await actions.removePatch({
+          patchId: item.id,
+          versionId: fromVersionId,
+        });
+      }
+
+      // Update local state
+      setPatchesList(updatedPatches);
+
+      // Fetch the updated issue and broadcast issue update
+      const updatedIssueResult = await actions.getIssueById({ issueId: item.id });
+      if (updatedIssueResult.data?.success && updatedIssueResult.data.data) {
+        emitIssueUpdate(updatedIssueResult.data.data);
+      }
+
+      // Broadcast patch event
+      if (hadPatcher) {
+        // If listHistory had 'patcher', broadcast PATCH_CREATED
+        window.dispatchEvent(new CustomEvent(PATCH_EVENT_TYPES.PATCH_CREATED, {
+          detail: {
+            patch: newPatch,
+            versionId: versionId,
+          },
+        }));
+      } else if (fromVersionId) {
+        // If it had 'version-*', broadcast PATCH_UPDATE
+        window.dispatchEvent(new CustomEvent(PATCH_EVENT_TYPES.PATCH_UPDATE, {
+          detail: {
+            fromVersionId: fromVersionId,
+            toVersionId: versionId,
+            patch: newPatch,
+          },
+        }));
+      }
+    } catch (error) {
+      console.error('Error changing patch list:', error);
+    }
+  }
+
+  // Minimal draggable patch component
+  const MinimalDraggablePatch: React.FC<{ patch: Patch }> = memo(({ patch }) => {
+    const [{ opacity, isDragging }, drag] = useDrag(
+      () => ({
+        type: 'patch',
+        item: { id: patch.id, title: patch.title, sunshines: patch.sunshines, versionId: versionId || '' },
+        collect: (monitor) => ({
+          opacity: monitor.isDragging() ? 0.4 : 1,
+          isDragging: monitor.isDragging(),
+        }),
+      }),
+      [patch.id, patch.title, patch.sunshines, versionId],
+    );
+
+    // Track when dragging starts/ends to disable DropTarget in parent
+    useEffect(() => {
+      if (isDragging) {
+        draggingPatchesCountRef.current += 1;
+        setIsDraggingFromThisPanel(true);
+      } else {
+        draggingPatchesCountRef.current = Math.max(0, draggingPatchesCountRef.current - 1);
+        if (draggingPatchesCountRef.current === 0) {
+          setIsDraggingFromThisPanel(false);
+        }
+      }
+    }, [isDragging]);
+
+    return (
+      <div
+        ref={drag as any}
+        data-testid={patch.id}
+        style={{ opacity }}
+        className={cn(
+          'cursor-move border-1 border-amber-300/80 hover:border-amber-400',
+          'dark:border-amber-400/70 dark:hover:border-amber-300/90',
+          'bg-amber-50/50 dark:bg-amber-900/20',
+          'transition-colors p-2 border-dashed rounded-md',
+          'flex items-center justify-between gap-2',
+        )}
+      >
+        <Checkbox
+          checked={patch.completed || status === 'completed'}
+          disabled
+          className="w-4 h-4 rounded-sm border-2 border-slate-400 dark:border-slate-600 bg-white dark:bg-slate-600 data-[state=checked]:bg-slate-600 dark:data-[state=checked]:bg-slate-400 data-[state=checked]:border-slate-600 dark:data-[state=checked]:border-slate-400 flex items-center justify-center"
+        >
+          <CheckboxIndicator className="w-3 h-3 text-white dark:text-slate-700" />
+        </Checkbox>
+        <span className="text-sm text-slate-700 dark:text-slate-300 flex-1 truncate">
+          {truncateStr(patch.title)}
+        </span>
+        <div className="flex items-center gap-1 text-amber-600 dark:text-amber-400">
+          {getIcon({ iconType: 'sunshine', className: 'w-4 h-4', fill: 'currentColor' })}
+          <span className="text-xs font-semibold">
+            <NumberFlow
+              value={patch.sunshines || 0}
+              locales="en-US"
+              format={{ useGrouping: false }}
+            />
+          </span>
+        </div>
+      </div>
+    );
+  });
+  MinimalDraggablePatch.displayName = 'MinimalDraggablePatch';
 
   return (
     <PageLikePanel
@@ -255,69 +471,36 @@ const ProjectVersionPanel: React.FC<Version> = ({
 
       <div className="my-6">
         <Tooltip content="Patches are the issues with the contributor and common agreement.">
-          <h4 className="text-sm mb-2 font-medium text-slate-700 dark:text-slate-400 flex items-center gap-1.5 cursor-help">
-            {getIcon({ iconType: 'info', className: 'w-4 h-4 text-slate-500 dark:text-slate-400' })}
-            Patches
-          </h4>
+          <DndProvider key={versionId} backend={HTML5Backend}>
+            <DropTarget
+              id={`version-${versionId || 'unknown'}`}
+              accept={['patch', 'issue']}
+              onDrop={(item: { id: string; title: string; completed?: boolean, sunshines?: number }) => {
+                if (!versionId) return;
+                const completed = item.completed !== undefined ? item.completed : false;
+                changePatchList(item, versionId, completed);
+              }}
+              disabled={isDraggingFromThisPanel}
+            >
+              <h4 className="text-sm mb-2 font-medium text-slate-700 dark:text-slate-400 flex items-center gap-1.5 cursor-help">
+                {getIcon({ iconType: 'info', className: 'w-4 h-4 text-slate-500 dark:text-slate-400' })}
+                Patches
+              </h4>
+            </DropTarget>
+          </DndProvider>
         </Tooltip>
-        <DropTarget
-          id={`patches-drop-${versionId || 'unknown'}`}
-          accept={['patch']}
-          onDrop={() => {
-            alert('heyya!');
-          }}
-          className="min-h-[100px]"
-        >
-          <ul className="space-y-2">
-            {patchesList.map((patch) => {
-              const patchTooltipContent = (
-                <div className="text-sm space-y-3">
-                  <Link
-                    uri={`/data/issue?id=${patch.issueId}`}
-                    className="text-blue-400 hover:text-blue-300 dark:text-blue-500 dark:hover:text-blue-400 text-xs underline"
-                  >
-                    Click to see more about this issue
-                  </Link>
-                </div>
-              )
 
-              return (
-                <li key={patch.issueId} className="flex items-center space-x-2">
-                  <Checkbox
-                    checked={patch.completed || status === 'completed'}
-                    disabled
-                    className="w-4 h-4 rounded-sm border-2 border-slate-400 dark:border-slate-600 bg-white dark:bg-slate-600 data-[state=checked]:bg-slate-600 dark:data-[state=checked]:bg-slate-400 data-[state=checked]:border-slate-600 dark:data-[state=checked]:border-slate-400 flex items-center justify-center"
-                  >
-                    <CheckboxIndicator className="w-3 h-3 text-white dark:text-slate-700" />
-                  </Checkbox>
-                  <Tooltip content={patchTooltipContent}>
-                    <Link
-                      uri={`/data/issue?id=${patch.issueId}`}
-                      className="text-sm text-slate-700 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 cursor-pointer"
-                    >
-                      {patch.title}
-                    </Link>
-                  </Tooltip>
-                  {!patch.completed && status !== 'completed' && (
-                    <Button
-                      variant="secondary"
-                      size="sm"
-                      disabled={revertingIssueId === patch.issueId}
-                      onClick={() => handleRevertPatch(patch.issueId)}
-                      className="ml-auto"
-                    >
-                      {revertingIssueId === patch.issueId ? (
-                        <LoadingSpinner />
-                      ) : (
-                        getIcon({ iconType: 'revert', className: 'w-4 h-4' })
-                      )}
-                    </Button>
-                  )}
-                </li>
-              )
-            })}
+        <DndProvider key={versionId} backend={HTML5Backend}>
+          <ul className="space-y-2 min-h-[100px] mb-2">
+            {patchesList.map((patch) => (
+              <li key={patch.id} >
+                <MinimalDraggablePatch patch={patch} />
+              </li>
+            ))}
           </ul>
-        </DropTarget>
+        </DndProvider>
+
+
         {notificationMessage && (
           <div className="mt-4 p-3 bg-green-50/10 border border-green-200 dark:border-green-700 rounded-xs text-green-700 dark:text-green-400 text-sm">
             {notificationMessage}

@@ -1,7 +1,7 @@
 import { defineAction } from 'astro:actions'
 import { z } from 'astro:schema'
-import { getVersionsByGalaxy, getVersionById, updateVersionStatus, revertPatch, createVersion } from '@/scripts/roadmap'
-import type { Version } from '@/types/roadmap'
+import { getVersionsByGalaxy, getVersionById, updateVersionStatus, revertPatch, createVersion, updatePatches, removePatch } from '@/scripts/roadmap'
+import type { Version, Patch } from '@/types/roadmap'
 
 export const server = {
     getVersionsByGalaxy: defineAction({
@@ -170,6 +170,62 @@ export const server = {
                 return {
                     success: false,
                     error: 'An error occurred while creating version',
+                };
+            }
+        },
+    }),
+    updatePatches: defineAction({
+        input: z.object({
+            versionId: z.string(),
+            patches: z.array(z.object({
+                id: z.string(),
+                completed: z.boolean(),
+                title: z.string(),
+            })),
+        }),
+        handler: async ({ versionId, patches }): Promise<{ success: boolean; error?: string }> => {
+            try {
+                const updated = await updatePatches(versionId, patches);
+                if (!updated) {
+                    return {
+                        success: false,
+                        error: 'Failed to update patches',
+                    };
+                }
+                return {
+                    success: true,
+                };
+            } catch (error) {
+                console.error('Error updating patches:', error);
+                return {
+                    success: false,
+                    error: 'An error occurred while updating patches',
+                };
+            }
+        },
+    }),
+    removePatch: defineAction({
+        input: z.object({
+            patchId: z.string(),
+            versionId: z.string(),
+        }),
+        handler: async ({ patchId, versionId }): Promise<{ success: boolean; error?: string }> => {
+            try {
+                const removed = await removePatch(patchId, versionId);
+                if (!removed) {
+                    return {
+                        success: false,
+                        error: 'Failed to remove patch',
+                    };
+                }
+                return {
+                    success: true,
+                };
+            } catch (error) {
+                console.error('Error removing patch:', error);
+                return {
+                    success: false,
+                    error: 'An error occurred while removing patch',
                 };
             }
         },

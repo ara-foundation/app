@@ -1,7 +1,8 @@
 export interface Patch {
-  issueId: string
+  id: string
   completed: boolean
   title: string
+  sunshines?: number
 }
 
 export interface Version {

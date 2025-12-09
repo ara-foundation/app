@@ -123,7 +123,6 @@ const PatcherContainer: React.FC<PatcherContainerProps> = () => {
         }
 
         try {
-            // Get the issue to get
             const issueResult = await actions.getIssueById({ issueId: item.id });
             const issue = issueResult.data?.data;
 
