@@ -1,8 +1,8 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import ScrollStack, { ScrollStackItem } from '@/components/ScrollStack';
 import Button from '@/components/custom-ui/Button';
-import { actions } from 'astro:actions';
-import { getDemo } from '@/demo-runtime-cookies/client-side';
+import { getDemo } from '@/client-side/demo';
+import { createVersion } from '@/client-side/roadmap';
 import { Checkbox, CheckboxIndicator } from '@/components/animate-ui/primitives/radix/checkbox';
 
 interface CreateVersionFormProps {
@@ -111,17 +111,16 @@ const CreateVersionForm: React.FC<CreateVersionFormProps> = ({ galaxyId, onSucce
                 return;
             }
 
-            const result = await actions.createVersion({
+            const version = await createVersion({
                 galaxyId,
                 tag: tag.trim(),
                 email: demo.email,
             });
 
-            if (result.data?.success) {
+            if (version) {
                 onSuccess?.();
             } else {
-                const error = result.data?.error || result.error || 'Failed to create version';
-                alert(error);
+                alert('Failed to create version');
             }
         } catch (error) {
             console.error('Error creating version:', error);

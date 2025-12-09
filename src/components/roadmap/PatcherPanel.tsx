@@ -5,7 +5,6 @@ import { motion } from 'motion/react';
 import { useDrag } from 'react-dnd';
 import { ReversedHoleBackground } from '@/components/animate-ui/components/backgrounds/reversed-hole';
 import { getIcon } from '@/components/icon';
-import { actions } from 'astro:actions';
 import { PATCH_KEYWORD, PATCH_EVENT_TYPES } from '@/types/patch';
 import type { Issue } from '@/types/issue';
 import { cn, truncateStr } from '@/lib/utils';
@@ -14,8 +13,10 @@ import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import NumberFlow from '@number-flow/react';
 import DropTarget from '@/components/DropTarget';
-import { getDemo } from '@/demo-runtime-cookies/client-side';
-import { emitIssueUpdate } from '@/components/issue/client-side';
+import { getDemo } from '@/client-side/demo';
+import { getIssueById, updateIssue } from '@/client-side/issue';
+import { getIssues } from '@/client-side/issue';
+import { removePatch } from '@/client-side/roadmap';
 
 interface PatcherPanelProps {
     galaxyId: string;
@@ -32,18 +33,12 @@ const PatcherPanel: React.FC<PatcherPanelProps> = ({ galaxyId }) => {
 
         try {
             setIsLoading(true);
-            const result = await actions.getIssuesByGalaxy({
-                galaxyId,
-                tabKey: PATCH_KEYWORD
-            });
-
-            if (result.data?.issues) {
-                // Filter issues that have 'patcher' in listHistory
-                const patchedIssues = result.data.issues.filter(
-                    issue => issue.listHistory?.includes(PATCH_KEYWORD)
-                );
-                setIssues(patchedIssues);
-            }
+            const allIssues = await getIssues(galaxyId);
+            // Filter issues that have 'patcher' in listHistory
+            const patchedIssues = allIssues.filter(
+                issue => issue.listHistory?.includes(PATCH_KEYWORD)
+            );
+            setIssues(patchedIssues);
         } catch (error) {
             console.error('Error fetching patched issues:', error);
         } finally {
@@ -86,13 +81,12 @@ const PatcherPanel: React.FC<PatcherPanelProps> = ({ galaxyId }) => {
 
         try {
             // Get issue
-            const issueResult = await actions.getIssueById({ issueId: item.id });
-            if (!issueResult.data?.success || !issueResult.data.data) {
+            const issue = await getIssueById(item.id);
+            if (!issue) {
                 console.error('Issue not found');
                 return;
             }
 
-            const issue = issueResult.data.data;
             const originalListHistory = issue.listHistory || [];
 
             // Update issue listHistory: add 'patcher', remove all 'version-*' prefixed items
@@ -102,43 +96,25 @@ const PatcherPanel: React.FC<PatcherPanelProps> = ({ galaxyId }) => {
             const newListHistory = [...filteredListHistory, PATCH_KEYWORD];
 
             // Update issue
-            const updateResult = await actions.updateIssue({
+            const updateSuccess = await updateIssue({
                 issueId: item.id,
-                email: demo.email,
+                email: demo.email!,
                 listHistory: newListHistory,
             });
 
-            if (!updateResult.data?.success) {
-                console.error('Failed to update issue:', updateResult.data?.error);
+            if (!updateSuccess) {
+                console.error('Failed to update issue');
                 return;
             }
 
             // Remove patch from version
-            await actions.removePatch({
+            await removePatch({
                 patchId: item.id,
                 versionId: item.versionId,
             });
 
-            // Fetch the updated issue and broadcast issue update
-            const updatedIssueResult = await actions.getIssueById({ issueId: item.id });
-            if (updatedIssueResult.data?.success && updatedIssueResult.data.data) {
-                emitIssueUpdate(updatedIssueResult.data.data);
-            }
-
             // Add issue to patchable issues list
             fetchIssues();
-
-            // Broadcast PATCH_REMOVED event
-            window.dispatchEvent(new CustomEvent(PATCH_EVENT_TYPES.PATCH_REMOVED, {
-                detail: {
-                    patch: {
-                        id: item.id,
-                        title: item.title,
-                        completed: false,
-                    },
-                    versionId: item.versionId,
-                },
-            }));
         } catch (error) {
             console.error('Error handling patch drop:', error);
         }

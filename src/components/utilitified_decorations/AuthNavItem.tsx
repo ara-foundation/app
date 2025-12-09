@@ -18,7 +18,7 @@ import {
 } from '@/components/animate-ui/components/radix/dropdown-menu'
 import { ChevronDownIcon } from 'lucide-react'
 import type { Roles, User } from '@/types/user'
-import { startDemo, clearDemo, changeRole, getDemo } from '@/demo-runtime-cookies/client-side'
+import { startDemo, clearDemo, changeRole, getDemo } from '@/client-side/demo'
 
 interface Props {
   className?: string

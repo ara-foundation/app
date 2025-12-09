@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '@/lib/utils';
 import { useDemoStart } from '@/hooks/use-demo-start';
 import DemoCongratulationsDialog from './DemoCongratulationsDialog';
-import { startDemo, demoExists } from '@/demo-runtime-cookies/client-side';
+import { startDemo, demoExists } from '@/client-side/demo';
 import { DEMO_EVENT_TYPES } from '@/demo-runtime-cookies';
 
 interface DemoCtaPanelProps {

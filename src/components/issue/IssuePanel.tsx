@@ -21,8 +21,8 @@ import YourBadge from '../badge/YourBadge'
 import EditableBadge from '../badge/EditableBadge'
 import { actions as astroActions } from 'astro:actions'
 import type { User } from '@/types/user'
-import { getDemo } from '@/demo-runtime-cookies/client-side'
-import { actions } from 'astro:actions'
+import { getDemo } from '@/client-side/demo'
+import { getUserById } from '@/client-side/user'
 import { ISSUE_EVENT_TYPES } from '@/types/issue'
 
 interface IssueContentPanelProps extends Issue {
@@ -135,10 +135,10 @@ const IssueContentPanel: React.FC<IssueContentPanelProps> = ({
     if (demo.email && demo.users && demo.role) {
       const user = demo.users.find(u => u.role === demo.role) || demo.users[0]
       if (user && user._id) {
-        actions.getUserById({ userId: user._id.toString() })
-          .then((result) => {
-            if (result.data?.success && result.data.data) {
-              setCurrentUser(result.data.data)
+        getUserById(user._id.toString())
+          .then((userData) => {
+            if (userData) {
+              setCurrentUser(userData)
             }
           })
           .catch((error) => {

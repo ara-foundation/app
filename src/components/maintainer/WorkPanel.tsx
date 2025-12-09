@@ -5,12 +5,12 @@ import DropTarget from '../DropTarget'
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import { getIcon } from '../icon';
-import { getDemo } from '@/demo-runtime-cookies/client-side'
+import { getDemo } from '@/client-side/demo'
 import { DEMO_EVENT_TYPES } from '@/demo-runtime-cookies/index'
-import { actions } from 'astro:actions'
+import { getUserById } from '@/client-side/user'
+import { updateIssue } from '@/client-side/issue'
 import type { User } from '@/types/user'
 import { ISSUE_EVENT_TYPES, IssueTabKey } from '@/types/issue'
-import { emitIssueUpdate } from '@/components/issue/client-side'
 
 interface WorkPanelProps {
   galaxyId: string
@@ -28,10 +28,10 @@ const C: React.FC<WorkPanelProps> = ({ galaxyId }) => {
       if (demo.email && demo.users && demo.role) {
         const user = demo.users.find(u => u.role === demo.role) || demo.users[0];
         if (user && user._id) {
-          const result = await actions.getUserById({ userId: user._id.toString() });
-          if (result.data?.success && result.data.data) {
-            setCurrentUser(result.data.data);
-            setIsMaintainer(result.data.data.role === 'maintainer');
+          const userData = await getUserById(user._id.toString());
+          if (userData) {
+            setCurrentUser(userData);
+            setIsMaintainer(userData.role === 'maintainer');
           }
         }
       }
@@ -77,22 +77,15 @@ const C: React.FC<WorkPanelProps> = ({ galaxyId }) => {
       }
 
       // Update issue listHistory to only contain this list key
-      const updateResult = await actions.updateIssue({
+      const success = await updateIssue({
         issueId,
         email: demo.email,
         listHistory: [listKey],
       });
 
-      if (!updateResult.data?.success) {
-        console.error('Failed to update issue:', updateResult.data?.error);
+      if (!success) {
+        console.error('Failed to update issue');
         return;
-      }
-
-      // Fetch the updated issue
-      const issueResult = await actions.getIssueById({ issueId });
-      if (issueResult.data?.success && issueResult.data.data) {
-        // Broadcast ISSUE_UPDATE event
-        emitIssueUpdate(issueResult.data.data);
       }
     } catch (error) {
       console.error('Error changing issue list:', error);

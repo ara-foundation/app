@@ -3,7 +3,7 @@ import Tabs, { TabProps } from '../Tabs'
 import Badge from '../badge/Badge'
 import type { Version } from '@/types/roadmap'
 import RoadmapPanel from './RoadmapPanel'
-import { getVersions } from './client-side'
+import { getVersions } from '@/client-side/roadmap'
 
 interface RoadmapTabsProps {
   galaxyId: string
@@ -17,7 +17,6 @@ const RoadmapTabs: React.FC<RoadmapTabsProps> = ({ galaxyId }) => {
     try {
       setLoading(true)
       const versions = await getVersions(galaxyId)
-      console.log('versions', versions)
       setAllVersions(versions)
     } catch (error) {
       console.error('Error fetching versions:', error)

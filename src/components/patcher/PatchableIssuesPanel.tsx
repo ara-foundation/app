@@ -4,8 +4,7 @@ import React, { useState, useEffect, useLayoutEffect, useCallback, useRef } from
 import { motion } from 'motion/react';
 import { HoleBackground } from '@/components/animate-ui/components/backgrounds/hole';
 import { getIcon } from '@/components/icon';
-import { actions } from 'astro:actions';
-import { getDemo } from '@/demo-runtime-cookies/client-side';
+import { getDemo } from '@/client-side/demo';
 import { ISSUE_EVENT_TYPES, ISSUE_TAB_TITLES, IssueTabKey, isPatchable } from '@/types/issue';
 import type { Issue } from '@/types/issue';
 import { PATCH_KEYWORD } from '@/types/patch';
@@ -15,7 +14,7 @@ import Tooltip from '@/components/custom-ui/Tooltip';
 import DropTarget from '@/components/DropTarget';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
-import { getIssues } from '../issue/client-side';
+import { getIssues, getIssueById, patchIssue, unpatchIssue } from '@/client-side/issue';
 
 interface PatchedIssue extends Issue {
     originalListTitle?: string;
@@ -123,8 +122,7 @@ const PatcherContainer: React.FC<PatcherContainerProps> = () => {
         }
 
         try {
-            const issueResult = await actions.getIssueById({ issueId: item.id });
-            const issue = issueResult.data?.data;
+            const issue = await getIssueById(item.id);
 
             if (!issue) {
                 console.error('Issue not found');
@@ -132,12 +130,12 @@ const PatcherContainer: React.FC<PatcherContainerProps> = () => {
             }
 
             // Patch the issue
-            const result = await actions.patchIssue({
+            const success = await patchIssue({
                 issueId: item.id,
-                email: demo.email,
+                email: demo.email!,
             });
 
-            if (result.data?.success) {
+            if (success) {
                 // Add to local state
                 const patchedIssue: PatchedIssue = {
                     ...issue,
@@ -150,9 +148,6 @@ const PatcherContainer: React.FC<PatcherContainerProps> = () => {
                     }
                     return [...prev, patchedIssue];
                 });
-
-                // Dispatch issue-update event
-                window.dispatchEvent(new CustomEvent(ISSUE_EVENT_TYPES.ISSUE_UPDATE));
             }
         } catch (error) {
             console.error('Error patching issue:', error);
@@ -168,24 +163,14 @@ const PatcherContainer: React.FC<PatcherContainerProps> = () => {
         }
 
         try {
-            const result = await actions.unpatchIssue({
+            const success = await unpatchIssue({
                 issueId: issue._id!,
-                email: demo.email,
+                email: demo.email!,
             });
 
-            if (result.data?.success) {
+            if (success) {
                 // Remove from local state
                 setPatchedIssues(prev => prev.filter(p => p._id !== issue._id));
-
-                // Dispatch issue-unpatched event
-                window.dispatchEvent(new CustomEvent(ISSUE_EVENT_TYPES.ISSUE_UNPATCHED, {
-                    detail: {
-                        issue,
-                    },
-                }));
-
-                // Dispatch issue-update event
-                window.dispatchEvent(new CustomEvent(ISSUE_EVENT_TYPES.ISSUE_UPDATE));
             }
         } catch (error) {
             console.error('Error unpatching issue:', error);

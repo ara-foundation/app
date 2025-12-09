@@ -10,11 +10,12 @@ import MenuAvatar from '../MenuAvatar'
 import TimeAgo from 'timeago-react';
 import { ActionProps } from '@/types/eventTypes'
 import PanelAction from '../panel/PanelAction'
-import { actions } from 'astro:actions'
 import type { User } from '@/types/user'
 import { Spinner } from '@/components/ui/shadcn-io/spinner'
 import SunshinesPopover from './SunshinesPopover'
-import { getDemo } from '@/demo-runtime-cookies/client-side'
+import { getDemo } from '@/client-side/demo'
+import { updateIssueSunshines } from '@/client-side/issue'
+import { getUserById } from '@/client-side/user'
 import Tooltip from '../custom-ui/Tooltip'
 
 interface IssueLinkProps extends Issue {
@@ -46,10 +47,10 @@ const IssueLinkPanel4: React.FC<IssueLinkProps> = (issue) => {
   useEffect(() => {
     if (issue.author && typeof issue.author === 'string') {
       setIsLoadingAuthor(true);
-      actions.getUserById({ userId: issue.author })
-        .then((result) => {
-          if (result.data?.success && result.data.data) {
-            setAuthorUser(result.data.data);
+      getUserById(issue.author)
+        .then((userData) => {
+          if (userData) {
+            setAuthorUser(userData);
           }
         })
         .catch((error) => {
@@ -68,11 +69,11 @@ const IssueLinkPanel4: React.FC<IssueLinkProps> = (issue) => {
       if (demo.email && demo.users && demo.role) {
         const user = demo.users.find(u => u.role === demo.role) || demo.users[0];
         if (user && user._id) {
-          actions.getUserById({ userId: user._id.toString() })
-            .then((result) => {
-              if (result.data?.success && result.data.data) {
-                setCurrentUser(result.data.data);
-                setAvailableSunshines(result.data.data.sunshines || 0);
+          getUserById(user._id.toString())
+            .then((userData) => {
+              if (userData) {
+                setCurrentUser(userData);
+                setAvailableSunshines(userData.sunshines || 0);
               }
             })
             .catch((error) => {
@@ -98,25 +99,23 @@ const IssueLinkPanel4: React.FC<IssueLinkProps> = (issue) => {
         return;
       }
 
-      const result = await actions.updateIssueSunshines({
+      const success = await updateIssueSunshines({
         issueId: issue._id,
         userId: currentUser._id!.toString(),
         email: demo.email,
         sunshinesToAdd,
       });
 
-      if (result.data?.success) {
-        // Refresh the issues list
-        window.dispatchEvent(new CustomEvent('issue-created'));
+      if (success) {
         // Also update available sunshines
         if (currentUser._id) {
-          const updatedUser = await actions.getUserById({ userId: currentUser._id.toString() });
-          if (updatedUser.data?.success && updatedUser.data.data) {
-            setAvailableSunshines(updatedUser.data.data.sunshines || 0);
+          const updatedUser = await getUserById(currentUser._id.toString());
+          if (updatedUser) {
+            setAvailableSunshines(updatedUser.sunshines || 0);
           }
         }
       } else {
-        alert(result.data?.error || 'Failed to update sunshines');
+        alert('Failed to update sunshines');
       }
     } catch (error) {
       console.error('Error updating sunshines:', error);

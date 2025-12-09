@@ -4,8 +4,9 @@ import Button from '@/components/custom-ui/Button';
 import Badge from '@/components/badge/Badge';
 import * as RadixSlider from '@radix-ui/react-slider';
 import { IssueTag } from '@/types/issue';
-import { actions } from 'astro:actions';
-import { getDemo } from '@/demo-runtime-cookies/client-side';
+import { getDemo } from '@/client-side/demo';
+import { createIssue } from '@/client-side/issue';
+import { getUserById } from '@/client-side/user';
 import NumberFlow from '@number-flow/react';
 import { cn } from '@/lib/utils';
 
@@ -36,9 +37,9 @@ const CreateIssueForm: React.FC<CreateIssueFormProps> = ({ galaxyId, onSuccess, 
                 if (demo.email && demo.users) {
                     const currentUser = demo.users.find(u => u.role === 'user') || demo.users[0];
                     if (currentUser && currentUser._id) {
-                        const result = await actions.getUserById({ userId: currentUser._id.toString() });
-                        if (result.data?.success && result.data.data) {
-                            setAvailableSunshines(result.data.data.sunshines || 0);
+                        const user = await getUserById(currentUser._id.toString());
+                        if (user) {
+                            setAvailableSunshines(user.sunshines || 0);
                         }
                     }
                 }
@@ -157,7 +158,7 @@ const CreateIssueForm: React.FC<CreateIssueFormProps> = ({ galaxyId, onSuccess, 
                 return;
             }
 
-            const result = await actions.createIssue({
+            const createdIssue = await createIssue({
                 galaxyId,
                 userId: currentUser._id.toString(),
                 email: demo.email,
@@ -167,11 +168,10 @@ const CreateIssueForm: React.FC<CreateIssueFormProps> = ({ galaxyId, onSuccess, 
                 sunshines,
             });
 
-            if (result.data?.success) {
+            if (createdIssue) {
                 onSuccess?.();
             } else {
-                const error = result.data?.error || result.error || 'Failed to create issue';
-                alert(error);
+                alert('Failed to create issue');
             }
         } catch (error) {
             console.error('Error creating issue:', error);

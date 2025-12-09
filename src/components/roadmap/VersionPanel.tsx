@@ -16,13 +16,13 @@ import type { Version, Patch } from '@/types/roadmap'
 import type { User } from '@/types/user'
 import type { Issue } from '@/types/issue'
 import MenuAvatar from '../MenuAvatar'
-import { actions } from 'astro:actions'
 import { DndProvider, useDrag } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
-import { getDemo } from '@/demo-runtime-cookies/client-side'
+import { getDemo } from '@/client-side/demo'
 import { type DemoRoleChangeEvent, DEMO_EVENT_TYPES } from '@/demo-runtime-cookies'
-import { emitIssueUpdate } from '@/components/issue/client-side'
-import { updatePatches, markPatchTested } from './client-side'
+import { getIssueById, updateIssue } from '@/client-side/issue'
+import { getUserById } from '@/client-side/user'
+import { updatePatches, markPatchTested, removePatch, updateVersionStatus, revertPatch, completePatch } from '@/client-side/roadmap'
 import { PATCH_EVENT_TYPES, PATCH_KEYWORD } from '@/types/patch'
 import { cn, truncateStr } from '@/lib/utils'
 
@@ -62,10 +62,10 @@ const ProjectVersionPanel: React.FC<Version> = ({
   useEffect(() => {
     if (maintainer && typeof maintainer === 'string') {
       setIsLoadingMaintainer(true)
-      actions.getUserById({ userId: maintainer })
-        .then((result: { data?: { success?: boolean; data?: User; error?: string } }) => {
-          if (result.data?.success && result.data.data) {
-            setMaintainerUser(result.data.data)
+      getUserById(maintainer)
+        .then((userData) => {
+          if (userData) {
+            setMaintainerUser(userData)
           }
         })
         .catch((error: unknown) => {
@@ -90,12 +90,12 @@ const ProjectVersionPanel: React.FC<Version> = ({
     const fetchSunshines = async () => {
       try {
         const issuePromises = patchesList.map(patch =>
-          actions.getIssueById({ issueId: patch.id })
+          getIssueById(patch.id)
         )
         const results = await Promise.all(issuePromises)
-        const total = results.reduce((sum, result) => {
-          if (result.data?.success && result.data.data) {
-            return sum + (result.data.data.sunshines || 0)
+        const total = results.reduce((sum, issue) => {
+          if (issue) {
+            return sum + (issue.sunshines || 0)
           }
           return sum
         }, 0)
@@ -119,10 +119,10 @@ const ProjectVersionPanel: React.FC<Version> = ({
     }
     const selected = demo.users?.find(u => u.role === demo.role) || demo.users?.[0]
     if (selected?._id) {
-      actions.getUserById({ userId: selected._id.toString() })
-        .then((result: { data?: { success?: boolean; data?: User; error?: string } }) => {
-          if (result.data?.success && result.data.data) {
-            setCurrentUser(result.data.data)
+      getUserById(selected._id.toString())
+        .then((userData) => {
+          if (userData) {
+            setCurrentUser(userData)
           }
         })
         .catch((error: unknown) => {
@@ -289,12 +289,12 @@ const ProjectVersionPanel: React.FC<Version> = ({
     if (!versionId) return false
     setLoading(true)
     try {
-      const result = await actions.updateVersionStatus({ versionId, status: nextStatus })
-      if (result.data?.success) {
+      const success = await updateVersionStatus({ versionId, status: nextStatus })
+      if (success) {
         setStatus(nextStatus)
         return true
       }
-      console.error('Error updating status:', result.data?.error)
+      console.error('Error updating status')
       return false
     } catch (error) {
       console.error('Error calling API:', error)
@@ -338,20 +338,20 @@ const ProjectVersionPanel: React.FC<Version> = ({
 
     setRevertingIssueId(issueId)
     try {
-      const result = await actions.revertPatch({
+      const success = await revertPatch({
         galaxyId: galaxy,
         versionTag: tag,
         issueId
       })
 
-      if (result.data?.success) {
+      if (success) {
         // Remove patch from list
         setPatchesList(prevPatches => prevPatches.filter(patch => patch.id !== issueId))
         // Show notification
         setNotificationMessage('Issue was added to the Issue page.')
         setTimeout(() => setNotificationMessage(null), 3000)
       } else {
-        console.error('Error reverting patch:', result.data?.error)
+        console.error('Error reverting patch')
         alert('Failed to revert patch. Please try again.')
       }
     } catch (error) {
@@ -371,13 +371,11 @@ const ProjectVersionPanel: React.FC<Version> = ({
       }
 
       // Get issue
-      const issueResult = await actions.getIssueById({ issueId: item.id });
-      if (!issueResult.data?.success || !issueResult.data.data) {
+      const issue = await getIssueById(item.id);
+      if (!issue) {
         alert('Internal error: issue not found');
         return;
       }
-
-      const issue = issueResult.data.data;
       const originalListHistory = issue.listHistory || [];
       const hadPatcher = originalListHistory.includes(PATCH_KEYWORD);
 
@@ -394,14 +392,14 @@ const ProjectVersionPanel: React.FC<Version> = ({
       const newListHistory = [...filteredListHistory, `version-${versionId}`];
 
       // Update issue
-      const updateResult = await actions.updateIssue({
+      const updateSuccess = await updateIssue({
         issueId: item.id,
         email: demo.email,
         listHistory: newListHistory,
       });
 
-      if (!updateResult.data?.success) {
-        console.error('Failed to update issue:', updateResult.data?.error);
+      if (!updateSuccess) {
+        console.error('Failed to update issue');
         return;
       }
 
@@ -423,7 +421,7 @@ const ProjectVersionPanel: React.FC<Version> = ({
 
       // If patch was moved from another version, remove it from that version
       if (fromVersionId) {
-        await actions.removePatch({
+        await removePatch({
           patchId: item.id,
           versionId: fromVersionId,
         });
@@ -431,12 +429,6 @@ const ProjectVersionPanel: React.FC<Version> = ({
 
       // Update local state
       setPatchesList(updatedPatches);
-
-      // Fetch the updated issue and broadcast issue update
-      const updatedIssueResult = await actions.getIssueById({ issueId: item.id });
-      if (updatedIssueResult.data?.success && updatedIssueResult.data.data) {
-        emitIssueUpdate(updatedIssueResult.data.data);
-      }
 
       // Broadcast patch event
       if (hadPatcher) {
@@ -492,10 +484,10 @@ const ProjectVersionPanel: React.FC<Version> = ({
     // Fetch issue data
     useEffect(() => {
       setIsLoadingIssue(true)
-      actions.getIssueById({ issueId: patch.id })
-        .then((result: { data?: { success?: boolean; data?: Issue; error?: string } }) => {
-          if (result.data?.success && result.data.data) {
-            setIssue(result.data.data)
+      getIssueById(patch.id)
+        .then((issueData) => {
+          if (issueData) {
+            setIssue(issueData)
           }
         })
         .catch((error: unknown) => {
@@ -512,10 +504,10 @@ const ProjectVersionPanel: React.FC<Version> = ({
       if (demo.email && demo.users && demo.role) {
         const user = demo.users.find(u => u.role === demo.role) || demo.users[0]
         if (user && user._id) {
-          actions.getUserById({ userId: user._id.toString() })
-            .then((result: { data?: { success?: boolean; data?: User; error?: string } }) => {
-              if (result.data?.success && result.data.data) {
-                setCurrentUser(result.data.data)
+          getUserById(user._id.toString())
+            .then((userData) => {
+              if (userData) {
+                setCurrentUser(userData)
               }
             })
             .catch((error: unknown) => {
@@ -528,10 +520,10 @@ const ProjectVersionPanel: React.FC<Version> = ({
     // Fetch contributor user
     useEffect(() => {
       if (issue?.contributor && typeof issue.contributor === 'string') {
-        actions.getUserById({ userId: issue.contributor })
-          .then((result: { data?: { success?: boolean; data?: User; error?: string } }) => {
-            if (result.data?.success && result.data.data) {
-              setContributorUser(result.data.data)
+        getUserById(issue.contributor)
+          .then((userData) => {
+            if (userData) {
+              setContributorUser(userData)
             }
           })
           .catch((error: unknown) => {
@@ -545,10 +537,10 @@ const ProjectVersionPanel: React.FC<Version> = ({
     // Fetch maintainer user (from issue)
     useEffect(() => {
       if (issue?.maintainer && typeof issue.maintainer === 'string') {
-        actions.getUserById({ userId: issue.maintainer })
-          .then((result: { data?: { success?: boolean; data?: User; error?: string } }) => {
-            if (result.data?.success && result.data.data) {
-              setMaintainerUser(result.data.data)
+        getUserById(issue.maintainer)
+          .then((userData) => {
+            if (userData) {
+              setMaintainerUser(userData)
             }
           })
           .catch((error: unknown) => {
@@ -578,13 +570,13 @@ const ProjectVersionPanel: React.FC<Version> = ({
       setIsToggling(true)
       try {
         const newCompleted = !patchCompleted
-        const result = await actions.completePatch({
+        const success = await completePatch({
           versionId,
           patchId: patch.id,
           complete: newCompleted,
         })
 
-        if (result.data?.success) {
+        if (success) {
           setPatchCompleted(newCompleted)
           // Update patchesList to keep it in sync
           setPatchesList(prevPatches =>
@@ -593,7 +585,7 @@ const ProjectVersionPanel: React.FC<Version> = ({
             )
           )
         } else {
-          console.error('Error toggling patch completion:', result.data?.error)
+          console.error('Error toggling patch completion')
         }
       } catch (error) {
         console.error('Error calling completePatch:', error)
@@ -706,10 +698,10 @@ const ProjectVersionPanel: React.FC<Version> = ({
 
     useEffect(() => {
       setIsLoadingIssue(true)
-      actions.getIssueById({ issueId: patch.id })
-        .then((result: { data?: { success?: boolean; data?: Issue; error?: string } }) => {
-          if (result.data?.success && result.data.data) {
-            setIssue(result.data.data)
+      getIssueById(patch.id)
+        .then((issueData) => {
+          if (issueData) {
+            setIssue(issueData)
           }
         })
         .catch((error: unknown) => {
@@ -720,10 +712,10 @@ const ProjectVersionPanel: React.FC<Version> = ({
 
     useEffect(() => {
       if (issue?.author && typeof issue.author === 'string') {
-        actions.getUserById({ userId: issue.author })
-          .then((result: { data?: { success?: boolean; data?: User; error?: string } }) => {
-            if (result.data?.success && result.data.data) {
-              setAuthorUser(result.data.data)
+        getUserById(issue.author)
+          .then((userData) => {
+            if (userData) {
+              setAuthorUser(userData)
             }
           })
           .catch((error: unknown) => console.error('Error fetching author:', error))

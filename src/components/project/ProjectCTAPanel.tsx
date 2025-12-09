@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import Badge from '@/components/badge/Badge';
-import { getDemo, changeRole } from '@/demo-runtime-cookies/client-side';
-import { actions } from 'astro:actions';
+import { getDemo, changeRole, getDemoStep, obtainSunshines } from '@/client-side/demo';
 import ObtainSunshinesDialog from './ObtainSunshinesDialog';
 import ProjectCTAStepPanel from './ProjectCTAStepPanel';
 import NumberFlow from '@number-flow/react';
@@ -39,9 +38,9 @@ const ProjectCTAPanel: React.FC<ProjectCTAPanelProps> = ({ galaxyId, projectName
       const demo = getDemo();
       if (demo.email) {
         try {
-          const result = await actions.getDemoStep({ email: demo.email });
-          if (result.data?.success) {
-            setDemoStep(result.data.step);
+          const step = await getDemoStep(demo.email);
+          if (step !== null) {
+            setDemoStep(step);
           }
         } catch (error) {
           console.error('Error fetching demo step:', error);
@@ -83,16 +82,16 @@ const ProjectCTAPanel: React.FC<ProjectCTAPanelProps> = ({ galaxyId, projectName
       const uri = `/project/issues?galaxy=${galaxyId}`;
 
       // Call obtain sunshines action
-      const result = await actions.obtainSunshines({
+      const result = await obtainSunshines({
         galaxyId,
         userId: currentUser._id.toString(),
         email: demo.email,
       });
 
-      if (result.data?.success && result.data) {
+      if (result.success && result) {
         setDialogData({
-          sunshines: result.data.sunshines || 0,
-          totalSunshines: result.data.totalSunshines || 0,
+          sunshines: result.sunshines || 0,
+          totalSunshines: result.totalSunshines || 0,
           galaxyId,
           projectName,
           uri,

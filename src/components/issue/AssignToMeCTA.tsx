@@ -3,10 +3,10 @@ import Button from '@/components/custom-ui/Button';
 import Tooltip from '@/components/custom-ui/Tooltip';
 import MenuAvatar from '@/components/MenuAvatar';
 import DemoAuthPanel from '@/demo-runtime-cookies/components/DemoAuthPanel';
-import { getDemo } from '@/demo-runtime-cookies/client-side';
-import { actions } from 'astro:actions';
+import { getDemo } from '@/client-side/demo';
+import { getUserById } from '@/client-side/user';
+import { getIssueById, setContributor, unsetContributor } from '@/client-side/issue';
 import { cn } from '@/lib/utils';
-import { emitIssueUpdate } from './client-side';
 import { ISSUE_EVENT_TYPES } from '@/types/issue';
 import type { User } from '@/types/user';
 import type { Issue } from '@/types/issue';
@@ -26,9 +26,9 @@ const AssignToMeCTA: React.FC<AssignToMeCTAProps> = ({ issueId }) => {
     // Fetch issue data
     useEffect(() => {
         const fetchIssue = async () => {
-            const result = await actions.getIssueById({ issueId });
-            if (result.data?.success && result.data.data) {
-                setIssue(result.data.data);
+            const issueData = await getIssueById(issueId);
+            if (issueData) {
+                setIssue(issueData);
             }
         };
         fetchIssue();
@@ -41,10 +41,10 @@ const AssignToMeCTA: React.FC<AssignToMeCTAProps> = ({ issueId }) => {
             if (demo.email && demo.users && demo.role) {
                 const user = demo.users.find(u => u.role === demo.role) || demo.users[0];
                 if (user && user._id) {
-                    const result = await actions.getUserById({ userId: user._id.toString() });
-                    if (result.data?.success && result.data.data) {
-                        setCurrentUser(result.data.data);
-                        setIsMaintainer(result.data.data.role === 'maintainer');
+                    const userData = await getUserById(user._id.toString());
+                    if (userData) {
+                        setCurrentUser(userData);
+                        setIsMaintainer(userData.role === 'maintainer');
                     }
                 }
             }
@@ -57,10 +57,10 @@ const AssignToMeCTA: React.FC<AssignToMeCTAProps> = ({ issueId }) => {
     useEffect(() => {
         if (issue?.contributor && typeof issue.contributor === 'string') {
             setIsLoadingContributor(true);
-            actions.getUserById({ userId: issue.contributor })
-                .then((result) => {
-                    if (result.data?.success && result.data.data) {
-                        setContributorUser(result.data.data);
+            getUserById(issue.contributor)
+                .then((userData) => {
+                    if (userData) {
+                        setContributorUser(userData);
                     }
                 })
                 .catch((error) => {
@@ -103,21 +103,14 @@ const AssignToMeCTA: React.FC<AssignToMeCTAProps> = ({ issueId }) => {
 
         setIsLoading(true);
         try {
-            const result = await actions.setContributor({
+            const success = await setContributor({
                 issueId,
                 userId: currentUser._id.toString(),
                 email: demo.email,
             });
 
-            if (result.data?.success && issue) {
-                // Emit issue-update event with updated issue
-                const updatedIssue = await actions.getIssueById({ issueId });
-                if (updatedIssue.data?.success && updatedIssue.data.data) {
-                    emitIssueUpdate(updatedIssue.data.data);
-                }
-            } else {
-                const error = result.data?.error || result.error || 'Failed to assign contributor';
-                alert(error);
+            if (!success) {
+                alert('Failed to assign contributor');
             }
         } catch (error) {
             console.error('Error assigning contributor:', error);
@@ -136,20 +129,13 @@ const AssignToMeCTA: React.FC<AssignToMeCTAProps> = ({ issueId }) => {
 
         setIsLoading(true);
         try {
-            const result = await actions.unsetContributor({
+            const success = await unsetContributor({
                 issueId,
                 email: demo.email,
             });
 
-            if (result.data?.success && issue) {
-                // Emit issue-update event with updated issue
-                const updatedIssue = await actions.getIssueById({ issueId });
-                if (updatedIssue.data?.success && updatedIssue.data.data) {
-                    emitIssueUpdate(updatedIssue.data.data);
-                }
-            } else {
-                const error = result.data?.error || result.error || 'Failed to unset contributor';
-                alert(error);
+            if (!success) {
+                alert('Failed to unset contributor');
             }
         } catch (error) {
             console.error('Error unsetting contributor:', error);

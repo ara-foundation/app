@@ -1,8 +1,7 @@
 import { actions } from 'astro:actions';
 import { clearCookie, getCookie, setCookie, emitEvent, callAction } from '@/scripts/astro-runtime-cookies'
 import type { Roles, User } from '../types/user'
-import { DEMO_COOKIE_NAMES, DEMO_EVENT_TYPES } from './index'
-
+import { DEMO_COOKIE_NAMES, DEMO_EVENT_TYPES } from '../demo-runtime-cookies/index'
 
 // (Client Side) Check if demo cookies exist
 export const demoExists = (): boolean => {
@@ -52,10 +51,51 @@ export const changeRole = (role: Roles) => {
     }
 };
 
+// (Server Side Action) Get demo step
+export const getDemoStep = async (email: string): Promise<number | null> => {
+    try {
+        const result = await actions.getDemoStep({ email })
+        if (result.data?.success && result.data.step !== undefined) {
+            return result.data.step
+        }
+        return null
+    } catch (error) {
+        console.error('Error getting demo step:', error)
+        return null
+    }
+};
+
+// (Server Side Action) Obtain sunshines
+export const obtainSunshines = async (params: {
+    galaxyId: string;
+    userId: string;
+    email: string;
+}): Promise<{ success: boolean; sunshines?: number; totalSunshines?: number; error?: string }> => {
+    try {
+        const result = await actions.obtainSunshines(params)
+        if (result.data?.success) {
+            return {
+                success: true,
+                sunshines: result.data.sunshines,
+                totalSunshines: result.data.totalSunshines,
+            }
+        }
+        return {
+            success: false,
+            error: result.data?.error || 'Failed to obtain sunshines',
+        }
+    } catch (error) {
+        console.error('Error obtaining sunshines:', error)
+        return {
+            success: false,
+            error: 'An error occurred while obtaining sunshines',
+        }
+    }
+};
+
 //----------------------------------------------------------------
 //
 //----------------------------------------------------------------
-
 
 // Get all demo cookies
 function getDemoCookies(): {
@@ -103,7 +143,6 @@ function setDemoCookies(
     setCookie(DEMO_COOKIE_NAMES.users, encodeURIComponent(JSON.stringify(users)), days)
     setCookie(DEMO_COOKIE_NAMES.role, role, days)
 }
-
 
 // Call the start action
 async function callStartAction(email: string): Promise<{ success: boolean; users?: User[]; error?: string }> {

@@ -8,9 +8,9 @@ import DraggableIssueLink from './DraggableIssueLink'
 import { FilterOption } from '@/components/list/FilterToggle'
 import { getIcon } from '../icon'
 import type { ActionProps } from '@/types/eventTypes'
-import { getIssues } from './client-side'
+import { getIssues } from '@/client-side/issue'
+import { getVersionById } from '@/client-side/roadmap'
 import { PATCH_KEYWORD } from '@/types/patch'
-import { actions } from 'astro:actions'
 import type { Version } from '@/types/roadmap'
 
 interface Props {
@@ -248,9 +248,9 @@ const IssueListPanel: React.FC<Props> = ({ tabType, draggable = false, filterabl
       if (versionIds.size > 0) {
         const fetchPromises = Array.from(versionIds).map(async (versionId) => {
           try {
-            const result = await actions.getVersionById({ versionId });
-            if (result.data?.success && result.data.version) {
-              return { versionId, version: result.data.version };
+            const version = await getVersionById(versionId);
+            if (version) {
+              return { versionId, version };
             }
           } catch (error) {
             console.error(`Error fetching version ${versionId}:`, error);

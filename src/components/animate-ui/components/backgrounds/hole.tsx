@@ -76,6 +76,11 @@ function HoleBackground({
 
   const setDiscs = React.useCallback(() => {
     const { width, height } = stateRef.current.rect;
+    // Guard against zero dimensions
+    if (width <= 0 || height <= 0) {
+      stateRef.current.discs = [];
+      return;
+    }
     stateRef.current.discs = [];
     stateRef.current.startDisc = {
       x: width * 0.5,
@@ -111,6 +116,11 @@ function HoleBackground({
 
   const setLines = React.useCallback(() => {
     const { width, height } = stateRef.current.rect;
+    // Guard against zero dimensions
+    if (width <= 0 || height <= 0) {
+      stateRef.current.linesCanvas = null;
+      return;
+    }
     stateRef.current.lines = [];
     const linesAngle = (Math.PI * 2) / numberOfLines;
     for (let i = 0; i < numberOfLines; i++) {
@@ -189,6 +199,11 @@ function HoleBackground({
 
   const setParticles = React.useCallback(() => {
     const { width, height } = stateRef.current.rect;
+    // Guard against zero dimensions
+    if (width <= 0 || height <= 0) {
+      stateRef.current.particles = [];
+      return;
+    }
     stateRef.current.particles = [];
     const disc = stateRef.current.clip.disc;
     stateRef.current.particleArea = {
@@ -242,8 +257,9 @@ function HoleBackground({
   );
 
   const drawLines = React.useCallback((ctx: CanvasRenderingContext2D) => {
-    if (stateRef.current.linesCanvas) {
-      ctx.drawImage(stateRef.current.linesCanvas, 0, 0);
+    const linesCanvas = stateRef.current.linesCanvas;
+    if (linesCanvas && linesCanvas.width > 0 && linesCanvas.height > 0) {
+      ctx.drawImage(linesCanvas, 0, 0);
     }
   }, []);
 
@@ -283,6 +299,11 @@ function HoleBackground({
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
+    // Guard against zero dimensions
+    if (canvas.width <= 0 || canvas.height <= 0) {
+      animationFrameIdRef.current = requestAnimationFrame(tick);
+      return;
+    }
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.save();
     ctx.scale(stateRef.current.render.dpi, stateRef.current.render.dpi);

@@ -166,11 +166,33 @@ export async function updateUserSunshines(userId: string | ObjectId, amount: num
     try {
         const collection = await getCollection<UserModel>('users')
         const objectId = typeof userId === 'string' ? new ObjectId(userId) : userId
+
+        // First check if user exists
+        const user = await collection.findOne({ _id: objectId })
+        if (!user) {
+            console.error('User not found for sunshines update:', objectId.toString())
+            return false
+        }
+
+        // If sunshines field doesn't exist, set it first, then increment
+        if (user.sunshines === undefined || user.sunshines === null) {
+            const setResult = await collection.updateOne(
+                { _id: objectId },
+                { $set: { sunshines: 0 } }
+            )
+            if (setResult.matchedCount === 0) {
+                return false
+            }
+        }
+
+        // Now increment sunshines
         const result = await collection.updateOne(
             { _id: objectId },
             { $inc: { sunshines: amount } }
         )
-        return result.modifiedCount > 0
+
+        // Return true if document was matched (the operation succeeded)
+        return result.matchedCount > 0
     } catch (error) {
         console.error('Error updating user sunshines:', error)
         return false
