@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react'
 import ProfilePanel from './ProfilePanel'
-import { RatingType } from '../../rating/ProfileRating'
+import { RatingType } from '../rating/ProfileRating'
 
 const meta: Meta<typeof ProfilePanel> = {
     title: 'Components/Profile/Panel/ProfilePanel',

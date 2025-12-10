@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import * as RadixSlider from '@radix-ui/react-slider';
-import Button from '@/components/custom-ui/Button';
 import { getIcon } from '@/components/icon';
 import { cn } from '@/lib/utils';
 import confetti from 'canvas-confetti';
 import NumberFlow from '@number-flow/react';
-import { UserStarData } from '@/components/cosmos/Space';
-import DraggableUserStar from '@/components/cosmos/DraggableUserStar';
+import { UserStarData } from '@/components/all-stars/Space';
+import DraggableUserStar from '@/components/all-stars/DraggableUserStar';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 

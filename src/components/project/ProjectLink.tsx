@@ -7,7 +7,7 @@ import ProjectRating, { ProjectRatingProps } from '../rating/ProjectRating'
 import PanelFooter from '../panel/PanelFooter'
 import PanelStat from '../panel/PanelStat'
 import Link from '../custom-ui/Link'
-import { ProfileLink } from '../profile/types'
+import { ProfileLink } from '../../types/user'
 import MenuAvatar from '../MenuAvatar'
 import TimeAgo from 'timeago-react'
 import { ActionProps } from '@/types/eventTypes'
@@ -15,7 +15,7 @@ import PanelAction from '../panel/PanelAction'
 import AvatarList from '../AvatarList'
 import { Popover } from '@base-ui-components/react/popover'
 import { getIcon } from '../icon'
-import { UserStarData } from '../cosmos/Space'
+import { UserStarData } from '../all-stars/Space'
 
 export interface ProjectInfoProps {
   uri?: string

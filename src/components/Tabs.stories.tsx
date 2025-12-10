@@ -2,8 +2,8 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import React from 'react';
 import Tabs from './Tabs';
 import type { TabProps } from './Tabs';
-import WorkStylePanel from '@/components/profile/panel/WorkStyleContent';
-import ProjectTimeAllocationPanel from '@/components/profile/panel/ProjectTimeAllocationPanel';
+import WorkStylePanel from '@/components/profile/WorkStyleContent';
+import ProjectTimeAllocationPanel from '@/components/profile/ProjectTimeAllocationPanel';
 
 const meta = {
     title: 'Components/Tabs',

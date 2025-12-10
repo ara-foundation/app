@@ -1,5 +1,5 @@
 import React from 'react'
-import { ProfileLink } from '@/components/profile/types'
+import { ProfileLink } from '@/components/profile/user'
 import ProfileRating from '@/components/rating/ProfileRating'
 
 export interface AvatarListProps {

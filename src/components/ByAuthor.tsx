@@ -3,7 +3,7 @@ import MenuAvatar from './MenuAvatar'
 import AvatarList from './AvatarList'
 import ProfileRating from './rating/ProfileRating'
 import TimeAgo from 'timeago-react'
-import { ProfileLink } from './profile/types'
+import { ProfileLink } from '../types/user'
 
 export interface ByAuthorProps {
   author?: ProfileLink | ProfileLink[]
@@ -23,8 +23,8 @@ const ByAuthor: React.FC<ByAuthorProps> = ({
     ? typeof createdTime === 'number'
       ? new Date(createdTime * 1000)
       : typeof createdTime === 'string'
-      ? new Date(createdTime)
-      : createdTime
+        ? new Date(createdTime)
+        : createdTime
     : null
 
   return (

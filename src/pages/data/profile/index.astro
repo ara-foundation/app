@@ -3,13 +3,13 @@ export const prerender = false;
 import V2Layout from "@/layouts/PanelViewLayout.astro";
 import { MenuName } from "@/components/navbar/WorkNavbar.astro";
 
-import ProfilePanel from "@/components/profile/panel/ProfilePanel";
+import ProfilePanel from "@/components/profile/ProfilePanel";
 import BackButton from "@/components/custom-ui/BackButton";
 // import RecentActivity from "@/components/profile/panel/RecentActivityPanel";
 // import Discovery from "@/components/profile/panel/DiscoveryPanel";
-import FinanceInfo from "@/components/profile/panel/FinanceInfoPanel";
-import ProfileMetric from "@/components/profile/panel/ProfileMetricPanel";
-import { FinanceInfoProps, ProfileProps } from "@/components/profile/types";
+import FinanceInfo from "@/components/profile/FinanceInfoPanel";
+import ProfileMetric from "@/components/profile/ProfileMetricPanel";
+import { FinanceInfoProps, ProfileProps } from "@/types/user";
 
 // High-rated profile
 export const highRatedProfile: ProfileProps = {

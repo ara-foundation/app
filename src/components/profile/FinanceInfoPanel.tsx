@@ -1,7 +1,7 @@
 import React from 'react'
 import PageLikePanel from '@/components/panel/PageLikePanel'
-import { FinanceInfoProps } from '../types'
-import InfoPair from '../../InfoPair'
+import { FinanceInfoProps } from '../../types/user'
+import InfoPair from '../InfoPair'
 
 const FinancialStatus: React.FC<FinanceInfoProps> = ({ balance, cascadingBalance, totalDonated, totalReceived }) => {
   return (

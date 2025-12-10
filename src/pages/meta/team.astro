@@ -2,7 +2,7 @@
 export const prerender = true;
 
 import V2Layout from "@/layouts/LandingLayout.astro";
-import ProfilePanel from "@/components/profile/panel/ProfilePanel";
+import ProfilePanel from "@/components/profile/ProfilePanel";
 import HeroSection from "@/layouts/sections/HeroSection.astro";
 import HorizontalPanelsSection from "@/layouts/sections/HorizontalPanelsSection.astro";
 import { BgType, type SectionProps } from "@/types/eventTypes";
@@ -10,7 +10,7 @@ import LeftImageRightPanelsSection from "@/layouts/sections/LeftImageRightPanels
 import ThreeColumnGrid from "@/components/grid/ThreeColumnGrid.astro";
 import Section from "@/layouts/sections/BaseSection.astro";
 import PageLikePanel from "@/components/panel/PageLikePanel";
-import { ProfileProps } from "@/components/profile/types";
+import { ProfileProps } from "@/types/user";
 
 const teamGlanceProps: SectionProps = {
   title: "First, Meet the Team at a Glance",
@@ -77,8 +77,8 @@ const teamMembers: ProfileProps[] = [
 <V2Layout subtitle="Team, our story and goals">
   <HeroSection title={"Meet the Team it's story and why Ara?"}>
     <p class="text-lg md:text-xl opacity-90 max-w-2xl mx-auto">
-      Ara is built by two people who care about open source. No company
-      walls, no anonymous teams — just us, telling our story as it is.
+      Ara is built by two people who care about open source. No company walls,
+      no anonymous teams — just us, telling our story as it is.
     </p>
   </HeroSection>
   <HorizontalPanelsSection
@@ -132,8 +132,8 @@ const teamMembers: ProfileProps[] = [
       For three years, I worked on Ara.
     </p>
     <p class="text-gray-700 mt-4">
-      The culmination of all that work became Ara. If Ara was the dream,
-      Ara is the tool that makes it practical.
+      The culmination of all that work became Ara. If Ara was the dream, Ara is
+      the tool that makes it practical.
     </p>
   </LeftImageRightPanelsSection>
   <LeftImageRightPanelsSection
@@ -153,9 +153,8 @@ const teamMembers: ProfileProps[] = [
       strip it down, simplify it, and actually ship it."
     </p>
     <p class="text-gray-700">
-      He believed in Ara early on, and helped cut through the noise to
-      make it real. Where I'm the "big idea" person, he's the "make it work"
-      person.
+      He believed in Ara early on, and helped cut through the noise to make it
+      real. Where I'm the "big idea" person, he's the "make it work" person.
     </p>
   </LeftImageRightPanelsSection>
   <ThreeColumnGrid>

@@ -1,5 +1,5 @@
-import { AllPersonaRatings } from '../rating/ProfileRatingPanel'
-import { RatingType, ProfileRatingProps } from '../rating/ProfileRating'
+import { AllPersonaRatings } from '../components/rating/ProfileRatingPanel'
+import { RatingType, ProfileRatingProps } from '../components/rating/ProfileRating'
 import { LinkProps, ComponentProps } from '@/types/eventTypes'
 
 export interface ProfileLink extends LinkProps, Omit<ComponentProps, 'children'> {

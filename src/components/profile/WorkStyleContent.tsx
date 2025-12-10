@@ -3,7 +3,7 @@ import PageLikePanel from '@/components/panel/PageLikePanel'
 import Slider from '@/components/Slider'
 import { getIcon } from '@/components/icon'
 import Badge from '@/components/badge/Badge'
-import { WorkStyleProps } from '@/components/profile/types'
+import { WorkStyleProps } from '@/components/profile/user'
 
 const WorkStyleSection: React.FC<WorkStyleProps> = ({
   availabilityStatus = '',

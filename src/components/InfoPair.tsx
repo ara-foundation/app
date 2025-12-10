@@ -1,5 +1,5 @@
 import React from 'react'
-import { FinanceInfoProps } from './profile/types'
+import { FinanceInfoProps } from '../types/user'
 import NumberFlow, { NumberFlowGroup } from '@number-flow/react'
 import { cn } from '@/lib/utils'
 import BasePanel from '@/components/panel/Panel'
