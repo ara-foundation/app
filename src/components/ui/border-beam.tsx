@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { cn } from '@/lib/utils';
 
 interface BorderBeamProps {
@@ -10,7 +10,7 @@ interface BorderBeamProps {
   children?: React.ReactNode;
 }
 
-const BorderBeam: React.FC<BorderBeamProps> = ({
+const BorderBeam: React.FC<BorderBeamProps> = React.memo(({
   className,
   size = 48, // 3rem = 48px
   duration = 2,
@@ -119,23 +119,23 @@ const BorderBeam: React.FC<BorderBeamProps> = ({
   const hoveredStyle = {
   }
 
-  const getBeamStyle = () => {
+  // Create airy gradient with shining center - memoized
+  const createGradient = useCallback((direction: string) => {
+    return `linear-gradient(${direction}, 
+      transparent 0%, 
+      transparent 20%, 
+      ${colorFrom}40 30%, 
+      ${colorTo}80 50%, 
+      ${colorFrom}40 70%, 
+      transparent 80%, 
+      transparent 100%
+    )`;
+  }, [colorFrom, colorTo]);
+
+  const getBeamStyle = useMemo(() => {
     const baseStyle = {
       animationDuration: `${duration}s`,
       filter: 'blur(0.5px)',
-    };
-
-    // Create airy gradient with shining center
-    const createGradient = (direction: string) => {
-      return `linear-gradient(${direction}, 
-        transparent 0%, 
-        transparent 20%, 
-        ${colorFrom}40 30%, 
-        ${colorTo}80 50%, 
-        ${colorFrom}40 70%, 
-        transparent 80%, 
-        transparent 100%
-      )`;
     };
 
     switch (currentSide) {
@@ -186,9 +186,9 @@ const BorderBeam: React.FC<BorderBeamProps> = ({
       default:
         return baseStyle;
     }
-  };
+  }, [currentSide, size, duration, createGradient]);
 
-  const renderShape = (shape: { id: number, x: number, y: number, color: string, shape: string, direction: string }) => {
+  const renderShape = useCallback((shape: { id: number, x: number, y: number, color: string, shape: string, direction: string }) => {
     const shapeSize = Math.random() * 2 + 3; // 3-4 pixels
     const shapeStyle = {
       position: 'absolute' as const,
@@ -238,7 +238,7 @@ const BorderBeam: React.FC<BorderBeamProps> = ({
       default:
         return <div key={shape.id} style={{ ...shapeStyle, pointerEvents: 'none' }} />;
     }
-  };
+  }, []);
 
   return (
     <div
@@ -255,7 +255,7 @@ const BorderBeam: React.FC<BorderBeamProps> = ({
         <div
           ref={beamRef}
           className="absolute z-10"
-          style={getBeamStyle()}
+          style={getBeamStyle}
           onAnimationEnd={handleAnimationEnd}
         />
       )}
@@ -280,7 +280,7 @@ const BorderBeam: React.FC<BorderBeamProps> = ({
         />
       )}
       <div className="relative z-0 hover:z-0">
-        {children}
+        {useMemo(() => children, [children])}
       </div>
       <style>{`
         @keyframes beamTop {
@@ -425,6 +425,22 @@ const BorderBeam: React.FC<BorderBeamProps> = ({
       `}</style>
     </div>
   );
-};
+}, (prevProps, nextProps) => {
+  // Custom comparison: return true if props are equal (skip re-render)
+  // Return false if props differ (allow re-render)
+  // This prevents re-renders when only animation-related internal state changes
+  return (
+    prevProps.className === nextProps.className &&
+    prevProps.size === nextProps.size &&
+    prevProps.duration === nextProps.duration &&
+    prevProps.colorFrom === nextProps.colorFrom &&
+    prevProps.colorTo === nextProps.colorTo &&
+    // Children comparison - if children reference is the same, skip re-render
+    // useMemo inside will handle actual children content changes
+    prevProps.children === nextProps.children
+  );
+});
+
+BorderBeam.displayName = 'BorderBeam';
 
 export default BorderBeam;

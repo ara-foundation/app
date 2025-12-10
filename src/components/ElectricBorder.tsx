@@ -1,5 +1,5 @@
 import { hexToRgba } from '@/lib/utils';
-import React, { CSSProperties, PropsWithChildren, useEffect, useId, useLayoutEffect, useRef } from 'react';
+import React, { CSSProperties, PropsWithChildren, useEffect, useId, useLayoutEffect, useMemo, useRef } from 'react';
 
 type ElectricBorderProps = PropsWithChildren<{
   color?: string;
@@ -11,7 +11,7 @@ type ElectricBorderProps = PropsWithChildren<{
   disabled?: boolean;
 }>;
 
-const ElectricBorder: React.FC<ElectricBorderProps> = ({
+const ElectricBorder: React.FC<ElectricBorderProps> = React.memo(({
   children,
   color = '#5227FF',
   speed = 1,
@@ -21,7 +21,7 @@ const ElectricBorder: React.FC<ElectricBorderProps> = ({
   style,
   disabled = false
 }) => {
-  if (disabled) return children;
+  if (disabled) return <>{children}</>;
   const rawId = useId().replace(/[:]/g, '');
   const filterId = `turbulent-displace-${rawId}`;
   const svgRef = useRef<SVGSVGElement | null>(null);
@@ -128,6 +128,9 @@ const ElectricBorder: React.FC<ElectricBorderProps> = ({
     background: `linear-gradient(-30deg, ${hexToRgba(color, 0.8)}, transparent, ${color})`
   };
 
+  // Memoize children to prevent unnecessary re-renders
+  const memoizedChildren = useMemo(() => children, [children]);
+
   return (
     <div ref={rootRef} className={'relative isolate ' + (className ?? '')} style={style}>
       <svg
@@ -180,10 +183,28 @@ const ElectricBorder: React.FC<ElectricBorderProps> = ({
       </div>
 
       <div className="relative flex items-center justify-center" style={inheritRadius}>
-        {children}
+        {memoizedChildren}
       </div>
     </div>
   );
-};
+}, (prevProps, nextProps) => {
+  // Custom comparison: return true if props are equal (skip re-render)
+  // Return false if props differ (allow re-render)
+  // Speed and chaos only affect animation timing, not the rendered output
+  // So we can ignore them in the comparison
+  return (
+    prevProps.disabled === nextProps.disabled &&
+    prevProps.color === nextProps.color &&
+    prevProps.thickness === nextProps.thickness &&
+    prevProps.className === nextProps.className &&
+    // Compare style objects by reference (shallow comparison)
+    prevProps.style === nextProps.style &&
+    // Children comparison - if children reference is the same, skip re-render
+    // useMemo inside will handle actual children content changes
+    prevProps.children === nextProps.children
+  );
+});
+
+ElectricBorder.displayName = 'ElectricBorder';
 
 export default ElectricBorder;

@@ -79,7 +79,7 @@ export async function createIssue(params: {
         if (result.data?.success) {
             // Fetch the created issue to get its ID
             // We need to find it by querying issues
-            const issues = await getIssues(params.galaxyId, IssueTabKey.SHINING);
+            const issues = await getIssues(params.galaxyId, params.sunshines > 0 ? IssueTabKey.SHINING : IssueTabKey.PUBLIC);
             const createdIssue = issues.find(issue =>
                 issue.title === params.title &&
                 issue.author === params.userId

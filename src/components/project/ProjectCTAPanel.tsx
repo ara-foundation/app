@@ -198,7 +198,7 @@ const ProjectCTAPanel: React.FC<ProjectCTAPanelProps> = ({ galaxyId, projectName
     },
     {
       // Step 5: Mark Version Complete
-      title: 'Mark version complete',
+      title: 'Resolve issues and complete the version',
       tooltipContent: (
         <div className="text-sm max-w-xs">
           <p>Mark the version as complete after the patch is ready.</p>

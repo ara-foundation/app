@@ -3,8 +3,9 @@ import { z } from 'astro:schema'
 import { getDemoByEmail } from '@/server-side/demo'
 import { getUserById, updateUserSunshines, getUserByIds } from '@/server-side/user'
 import { getGalaxyById, updateGalaxySunshines } from '@/server-side/galaxy'
-import { getIssuesByGalaxy, getShiningIssues, getPublicBacklogIssues, createIssue, updateIssueSunshines, getIssueById, setIssueContributor, unsetIssueContributor, updateIssue, patchIssue, unpatchIssue, IssueTag } from '@/server-side/issue'
+import { getIssuesByGalaxy, getShiningIssues, getPublicBacklogIssues, createIssue, updateIssueSunshines, getIssueById, setIssueContributor, unsetIssueContributor, updateIssue, patchIssue, unpatchIssue } from '@/server-side/issue'
 import type { Issue, IssueUser, IssueStat, IssueStatType } from '@/types/issue'
+import { IssueTag } from '@/types/issue'
 import { getVersionById } from '@/server-side/roadmap';
 
 // Helper function to serialize issue
@@ -210,7 +211,7 @@ export const server = {
                 // Create issue with authorId
                 const issue: Issue = {
                     galaxy: galaxyId,
-                    uri: `/issue?galaxy=${galaxyId}`,
+                    uri: `/issue`,
                     title,
                     description,
                     tags,
@@ -243,9 +244,10 @@ export const server = {
                 };
             } catch (error) {
                 console.error('Error creating issue:', error);
+                const errorMessage = error instanceof Error ? error.message : String(error);
                 return {
                     success: false,
-                    error: 'An error occurred while creating issue',
+                    error: `An error occurred while creating issue: ${errorMessage}`,
                 };
             }
         },
