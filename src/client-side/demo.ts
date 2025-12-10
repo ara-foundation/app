@@ -1,7 +1,7 @@
 import { actions } from 'astro:actions';
 import { clearCookie, getCookie, setCookie, emitEvent, callAction } from '@/scripts/astro-runtime-cookies'
 import type { Roles, User } from '../types/user'
-import { DEMO_COOKIE_NAMES, DEMO_EVENT_TYPES } from '../demo-runtime-cookies/index'
+import { DEMO_COOKIE_NAMES, DEMO_EVENT_TYPES } from '../types/demo'
 
 // (Client Side) Check if demo cookies exist
 export const demoExists = (): boolean => {

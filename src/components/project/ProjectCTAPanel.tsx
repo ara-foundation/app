@@ -100,7 +100,7 @@ const ProjectCTAPanel: React.FC<ProjectCTAPanelProps> = ({ galaxyId, projectName
         // Update step in local state
         setDemoStep(1);
       } else {
-        const error = result.data?.error || result.error || 'Failed to obtain sunshines';
+        const error = result.error || 'Failed to obtain sunshines';
         console.error('Failed to obtain sunshines:', error);
         alert(error);
       }

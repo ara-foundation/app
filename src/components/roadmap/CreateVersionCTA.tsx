@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import Button from '@/components/custom-ui/Button';
 import CreateVersionForm from './CreateVersionForm';
-import DemoAuthPanel from '@/demo-runtime-cookies/components/DemoAuthPanel';
+import DemoAuthPanel from '@/components/demo/DemoAuthPanel';
 import { cn } from '@/lib/utils';
 
 interface CreateVersionCTAProps {

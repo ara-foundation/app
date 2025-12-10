@@ -5,7 +5,7 @@ import WalletBalance from '@/components/utilitified_decorations/WalletBalance'
 import { useDemoStart } from '@/hooks/use-demo-start'
 import DemoCongratulationsDialog from '@/components/project/DemoCongratulationsDialog'
 import { cn } from '@/lib/utils'
-import { type DemoUserCreatedEvent, type DemoRoleChangeEvent, DEMO_EVENT_TYPES } from '@/demo-runtime-cookies'
+import { type DemoUserCreatedEvent, type DemoRoleChangeEvent, DEMO_EVENT_TYPES } from '@/types/demo'
 import { USER_EVENT_TYPES, type UserUpdateEventDetail } from '@/types/user'
 import { getUserById } from '@/client-side/user'
 import {

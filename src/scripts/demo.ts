@@ -1,6 +1,6 @@
 import { ObjectId } from 'mongodb'
 import { getCollection, create } from '@/scripts/db'
-import { DemoModel } from '.'
+import { DemoModel } from '../types/demo'
 
 
 /**

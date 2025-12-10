@@ -112,7 +112,7 @@ export const server = {
         handler: async ({ galaxyId, tag, email }): Promise<{ success: boolean; version?: Version; error?: string }> => {
             try {
                 // Get demo to find maintainer user
-                const { getDemoByEmail } = await import('@/demo-runtime-cookies/server-side');
+                const { getDemoByEmail } = await import('@/scripts/demo');
                 const { getUserByIds } = await import('@/scripts/user');
                 const demo = await getDemoByEmail(email);
                 if (!demo || !demo.users || demo.users.length === 0) {

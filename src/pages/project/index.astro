@@ -88,7 +88,7 @@ const projectData: ProjectInfoProps = {
   totalAmount: 0, // TODO: Calculate from donations
   duration: "0 days", // TODO: Calculate from created time
   lastActivity: project.lastCommitUpdateTime
-    ? Date.now() - project.lastCommitUpdateTime.getTime()
+    ? Date.now() - project.lastCommitUpdateTime
     : 0,
   totalCommits: project.totalCommits || 0,
   commitsPerDay: "0 commits / day", // TODO: Calculate from commits
@@ -145,7 +145,10 @@ const projectData: ProjectInfoProps = {
       contestToDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
     }}
   />
-  <BackButton slot="left" uri="/project/issues" />
+  <BackButton
+    slot="left"
+    uri={galaxyIdParam ? `/all-stars?galaxy=${galaxyIdParam}` : "/all-stars"}
+  />
 
   <!-- <NotificationBanner
     type="success"

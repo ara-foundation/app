@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { cn } from '@/lib/utils'
-import { type DemoUserCreatedEvent, type DemoRoleChangeEvent, DEMO_EVENT_TYPES } from '@/demo-runtime-cookies'
+import { type DemoUserCreatedEvent, type DemoRoleChangeEvent, DEMO_EVENT_TYPES } from '@/types/demo'
 import { getDemo } from '@/client-side/demo'
 
 interface DemoAuthPanelProps {

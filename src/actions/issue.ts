@@ -1,6 +1,6 @@
 import { defineAction } from 'astro:actions'
 import { z } from 'astro:schema'
-import { getDemoByEmail } from '@/demo-runtime-cookies/server-side'
+import { getDemoByEmail } from '@/scripts/demo'
 import { getUserById, updateUserSunshines, getUserByIds } from '@/scripts/user'
 import { getGalaxyById, updateGalaxySunshines } from '@/scripts/galaxy'
 import { getIssuesByGalaxy, getShiningIssues, getPublicBacklogIssues, createIssue, updateIssueSunshines, getIssueById, setIssueContributor, unsetIssueContributor, updateIssue, patchIssue, unpatchIssue, IssueTag } from '@/scripts/issue'

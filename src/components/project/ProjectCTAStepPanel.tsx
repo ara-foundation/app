@@ -5,7 +5,7 @@ import Link from '@/components/custom-ui/Link';
 import Tooltip from '@/components/custom-ui/Tooltip';
 import { getIcon } from '@/components/icon';
 import { cn } from '@/lib/utils';
-import DemoAuthPanel from '@/demo-runtime-cookies/components/DemoAuthPanel';
+import DemoAuthPanel from '@/components/demo/DemoAuthPanel';
 
 interface ProjectCTAStepPanelProps {
     title: string;

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Button from '@/components/custom-ui/Button';
 import Tooltip from '@/components/custom-ui/Tooltip';
 import MenuAvatar from '@/components/MenuAvatar';
-import DemoAuthPanel from '@/demo-runtime-cookies/components/DemoAuthPanel';
+import DemoAuthPanel from '@/components/demo/DemoAuthPanel';
 import { getDemo } from '@/client-side/demo';
 import { getUserById } from '@/client-side/user';
 import { getIssueById, setContributor, unsetContributor } from '@/client-side/issue';

@@ -1,7 +1,7 @@
 import { defineAction } from 'astro:actions'
 import { z } from 'astro:schema'
 import { ObjectId } from 'mongodb'
-import { getDemoByEmail, createDemo, updateDemoStep } from '@/demo-runtime-cookies/server-side'
+import { getDemoByEmail, createDemo, updateDemoStep } from '@/scripts/demo'
 import { emailToNickname, createUsers, getUserByIds, getUserById, updateUserSunshines } from '@/scripts/user'
 import { getGalaxyById, updateGalaxySunshines } from '@/scripts/galaxy'
 import { processPayment } from '@/scripts/payment-gateway'

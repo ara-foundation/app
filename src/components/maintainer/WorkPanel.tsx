@@ -6,7 +6,7 @@ import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import { getIcon } from '../icon';
 import { getDemo } from '@/client-side/demo'
-import { DEMO_EVENT_TYPES } from '@/demo-runtime-cookies/index'
+import { DEMO_EVENT_TYPES } from '@/types/demo'
 import { getUserById } from '@/client-side/user'
 import { updateIssue } from '@/client-side/issue'
 import type { User } from '@/types/user'
