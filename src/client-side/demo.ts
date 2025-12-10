@@ -1,4 +1,5 @@
 import { actions } from 'astro:actions';
+import { clearCookie, getCookie, setCookie } from '@/server-side/astro-runtime-cookies'
 import type { Roles, User } from '../types/user'
 import { DEMO_COOKIE_NAMES, DEMO_EVENT_TYPES } from '../types/demo'
 
@@ -107,6 +108,38 @@ export const obtainSunshines = async (params: {
     }
 };
 
+// (Server Side Action) Increment demo step
+export const incrementDemoStep = async (params: {
+    email: string;
+    expectedStep: number;
+}): Promise<{ success: boolean; step?: number; error?: string }> => {
+    try {
+        const result = await actions.incrementDemoStep(params)
+        if (result.data?.success && result.data.step !== undefined) {
+            // Broadcast DEMO_STEP_INCREMENTED event
+            window.dispatchEvent(new CustomEvent(DEMO_EVENT_TYPES.DEMO_STEP_INCREMENTED, {
+                detail: {
+                    step: result.data.step,
+                },
+            }))
+            return {
+                success: true,
+                step: result.data.step,
+            }
+        }
+        return {
+            success: false,
+            error: result.data?.error || 'Failed to increment demo step',
+        }
+    } catch (error) {
+        console.error('Error incrementing demo step:', error)
+        return {
+            success: false,
+            error: 'An error occurred while incrementing demo step',
+        }
+    }
+};
+
 //----------------------------------------------------------------
 //
 //----------------------------------------------------------------
@@ -191,7 +224,7 @@ async function callStartAction(email: string): Promise<{ success: boolean; users
  **************************************************************/
 
 // Cookie management functions
-function getCookie(name: string): string | null {
+export function getCookie(name: string): string | null {
     if (typeof document === 'undefined') return null
     const value = `; ${document.cookie}`
     const parts = value.split(`; ${name}=`)
@@ -201,7 +234,7 @@ function getCookie(name: string): string | null {
     return null
 }
 
-function setCookie(name: string, value: string, days: number = 30): void {
+export function setCookie(name: string, value: string, days: number = 30): void {
     if (typeof document === 'undefined') return
     const expirationDate = new Date()
     expirationDate.setDate(expirationDate.getDate() + days)

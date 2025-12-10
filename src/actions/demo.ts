@@ -244,5 +244,62 @@ export const server = {
             }
         },
     }),
+    incrementDemoStep: defineAction({
+        accept: 'json',
+        input: z.object({
+            email: z.string().email(),
+            expectedStep: z.number(),
+        }),
+        handler: async ({ email, expectedStep }): Promise<{ success: boolean; step?: number; error?: string }> => {
+            try {
+                const demo = await getDemoByEmail(email)
+                if (!demo) {
+                    return {
+                        success: false,
+                        error: 'Demo not found',
+                    }
+                }
+
+                const currentStep = demo.step ?? 0
+
+                // Validate current step matches expected step
+                if (currentStep !== expectedStep) {
+                    return {
+                        success: false,
+                        error: `Invalid step. Expected step ${expectedStep}, but current step is ${currentStep}`,
+                    }
+                }
+
+                // Check if already completed (last step is 7)
+                if (currentStep >= 7) {
+                    return {
+                        success: false,
+                        error: 'Already completed the demo. Enjoy',
+                    }
+                }
+
+                // Increment step
+                const newStep = currentStep + 1
+                const stepUpdated = await updateDemoStep(email, newStep)
+                if (!stepUpdated) {
+                    return {
+                        success: false,
+                        error: 'Failed to update demo step',
+                    }
+                }
+
+                return {
+                    success: true,
+                    step: newStep,
+                }
+            } catch (error) {
+                console.error('Error incrementing demo step:', error)
+                return {
+                    success: false,
+                    error: 'An error occurred while incrementing demo step',
+                }
+            }
+        },
+    }),
 }
 

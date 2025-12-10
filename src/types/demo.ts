@@ -41,6 +41,7 @@ export const DEMO_EVENT_TYPES = {
     USER_CREATED: 'demo-user-created',
     USER_DELETED: 'demo-user-deleted',
     ROLE_CHANGED: 'demo-role-change',
+    DEMO_STEP_INCREMENTED: 'demo-step-incremented',
 } as const
 
 // Event types
@@ -52,5 +53,9 @@ export interface DemoUserCreatedEvent {
 
 export interface DemoRoleChangeEvent {
     role: Roles
+}
+
+export interface DemoStepIncrementedEvent {
+    step: number
 }
 

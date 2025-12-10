@@ -9,6 +9,7 @@ import { UserStarData } from '@/components/all-stars/Space';
 import DraggableUserStar from '@/components/all-stars/DraggableUserStar';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
+import { getDemo, incrementDemoStep } from '@/client-side/demo';
 
 interface PlaceCtaPanelProps {
     userData: UserStarData;
@@ -56,7 +57,7 @@ const PlaceCtaPanel: React.FC<PlaceCtaPanelProps> = ({ userData }) => {
         }, 250);
     };
 
-    const handleStarDrop = (dropResult: { x: number; y: number }) => {
+    const handleStarDrop = async (dropResult: { x: number; y: number }) => {
         // Create new user star data with position from drop result
         const newUserStar: UserStarData = {
             ...userData,
@@ -74,6 +75,12 @@ const PlaceCtaPanel: React.FC<PlaceCtaPanelProps> = ({ userData }) => {
             },
         });
         window.dispatchEvent(event);
+
+        // Step 8: Place Star in Galaxy
+        const demo = getDemo();
+        if (demo.email) {
+            await incrementDemoStep({ email: demo.email, expectedStep: 8 });
+        }
 
         // Mark as placed, trigger confetti, and start countdown
         setIsStarPlaced(true);

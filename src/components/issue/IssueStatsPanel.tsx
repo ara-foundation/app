@@ -3,7 +3,7 @@ import React, { useState, Suspense, lazy } from 'react'
 import PageLikePanel from '@/components/panel/PageLikePanel'
 import Badge from '@/components/badge/Badge'
 import TimeAgo from 'timeago-react'
-import Following from '../social-network/Followings'
+// import Following from '../social-network/Followings'
 // import '../../styles/react-customize-token-input.css';
 
 // Dynamic import for TokenInput to avoid SSR issues
@@ -18,7 +18,7 @@ interface IssueStatsProps {
 
 const IssueStatsPanel: React.FC<IssueStatsProps> = ({ editable = true, tags: _tags = ['tag1', 'tag2', 'tag3'], list: _list, availableLists: _availableLists = [] }) => {
   const [tags, setTags] = useState<string[]>(_tags)
-  const [list, setList] = useState<string | undefined>(_list);
+  // const [list, setList] = useState<string | undefined>(_list);
 
   const tagsClassName = !editable ? 'border-1 rounded-xs border-gray-300 hover:border-teal-400 hover:bg-white/10 bg-teal-50/10' : ''
 

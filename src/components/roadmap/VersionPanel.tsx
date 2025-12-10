@@ -9,7 +9,6 @@ import NumberFlow from '@number-flow/react'
 import * as RadixSlider from '@radix-ui/react-slider'
 import { Checkbox, CheckboxIndicator } from '@/components/animate-ui/primitives/radix/checkbox'
 import ByAuthor from '../ByAuthor'
-import { ProfileLink } from '../../types/user'
 import LoadingSpinner from '../LoadingSpinner'
 import DropTarget from '../DropTarget'
 import type { Version, Patch } from '@/types/roadmap'
@@ -220,7 +219,7 @@ const ProjectVersionPanel: React.FC<Version> = ({
   }
 
   // Convert maintainer user to ProfileLink format for ByAuthor component
-  const authorProfile: ProfileLink | undefined = useMemo(() => {
+  const authorProfile = useMemo(() => {
     if (!maintainerUser) return undefined
 
     return {
@@ -291,6 +290,14 @@ const ProjectVersionPanel: React.FC<Version> = ({
     try {
       const success = await updateVersionStatus({ versionId, status: nextStatus })
       if (success) {
+        // Step 5: Complete Version - when status changes from 'complete' to 'testing'
+        if (status === 'complete' && nextStatus === 'testing') {
+          const demo = getDemo();
+          if (demo.email) {
+            await incrementDemoStep({ email: demo.email, expectedStep: 5 });
+          }
+        }
+
         setStatus(nextStatus)
         return true
       }
@@ -443,6 +450,7 @@ const ProjectVersionPanel: React.FC<Version> = ({
             versionId: versionId,
           },
         }));
+
       } else if (fromVersionId) {
         // If it had 'version-*', broadcast PATCH_UPDATE
         window.dispatchEvent(new CustomEvent(PATCH_EVENT_TYPES.PATCH_UPDATE, {

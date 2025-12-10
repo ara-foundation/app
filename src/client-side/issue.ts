@@ -1,5 +1,6 @@
 import { ISSUE_EVENT_TYPES, Issue, IssueTabKey, IssueTag } from '@/types/issue'
 import { actions } from 'astro:actions';
+import { incrementDemoStep } from '@/client-side/demo';
 
 /**
  * Emit issue-update event to notify components of issue changes
@@ -87,6 +88,8 @@ export async function createIssue(params: {
 
             if (createdIssue) {
                 emitIssueCreated(createdIssue);
+                // Increment demo step (step 1: Create Issue)
+                await incrementDemoStep({ email: params.email, expectedStep: 1 });
                 return createdIssue;
             }
         }
@@ -137,11 +140,33 @@ export async function patchIssue(params: {
             if (updatedIssue) {
                 emitIssueUpdate(updatedIssue);
             }
+            // Step 4: Patch Issue
+            await incrementDemoStep({ email: params.email, expectedStep: 4 });
             return true;
         }
         return false;
     } catch (error) {
         console.error('Error patching issue:', error);
+        return false;
+    }
+}
+
+/**
+ * Drop issue to patcher: patch issue and increment demo step
+ */
+export async function dropIssueToPatcher(params: {
+    issueId: string;
+    email: string;
+}): Promise<boolean> {
+    try {
+        // Patch the issue (this will also increment demo step)
+        const success = await patchIssue({
+            issueId: params.issueId,
+            email: params.email,
+        });
+        return success;
+    } catch (error) {
+        console.error('Error dropping issue to patcher:', error);
         return false;
     }
 }
@@ -208,6 +233,8 @@ export async function setContributor(params: {
             if (updatedIssue) {
                 emitIssueUpdate(updatedIssue);
             }
+            // Increment demo step (step 2: Assign Contributor)
+            await incrementDemoStep({ email: params.email, expectedStep: 2 });
             return true;
         }
         return false;

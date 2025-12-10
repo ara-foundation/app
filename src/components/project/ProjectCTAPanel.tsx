@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import Badge from '@/components/badge/Badge';
 import { getDemo, changeRole, getDemoStep, obtainSunshines } from '@/client-side/demo';
+import { DEMO_EVENT_TYPES, type DemoStepIncrementedEvent } from '@/types/demo';
 import ObtainSunshinesDialog from './ObtainSunshinesDialog';
 import ProjectCTAStepPanel from './ProjectCTAStepPanel';
 import NumberFlow from '@number-flow/react';
@@ -53,6 +54,22 @@ const ProjectCTAPanel: React.FC<ProjectCTAPanelProps> = ({ galaxyId, projectName
     };
 
     fetchDemoStep();
+  }, []);
+
+  // Listen for demo-step-incremented event
+  useEffect(() => {
+    const handleDemoStepIncremented = (event: Event) => {
+      const customEvent = event as CustomEvent<DemoStepIncrementedEvent>;
+      if (customEvent.detail?.step !== undefined) {
+        setDemoStep(customEvent.detail.step);
+      }
+    };
+
+    window.addEventListener(DEMO_EVENT_TYPES.DEMO_STEP_INCREMENTED, handleDemoStepIncremented);
+
+    return () => {
+      window.removeEventListener(DEMO_EVENT_TYPES.DEMO_STEP_INCREMENTED, handleDemoStepIncremented);
+    };
   }, []);
 
   const handleObtainSunshines = async () => {
@@ -150,12 +167,12 @@ const ProjectCTAPanel: React.FC<ProjectCTAPanelProps> = ({ galaxyId, projectName
       title: 'Assign a contributor',
       tooltipContent: (
         <div className="text-sm max-w-xs">
-          <p>Assign a contributor to work on the issue you created.</p>
+          <p>Switch to maintainer role (top right), then assign yourself as contributor to work on the issue you created.</p>
         </div>
       ),
       hintText: (
         <>
-          <Badge>demo</Badge> Assign a contributor to work on '{projectName}' issues.
+          <Badge>demo</Badge> Switch to maintainer role, then assign a contributor to work on '{projectName}' issues.
         </>
       ),
       buttonText: 'Go to Issues',
@@ -163,16 +180,16 @@ const ProjectCTAPanel: React.FC<ProjectCTAPanelProps> = ({ galaxyId, projectName
       uri: `/project/issues?galaxy=${galaxyId}`,
     },
     {
-      // Step 3: Move to Roadmap
-      title: 'Move issue to roadmap',
+      // Step 3: Create Version
+      title: 'Create version',
       tooltipContent: (
         <div className="text-sm max-w-xs">
-          <p>Move the assigned issue to the project roadmap.</p>
+          <p>Create a new version in the roadmap to organize your work.</p>
         </div>
       ),
       hintText: (
         <>
-          <Badge>demo</Badge> Move issue to '{projectName}' roadmap.
+          <Badge>demo</Badge> Create a version for '{projectName}' project.
         </>
       ),
       buttonText: 'Go to Roadmap',
@@ -180,16 +197,16 @@ const ProjectCTAPanel: React.FC<ProjectCTAPanelProps> = ({ galaxyId, projectName
       uri: `/project/roadmap?galaxy=${galaxyId}`,
     },
     {
-      // Step 4: Create Patch
-      title: 'Create a patch',
+      // Step 4: Patch Issue
+      title: 'Patch issue',
       tooltipContent: (
         <div className="text-sm max-w-xs">
-          <p>Create a patch for the issue in the roadmap.</p>
+          <p>Move the issue to the patcher to create a patch for it.</p>
         </div>
       ),
       hintText: (
         <>
-          <Badge>demo</Badge> Create a patch for '{projectName}' issue.
+          <Badge>demo</Badge> Patch issue for '{projectName}' project.
         </>
       ),
       buttonText: 'Go to Roadmap',
@@ -197,16 +214,16 @@ const ProjectCTAPanel: React.FC<ProjectCTAPanelProps> = ({ galaxyId, projectName
       uri: `/project/roadmap?galaxy=${galaxyId}`,
     },
     {
-      // Step 5: Mark Version Complete
-      title: 'Resolve issues and complete the version',
+      // Step 5: Complete Version
+      title: 'Complete version',
       tooltipContent: (
         <div className="text-sm max-w-xs">
-          <p>Mark the version as complete after the patch is ready.</p>
+          <p>Mark all patches as complete and mark the version as complete.</p>
         </div>
       ),
       hintText: (
         <>
-          <Badge>demo</Badge> Mark '{projectName}' version as complete.
+          <Badge>demo</Badge> Complete '{projectName}' version.
         </>
       ),
       buttonText: 'Go to Roadmap',
@@ -214,16 +231,16 @@ const ProjectCTAPanel: React.FC<ProjectCTAPanelProps> = ({ galaxyId, projectName
       uri: `/project/roadmap?galaxy=${galaxyId}`,
     },
     {
-      // Step 6: Test Completed
-      title: 'Test the completed version',
+      // Step 6: Test Version
+      title: 'Test version',
       tooltipContent: (
         <div className="text-sm max-w-xs">
-          <p>Test the completed version of the project.</p>
+          <p>Test the patched issue in the version.</p>
         </div>
       ),
       hintText: (
         <>
-          <Badge>demo</Badge> Test the completed '{projectName}' version.
+          <Badge>demo</Badge> Test the '{projectName}' version.
         </>
       ),
       buttonText: 'Go to Roadmap',
@@ -231,7 +248,24 @@ const ProjectCTAPanel: React.FC<ProjectCTAPanelProps> = ({ galaxyId, projectName
       uri: `/project/roadmap?galaxy=${galaxyId}`,
     },
     {
-      // Step 7-9: Place Star in Galaxy
+      // Step 7: Release
+      title: 'Release',
+      tooltipContent: (
+        <div className="text-sm max-w-xs">
+          <p>Release the tested version to make it available.</p>
+        </div>
+      ),
+      hintText: (
+        <>
+          <Badge>demo</Badge> Release '{projectName}' version.
+        </>
+      ),
+      buttonText: 'Go to Roadmap',
+      buttonLoadingText: 'Loading...',
+      uri: `/project/roadmap?galaxy=${galaxyId}`,
+    },
+    {
+      // Step 8: Place Star in Galaxy
       title: 'Place your star in the galaxy',
       tooltipContent: (
         <div className="text-sm max-w-xs">

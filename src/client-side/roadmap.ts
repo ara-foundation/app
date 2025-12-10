@@ -2,7 +2,7 @@ import { actions } from 'astro:actions';
 import type { Version, Patch, VersionReleasedEventDetail } from '@/types/roadmap';
 import { ROADMAP_EVENT_TYPES } from '@/types/roadmap';
 import { PATCH_EVENT_TYPES } from '@/types/patch';
-import { getDemo } from './demo';
+import { getDemo, incrementDemoStep } from './demo';
 
 /**
  * Get versions by galaxy ID (read-only, no event)
@@ -45,6 +45,8 @@ export async function createVersion(params: {
         const result = await actions.createVersion(params);
         if (result.data?.success && result.data.version) {
             // Broadcast version created event (if needed in the future)
+            // Step 3: Create Version
+            await incrementDemoStep({ email: params.email, expectedStep: 3 });
             return result.data.version;
         }
         return null;
@@ -151,6 +153,13 @@ export async function testPatch(params: {
         const result = await actions.testPatch(params);
         if (result.data?.success) {
             // Broadcast patch update event
+            // Step 6: Test Completed - when tested is true
+            if (params.tested) {
+                const demo = getDemo();
+                if (demo.email) {
+                    await incrementDemoStep({ email: demo.email, expectedStep: 6 });
+                }
+            }
             return true;
         }
         return false;
