@@ -263,14 +263,14 @@ const GoalChart: React.FC<GoalChartProps> = ({
                                     <div className="flex items-center gap-2 text-sm">
                                         {getIcon({ iconType: 'star', className: 'w-4 h-4 text-slate-400' })}
                                         <div>
-                                            <div className="font-semibold text-white">Remaining</div>
-                                            <div className="text-xs text-slate-300">
+                                            <div className="font-semibold text-white">Remaining Stars to obtain</div>
+                                            <div className="text-sm text-slate-300 p-1 w-48 ">
                                                 <NumberFlow
                                                     value={remainingStarsNeeded}
                                                     locales="en-US"
                                                     format={{ style: 'decimal', maximumFractionDigits: 2 }}
                                                 />
-                                                {' '}stars needed ({remainingPercentage.toFixed(1)}%)
+                                                {' '}stars ({remainingPercentage.toFixed(1)}%) left to obtain community control
                                             </div>
                                         </div>
                                     </div>
