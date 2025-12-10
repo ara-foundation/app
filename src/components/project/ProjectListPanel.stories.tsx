@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react'
 import ProjectListPanel from './ProjectListPanel'
 import type { ProjectInfoProps } from './ProjectLink'
-import { UserStarData } from '@/components/all-stars/Space'
+import { UserStar as UserStarData } from '@/types/all-stars'
 
 const meta: Meta<typeof ProjectListPanel> = {
     title: 'Components/Project/ProjectListPanel',

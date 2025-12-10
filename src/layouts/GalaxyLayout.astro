@@ -12,7 +12,7 @@ import { GradientBackground } from "@/components/animate-ui/components/backgroun
 import Galaxy from "@/components/Galaxy";
 import GalaxyLayoutBody from "@/components/all-stars/GalaxyLayoutBody";
 import Space from "@/components/all-stars/Space";
-import { UserStarData } from "@/components/all-stars/Space";
+import { UserStar as UserStarData } from "@/types/all-stars";
 
 interface Props {
   active?: string;
@@ -113,6 +113,7 @@ const {
         client:only="react"
         users={stars || []}
         className="z-10"
+        galaxyId={projectId}
         projectGalaxies={projectGalaxies}
       />
       <section class="mt-6">

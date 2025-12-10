@@ -83,140 +83,138 @@ const initialGalaxies: Omit<Galaxy, '_id' | 'maintainer' | 'projectLink'>[] = [
     },
 ]
 
-// Get or create one maintainer of the projects.
-async function setupIssues(projectIds: ObjectId[], existingCount: number, collection: Collection<GalaxyModel>): Promise<void> {
-    try {
-        const maintainerUser = await getUserByEmail('milayter@gmail.com');
-        if (!maintainerUser || !maintainerUser._id) {
-            console.error('Maintainer user not found, skipping issue creation');
-            return;
-        }
+// // Get or create one maintainer of the projects.
+// async function setupIssues(projectIds: ObjectId[], existingCount: number, collection: Collection<GalaxyModel>): Promise<void> {
+//     try {
+//         const maintainerUser = await getUserByEmail('milayter@gmail.com');
+//         if (!maintainerUser || !maintainerUser._id) {
+//             console.error('Maintainer user not found, skipping issue creation');
+//             return;
+//         }
 
-        const maintainerId = new ObjectId(maintainerUser._id!);
-        const issuesCollection = await getCollection<any>('issues');
-        const existingIssuesCount = await issuesCollection.countDocuments({});
+//         const maintainerId = new ObjectId(maintainerUser._id!);
+//         const issuesCollection = await getCollection<any>('issues');
+//         const existingIssuesCount = await issuesCollection.countDocuments({});
 
-        if (existingIssuesCount === 0) {
-            // Create issues for each galaxy
-            for (let i = 0; i < initialGalaxies.length && i < projectIds.length; i++) {
-                const galaxy = initialGalaxies[i];
-                const galaxyId = existingCount > 0
-                    ? (await collection.findOne({ name: galaxy.name }))?._id
-                    : (await collection.findOne({ projectLink: projectIds[i] }))?._id;
+//         if (existingIssuesCount === 0) {
+//             // Create issues for each galaxy
+//             for (let i = 0; i < initialGalaxies.length && i < projectIds.length; i++) {
+//                 const galaxy = initialGalaxies[i];
+//                 const galaxyId = existingCount > 0
+//                     ? (await collection.findOne({ name: galaxy.name }))?._id
+//                     : (await collection.findOne({ projectLink: projectIds[i] }))?._id;
 
-                if (!galaxyId) {
-                    console.warn(`Galaxy not found for ${galaxy.name}, skipping issue creation`);
-                    continue;
-                }
+//                 if (!galaxyId) {
+//                     console.warn(`Galaxy not found for ${galaxy.name}, skipping issue creation`);
+//                     continue;
+//                 }
 
-                // Create 1-2 shining issues
-                const shiningIssues: Issue[] = [
-                    {
-                        galaxy: galaxyId.toString(),
-                        uri: `/issue?galaxy=${projectIds[i].toString()}`,
-                        title: `Improve ${galaxy.name} performance`,
-                        description: `This issue focuses on optimizing the performance of ${galaxy.name}. We need to reduce load times and improve overall responsiveness.`,
-                        tags: [IssueTag.IMPROVEMENT],
-                        maintainer: maintainerId.toString(),
-                        createdTime: Math.floor(Date.now() / 1000),
-                        sunshines: 150 + Math.floor(Math.random() * 100),
-                        users: [
-                            {
-                                username: 'demo-user-1',
-                                starshineAmount: 50,
-                                transactionDate: Math.floor((Date.now() - 2 * 24 * 60 * 60 * 1000) / 1000)
-                            },
-                            {
-                                username: 'demo-user-2',
-                                starshineAmount: 100,
-                                transactionDate: Math.floor((Date.now() - 1 * 24 * 60 * 60 * 1000) / 1000)
-                            }
-                        ]
-                    }
-                ];
+//                 // Create 1-2 shining issues
+//                 const shiningIssues: Issue[] = [
+//                     {
+//                         galaxy: galaxyId.toString(),
+//                         uri: `/issue?galaxy=${projectIds[i].toString()}`,
+//                         title: `Improve ${galaxy.name} performance`,
+//                         description: `This issue focuses on optimizing the performance of ${galaxy.name}. We need to reduce load times and improve overall responsiveness.`,
+//                         tags: [IssueTag.IMPROVEMENT],
+//                         maintainer: maintainerId.toString(),
+//                         createdTime: Math.floor(Date.now() / 1000),
+//                         sunshines: 150 + Math.floor(Math.random() * 100),
+//                         users: [
+//                             {
+//                                 username: 'demo-user-1',
+//                                 starshineAmount: 50,
+//                                 transactionDate: Math.floor((Date.now() - 2 * 24 * 60 * 60 * 1000) / 1000)
+//                             },
+//                             {
+//                                 username: 'demo-user-2',
+//                                 starshineAmount: 100,
+//                                 transactionDate: Math.floor((Date.now() - 1 * 24 * 60 * 60 * 1000) / 1000)
+//                             }
+//                         ]
+//                     }
+//                 ];
 
-                // Add second shining issue for some galaxies
-                if (i < 3) {
-                    shiningIssues.push({
-                        galaxy: galaxyId.toString(),
-                        uri: `/issue?galaxy=${projectIds[i].toString()}`,
-                        title: `Add new feature to ${galaxy.name}`,
-                        description: `This issue proposes adding a new feature that would enhance ${galaxy.name}'s capabilities.`,
-                        tags: [IssueTag.FEATURE],
-                        maintainer: maintainerId.toString(),
-                        createdTime: Math.floor(Date.now() / 1000),
-                        sunshines: 200 + Math.floor(Math.random() * 150),
-                        users: [
-                            {
-                                username: 'demo-user-3',
-                                starshineAmount: 75,
-                                transactionDate: Math.floor((Date.now() - 3 * 24 * 60 * 60 * 1000) / 1000)
-                            },
-                            {
-                                username: 'demo-user-4',
-                                starshineAmount: 125,
-                                transactionDate: Math.floor((Date.now() - 1 * 24 * 60 * 60 * 1000) / 1000)
-                            }
-                        ]
-                    });
-                }
+//                 // Add second shining issue for some galaxies
+//                 if (i < 3) {
+//                     shiningIssues.push({
+//                         galaxy: galaxyId.toString(),
+//                         uri: `/issue?galaxy=${projectIds[i].toString()}`,
+//                         title: `Add new feature to ${galaxy.name}`,
+//                         description: `This issue proposes adding a new feature that would enhance ${galaxy.name}'s capabilities.`,
+//                         tags: [IssueTag.FEATURE],
+//                         maintainer: maintainerId.toString(),
+//                         createdTime: Math.floor(Date.now() / 1000),
+//                         sunshines: 200 + Math.floor(Math.random() * 150),
+//                         users: [
+//                             {
+//                                 username: 'demo-user-3',
+//                                 starshineAmount: 75,
+//                                 transactionDate: Math.floor((Date.now() - 3 * 24 * 60 * 60 * 1000) / 1000)
+//                             },
+//                             {
+//                                 username: 'demo-user-4',
+//                                 starshineAmount: 125,
+//                                 transactionDate: Math.floor((Date.now() - 1 * 24 * 60 * 60 * 1000) / 1000)
+//                             }
+//                         ]
+//                     });
+//                 }
 
-                // Create public-backlog issues (without sunshines)
-                const publicBacklogIssues: Issue[] = [
-                    {
-                        galaxy: galaxyId.toString(),
-                        uri: `/issue?galaxy=${projectIds[i].toString()}`,
-                        title: `Fix minor bug in ${galaxy.name}`,
-                        description: `This is a minor bug that doesn't affect core functionality but should be addressed.`,
-                        tags: [IssueTag.BUG],
-                        maintainer: maintainerId.toString(),
-                        createdTime: Math.floor(Date.now() / 1000),
-                        sunshines: 0,
-                        users: [
-                            {
-                                username: 'demo-user-5',
-                                starshineAmount: 0,
-                                transactionDate: Math.floor((Date.now() - 5 * 24 * 60 * 60 * 1000) / 1000)
-                            }
-                        ]
-                    },
-                    {
-                        galaxy: galaxyId.toString(),
-                        uri: `/issue?galaxy=${projectIds[i].toString()}`,
-                        title: `Documentation update for ${galaxy.name}`,
-                        description: `Update the documentation to reflect recent changes and improvements.`,
-                        tags: [IssueTag.WISH],
-                        maintainer: maintainerId.toString(),
-                        createdTime: Math.floor(Date.now() / 1000),
-                        sunshines: 0,
-                        users: [
-                            {
-                                username: 'demo-user-6',
-                                starshineAmount: 0,
-                                transactionDate: Math.floor((Date.now() - 4 * 24 * 60 * 60 * 1000) / 1000)
-                            }
-                        ]
-                    }
-                ];
+//                 // Create public-backlog issues (without sunshines)
+//                 const publicBacklogIssues: Issue[] = [
+//                     {
+//                         galaxy: galaxyId.toString(),
+//                         uri: `/issue?galaxy=${projectIds[i].toString()}`,
+//                         title: `Fix minor bug in ${galaxy.name}`,
+//                         description: `This is a minor bug that doesn't affect core functionality but should be addressed.`,
+//                         tags: [IssueTag.BUG],
+//                         maintainer: maintainerId.toString(),
+//                         createdTime: Math.floor(Date.now() / 1000),
+//                         sunshines: 0,
+//                         users: [
+//                             {
+//                                 username: 'demo-user-5',
+//                                 starshineAmount: 0,
+//                                 transactionDate: Math.floor((Date.now() - 5 * 24 * 60 * 60 * 1000) / 1000)
+//                             }
+//                         ]
+//                     },
+//                     {
+//                         galaxy: galaxyId.toString(),
+//                         uri: `/issue?galaxy=${projectIds[i].toString()}`,
+//                         title: `Documentation update for ${galaxy.name}`,
+//                         description: `Update the documentation to reflect recent changes and improvements.`,
+//                         tags: [IssueTag.WISH],
+//                         maintainer: maintainerId.toString(),
+//                         createdTime: Math.floor(Date.now() / 1000),
+//                         sunshines: 0,
+//                         users: [
+//                             {
+//                                 username: 'demo-user-6',
+//                                 starshineAmount: 0,
+//                                 transactionDate: Math.floor((Date.now() - 4 * 24 * 60 * 60 * 1000) / 1000)
+//                             }
+//                         ]
+//                     }
+//                 ];
 
-                // Create all issues
-                const allIssues = [...shiningIssues, ...publicBacklogIssues];
-                for (const issueData of allIssues) {
-                    await createIssue(issueData);
-                }
+//                 // Create all issues
+//                 const allIssues = [...shiningIssues, ...publicBacklogIssues];
+//                 for (const issueData of allIssues) {
+//                     await createIssue(issueData);
+//                 }
 
-                console.log(`✅ Created ${allIssues.length} issues for ${galaxy.name} (${shiningIssues.length} shining, ${publicBacklogIssues.length} public backlog)`);
-            }
-        } else {
-            console.log(`✅ Issues already exist (${existingIssuesCount} found)`)
-        }
-    } catch (error) {
-        console.error('Error setting up demo galaxies:', error)
-        throw error
-    }
-}
-
-
+//                 console.log(`✅ Created ${allIssues.length} issues for ${galaxy.name} (${shiningIssues.length} shining, ${publicBacklogIssues.length} public backlog)`);
+//             }
+//         } else {
+//             console.log(`✅ Issues already exist (${existingIssuesCount} found)`)
+//         }
+//     } catch (error) {
+//         console.error('Error setting up demo galaxies:', error)
+//         throw error
+//     }
+// }
 
 /**
  * Setup demo galaxies - creates projects first, then links galaxies
@@ -302,8 +300,8 @@ export async function setup(): Promise<void> {
             }
         }
 
-        // Step 3: Create demo issues for each galaxy
-        await setupIssues(projectIds, existingCount, collection)
+        // // Step 3: Create demo issues for each galaxy
+        // await setupIssues(projectIds, existingCount, collection)
     } catch (error) {
         console.error('Error setting up demo galaxies:', error)
         throw error

@@ -1,5 +1,5 @@
 import { actions } from 'astro:actions';
-import type { AllStarStats, SolarForgeByIssueResult, SolarForgeByVersionResult } from '@/types/all-stars';
+import type { AllStarStats, SolarForgeByIssueResult, SolarForgeByVersionResult, UserStar } from '@/types/all-stars';
 import { ISSUE_EVENT_TYPES } from '@/types/issue';
 import { USER_EVENT_TYPES } from '@/types/user';
 import { getIssueById } from './issue';
@@ -30,6 +30,39 @@ export async function getAllStarStats(): Promise<AllStarStats> {
             totalUsers: 0,
             totalSunshines: 0,
         };
+    }
+}
+
+export async function getGalaxySpace(galaxyId: string): Promise<UserStar[]> {
+    try {
+        const result = await actions.getGalaxySpace({ galaxyId });
+        return result.data?.space || [];
+    } catch (error) {
+        console.error('Error getting galaxy space:', error);
+        return [];
+    }
+}
+
+export async function getUserStar(galaxyId: string, userId: string): Promise<UserStar | null> {
+    try {
+        const result = await actions.getUserStar({ galaxyId, userId });
+        if (result.data && 'userStar' in result.data) {
+            return result.data.userStar as UserStar | null;
+        }
+        return null;
+    } catch (error) {
+        console.error('Error getting user star:', error);
+        return null;
+    }
+}
+
+export async function updateUserStarPosition(params: { galaxyId: string; userId: string; x: number; y: number }): Promise<boolean> {
+    try {
+        const result = await actions.updateUserStarPosition(params);
+        return Boolean(result.data?.success);
+    } catch (error) {
+        console.error('Error updating user star position:', error);
+        return false;
     }
 }
 

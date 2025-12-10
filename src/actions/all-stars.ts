@@ -1,8 +1,8 @@
 import { defineAction } from 'astro:actions'
 import { z } from 'astro:schema'
-import { getAllStarStats, checkSolarForgeByIssue, createSolarForge, updateIssueStars } from '@/server-side/all-stars'
+import { getAllStarStats, checkSolarForgeByIssue, createSolarForge, updateIssueStars, getGalaxySpace, getUserStar as getUserStarFromSpace, upsertSpaceUserStar, updateUserStarPosition as updateUserStarPositionDb } from '@/server-side/all-stars'
 import { getIssueById } from '@/server-side/issue'
-import { updateUserStars } from '@/server-side/user'
+import { updateUserStars, getUserById } from '@/server-side/user'
 import { getVersionById } from '@/server-side/roadmap'
 import type { AllStarStats, SolarForgeByIssueResult, SolarForgeByVersionResult, SolarUser } from '@/types/all-stars'
 import { solarForge } from '@/types/all-stars'
@@ -86,6 +86,22 @@ async function solarForgeByIssue(issueId: string): Promise<SolarForgeByIssueResu
         for (const [userId, data] of userMap.entries()) {
             const userUpdated = await updateUserStars(userId, data.stars)
             if (userUpdated) {
+                const user = await getUserById(userId)
+                if (issue.galaxy) {
+                    await upsertSpaceUserStar({
+                        galaxyId: issue.galaxy,
+                        userId,
+                        data: {
+                            nickname: user?.nickname,
+                            src: user?.src,
+                            alt: user?.alt,
+                            stars: user?.stars,
+                            sunshines: user?.sunshines,
+                            role: user?.role,
+                            uri: user?.uri,
+                        },
+                    })
+                }
                 solarUsers.push({
                     id: userId,
                     roles: data.roles,
@@ -136,6 +152,40 @@ export const server = {
                     totalSunshines: 0,
                 }
             }
+        },
+    }),
+    getGalaxySpace: defineAction({
+        accept: 'json',
+        input: z.object({
+            galaxyId: z.string(),
+        }),
+        handler: async ({ galaxyId }) => {
+            const space = await getGalaxySpace(galaxyId)
+            return { space }
+        },
+    }),
+    getUserStar: defineAction({
+        accept: 'json',
+        input: z.object({
+            galaxyId: z.string(),
+            userId: z.string(),
+        }),
+        handler: async ({ galaxyId, userId }) => {
+            const userStar = await getUserStarFromSpace(galaxyId, userId)
+            return { userStar }
+        },
+    }),
+    updateUserStarPosition: defineAction({
+        accept: 'json',
+        input: z.object({
+            galaxyId: z.string(),
+            userId: z.string(),
+            x: z.number(),
+            y: z.number(),
+        }),
+        handler: async ({ galaxyId, userId, x, y }) => {
+            const success = await updateUserStarPositionDb({ galaxyId, userId, x, y })
+            return { success }
         },
     }),
     // solarForgeByIssue: defineAction({

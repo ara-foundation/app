@@ -11,10 +11,12 @@ import ProjectGoalPanel from "@/components/project/ProjectGoalPanel";
 // import HighlightedInteraction from "@/components/project/HighlightedInteractionPanel";
 import BackButton from "@/components/custom-ui/BackButton";
 import AllStarsContest from "@/components/all-stars/AllStarsContest";
-import { mockUserStars } from "@/types/mock-data";
+import { getGalaxySpace, getUserStar } from "@/server-side/all-stars";
 import { getGalaxyById } from "@/server-side/galaxy";
 import { getProjectById } from "@/server-side/project";
-import { getUserById } from "@/server-side/user";
+import { getUserById, getUserByEmail } from "@/server-side/user";
+import { DEMO_COOKIE_NAMES } from "@/types/demo";
+import type { UserStar } from "@/types/all-stars";
 
 // Get galaxy ID from query parameter
 const galaxyIdParam = Astro.url.searchParams.get("galaxy");
@@ -55,14 +57,42 @@ const documentationLink = project.socialLinks?.find(
 // Place Mode: If the page is in place mode, the user can place their star on the web page.
 const isPlaceMode = Astro.url.searchParams.get("place") === "true";
 
-// Set draggable property on current user's star (for demo, using first star as current user)
-const starsWithDraggable = mockUserStars.map((star, index) => ({
-  ...star,
-  draggable: isPlaceMode && index === 0, // First star is the current user's star
-}));
+const galaxySpace = await getGalaxySpace(galaxyIdParam);
 
-// Get current user data (first star as current user for demo)
-const currentUserData = mockUserStars[0];
+const demoEmail = Astro.cookies.get(DEMO_COOKIE_NAMES.email)?.value
+  ? decodeURIComponent(Astro.cookies.get(DEMO_COOKIE_NAMES.email)!.value!)
+  : null;
+
+let currentUserData: UserStar | null = null;
+let currentUserId: string | undefined;
+
+if (demoEmail) {
+  const demoUser = await getUserByEmail(demoEmail);
+  if (demoUser?._id) {
+    currentUserId = demoUser._id;
+    const userStar = await getUserStar(galaxyIdParam, demoUser._id);
+    if (userStar) {
+      currentUserData = { ...userStar, draggable: isPlaceMode };
+    } else {
+      currentUserData = {
+        nickname: demoUser.nickname || demoEmail.split("@")[0],
+        src: demoUser.src,
+        alt: demoUser.alt,
+        stars: demoUser.stars,
+        sunshines: demoUser.sunshines,
+        role: demoUser.role,
+        uri: demoUser.uri,
+        userId: demoUser._id,
+        draggable: isPlaceMode,
+      };
+    }
+  }
+}
+
+const starsWithDraggable = galaxySpace.map((star) => ({
+  ...star,
+  draggable: isPlaceMode && star.userId === currentUserId,
+}));
 
 // Transform database models to ProjectInfoProps
 const projectData: ProjectInfoProps = {

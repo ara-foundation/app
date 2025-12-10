@@ -1,7 +1,7 @@
 import { ObjectId } from 'mongodb'
 import { getCollection } from './db'
 import { getAllGalaxies } from './galaxy'
-import type { AllStarStats, SolarForgeModel } from '@/types/all-stars'
+import type { AllStarStats, SolarForgeModel, UserStar } from '@/types/all-stars'
 import type { UserModel } from './user'
 
 /**
@@ -37,6 +37,118 @@ export async function getAllStarStats(): Promise<AllStarStats> {
             totalSunshines: 0,
         }
     }
+}
+
+interface UserStarModel extends Omit<UserStar, '_id' | 'createdTime' | 'updatedTime'> {
+    _id?: ObjectId
+    createdTime?: number
+    updatedTime?: number
+}
+
+async function getSpaceCollection() {
+    return getCollection<UserStarModel>('space')
+}
+
+function userStarModelToUserStar(model: UserStarModel): UserStar {
+    return {
+        ...model,
+        _id: model._id?.toString(),
+    }
+}
+
+function userStarToModel(star: UserStar): UserStarModel {
+    const { _id, ...rest } = star
+    return {
+        ...rest,
+        _id: _id ? new ObjectId(_id) : undefined,
+    }
+}
+
+export async function getGalaxySpace(galaxyId: string): Promise<UserStar[]> {
+    const collection = await getSpaceCollection()
+    const stars = await collection.find({ galaxyId }).toArray()
+    return stars.map(userStarModelToUserStar)
+}
+
+export async function getUserStar(galaxyId: string, userId: string): Promise<UserStar | null> {
+    const collection = await getSpaceCollection()
+    const existing = await collection.findOne({ galaxyId, userId })
+    if (existing) {
+        return userStarModelToUserStar(existing)
+    }
+
+    // const { getUserById } = await import('./user')
+    // const user = await getUserById(userId)
+    // const now = Math.floor(Date.now() / 1000)
+    // const placeholder: UserStarModel = {
+    //     galaxyId,
+    //     userId,
+    //     nickname: user?.nickname || userId,
+    //     src: user?.src,
+    //     alt: user?.alt,
+    //     stars: user?.stars,
+    //     sunshines: user?.sunshines,
+    //     role: user?.role,
+    //     uri: user?.uri,
+    //     createdTime: now,
+    //     updatedTime: now,
+    // }
+
+    // await collection.insertOne(placeholder as any)
+    return null
+}
+
+export async function upsertSpaceUserStar(params: {
+    galaxyId: string
+    userId: string
+    data?: Partial<UserStar>
+}): Promise<UserStar> {
+    const { galaxyId, userId, data } = params
+    const collection = await getSpaceCollection()
+    const existing = await collection.findOne({ galaxyId, userId })
+    const now = Math.floor(Date.now() / 1000)
+
+    if (existing?._id) {
+        const { _id: _ignore, ...restData } = data || {}
+        const updated: UserStarModel = {
+            ...existing,
+            ...restData,
+            _id: existing._id,
+            updatedTime: now,
+        }
+        await collection.updateOne({ _id: existing._id }, { $set: { ...restData, updatedTime: now } })
+        return userStarModelToUserStar(updated)
+    }
+
+    const { getUserById } = await import('./user')
+    const user = await getUserById(userId)
+    const base: UserStarModel = {
+        galaxyId,
+        userId,
+        nickname: data?.nickname || user?.nickname || userId,
+        src: data?.src ?? user?.src,
+        alt: data?.alt ?? user?.alt,
+        stars: data?.stars ?? user?.stars,
+        sunshines: data?.sunshines ?? user?.sunshines,
+        role: data?.role ?? user?.role,
+        uri: data?.uri ?? user?.uri,
+        createdTime: now,
+        updatedTime: now,
+        // x and y intentionally omitted on first create if not provided
+    }
+
+    const result = await collection.insertOne(base as any)
+    return userStarModelToUserStar({ ...base, _id: result.insertedId })
+}
+
+export async function updateUserStarPosition(params: { galaxyId: string; userId: string; x: number; y: number }): Promise<boolean> {
+    const { galaxyId, userId, x, y } = params
+    const collection = await getSpaceCollection()
+    const result = await collection.updateOne(
+        { galaxyId, userId },
+        { $set: { x, y, updatedTime: Math.floor(Date.now() / 1000) } }
+    )
+    return result.matchedCount > 0
 }
 
 /**

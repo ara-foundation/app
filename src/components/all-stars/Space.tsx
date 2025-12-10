@@ -1,35 +1,19 @@
-import React, { useEffect, useRef, useState } from 'react'
-import { DndProvider, useDrop } from 'react-dnd'
+import React, { useEffect, useState } from 'react'
+import { DndProvider } from 'react-dnd'
+import type { DropTargetMonitor } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 import UserStar from './UserStar'
 import ProjectGalaxy from './ProjectGalaxy'
+import DropTarget from '../DropTarget'
 import { cn } from '@/lib/utils'
 import type { Galaxy } from '@/types/galaxy'
-
-export interface UserStarData {
-  x: number
-  y: number
-  src?: string
-  alt?: string
-  nickname: string
-  sunshines?: number
-  stars?: number
-  role?: string
-  funded?: number
-  received?: number
-  issuesClosed?: number
-  issuesActive?: number
-  uri?: string
-  walletAddress?: string
-  githubUrl?: string
-  linkedinUrl?: string
-  tags?: string[]
-  draggable?: boolean
-}
+import { SPACE_EVENT_TYPES, type UserStar as SpaceUserStar } from '@/types/all-stars'
+import { updateUserStarPosition } from '@/client-side/all-stars'
 
 interface SpaceProps {
-  users: UserStarData[]
+  users: SpaceUserStar[]
   className?: string
+  galaxyId?: string
   projectGalaxies?: Array<{
     x: number
     y: number
@@ -41,10 +25,10 @@ interface SpaceProps {
   }>
 }
 
-const SpaceContent: React.FC<SpaceProps> = ({ users: initialUsers, className = '', projectGalaxies }) => {
-  const containerRef = useRef<HTMLDivElement>(null)
+const SpaceContent: React.FC<SpaceProps> = ({ users: initialUsers, className = '', projectGalaxies, galaxyId }) => {
   const [initialViewport, setInitialViewport] = useState({ width: 0, height: 0 })
-  const [users, setUsers] = useState<UserStarData[]>(initialUsers)
+  const [users, setUsers] = useState<SpaceUserStar[]>(initialUsers)
+  const [isDragging, setIsDragging] = useState(false)
 
   useEffect(() => {
     // Capture initial viewport size on mount
@@ -59,7 +43,7 @@ const SpaceContent: React.FC<SpaceProps> = ({ users: initialUsers, className = '
   // Listen for new user star creation
   useEffect(() => {
     const handleUserStarCreated = (event: CustomEvent) => {
-      const { userData } = event.detail as { userData: UserStarData }
+      const { userData } = event.detail as { userData: SpaceUserStar }
       setUsers((prevUsers) => {
         // Check if user already exists (by nickname)
         const existingIndex = prevUsers.findIndex((u) => u.nickname === userData.nickname)
@@ -75,18 +59,20 @@ const SpaceContent: React.FC<SpaceProps> = ({ users: initialUsers, className = '
       })
     }
 
-    window.addEventListener('user-star-created', handleUserStarCreated as EventListener)
+    window.addEventListener(SPACE_EVENT_TYPES.USER_STAR_CREATED, handleUserStarCreated as EventListener)
     return () => {
-      window.removeEventListener('user-star-created', handleUserStarCreated as EventListener)
+      window.removeEventListener(SPACE_EVENT_TYPES.USER_STAR_CREATED, handleUserStarCreated as EventListener)
     }
   }, [])
 
   // Listen for user star position updates (when dragging within Space)
   useEffect(() => {
     const handleUserStarMoved = (event: CustomEvent) => {
-      const { nickname, x, y } = event.detail as { nickname: string; x: number; y: number }
+      const { userId, nickname, x, y } = event.detail as { userId?: string; nickname?: string; x: number; y: number }
+      const matchKey = userId || nickname
+      if (!matchKey) return
       setUsers((prevUsers) => {
-        const existingIndex = prevUsers.findIndex((u) => u.nickname === nickname)
+        const existingIndex = prevUsers.findIndex((u) => (userId ? u.userId === userId : u.nickname === nickname))
         if (existingIndex >= 0) {
           // Update existing user position
           const updated = [...prevUsers]
@@ -99,11 +85,16 @@ const SpaceContent: React.FC<SpaceProps> = ({ users: initialUsers, className = '
         }
         return prevUsers
       })
+      if (galaxyId && userId) {
+        updateUserStarPosition({ galaxyId, userId, x, y }).catch((err) =>
+          console.error('Failed to persist user star position', err)
+        )
+      }
     }
 
-    window.addEventListener('user-star-moved', handleUserStarMoved as EventListener)
+    window.addEventListener(SPACE_EVENT_TYPES.USER_STAR_MOVED, handleUserStarMoved as EventListener)
     return () => {
-      window.removeEventListener('user-star-moved', handleUserStarMoved as EventListener)
+      window.removeEventListener(SPACE_EVENT_TYPES.USER_STAR_MOVED, handleUserStarMoved as EventListener)
     }
   }, [])
 
@@ -112,103 +103,103 @@ const SpaceContent: React.FC<SpaceProps> = ({ users: initialUsers, className = '
     setUsers(initialUsers)
   }, [initialUsers])
 
-  // Make Space a drop target
-  const [{ isOver, canDrop, isDraggingAny }, drop] = useDrop({
-    accept: 'user-star',
-    drop: (item: UserStarData, monitor) => {
-      const container = document.querySelector('#galaxy-space')
-      if (!container) return null
+  const handleDrop = (item: SpaceUserStar, monitor: DropTargetMonitor) => {
+    const container = document.querySelector('#galaxy-space')
+    if (!container) return null
 
-      const containerRect = container.getBoundingClientRect()
-      const clientOffset = monitor.getClientOffset()
+    const containerRect = container.getBoundingClientRect()
+    const clientOffset = monitor.getClientOffset()
 
-      if (!clientOffset) return null
+    if (!clientOffset) return null
 
-      // Get the transform scale from computed style
-      const computedStyle = window.getComputedStyle(container)
-      const transform = computedStyle.transform
-      let scale = 1
-      if (transform && transform !== 'none') {
-        const matrix = transform.match(/matrix\(([^)]+)\)/)
-        if (matrix) {
-          const values = matrix[1].split(',')
-          scale = parseFloat(values[0]) || 1
-        }
+    const computedStyle = window.getComputedStyle(container as Element)
+    const transform = computedStyle.transform
+    let scale = 1
+    if (transform && transform !== 'none') {
+      const matrix = transform.match(/matrix\(([^)]+)\)/)
+      if (matrix) {
+        const values = matrix[1].split(',')
+        scale = parseFloat(values[0]) || 1
       }
+    }
 
-      // Calculate position relative to container, accounting for scale
-      const x = (clientOffset.x - containerRect.left) / scale
-      const y = (clientOffset.y - containerRect.top) / scale
+    const x = (clientOffset.x - containerRect.left) / scale
+    const y = (clientOffset.y - containerRect.top) / scale
 
-      return { x, y }
-    },
-    collect: (monitor) => ({
-      isOver: monitor.isOver(),
-      canDrop: monitor.canDrop(),
-      isDraggingAny: !!monitor.getItem(), // Check if any compatible item is being dragged
-    }),
-  })
+    const payload: SpaceUserStar = {
+      ...item,
+      x,
+      y,
+      draggable: item.draggable ?? true,
+    }
 
-  const isDragging = isDraggingAny || canDrop
+    setUsers((prev) => {
+      const index = prev.findIndex((u) => u.nickname === payload.nickname)
+      const exists = index >= 0
+      const next = exists
+        ? (() => {
+          const updated = [...prev]
+          updated[index] = { ...updated[index], ...payload }
+          return updated
+        })()
+        : [...prev, payload]
 
-  // Combine refs
-  const combinedRef = (node: HTMLDivElement | null) => {
-    containerRef.current = node
-    drop(node)
+      const eventType = exists ? SPACE_EVENT_TYPES.USER_STAR_MOVED : SPACE_EVENT_TYPES.USER_STAR_CREATED
+      window.dispatchEvent(
+        new CustomEvent(eventType, {
+          detail: exists ? { userId: item.userId, nickname: item.nickname, x, y } : { userData: payload, x, y },
+        })
+      )
+
+      return next
+    })
+
+    return { x, y }
   }
 
   return (
-    <div
-      ref={combinedRef}
+    <DropTarget
+      id="galaxy-space"
+      accept={['user-star']}
+      onDrop={handleDrop}
       className={cn(
-        "absolute top-0 left-0 w-full h-full",
+        "absolute top-0 left-0 w-full h-full border-none",
         className,
-        isDragging && "z-[9999]"
+        isDragging && "z-[9999]",
+        !isDragging && "pointer-events-none"
       )}
-      style={{
-        // Positioned absolutely relative to the parent content container
-        // Children use absolute positioning relative to this container's top-left (0,0)
-        pointerEvents: 'none',
-        ...(isOver && { pointerEvents: 'auto' }),
-      }}
+      innerClassName="w-full h-full"
+      roundedClassName="rounded-none"
+      onStateChange={({ isOver, canDrop }) => setIsDragging(isOver || canDrop)}
     >
-      {/* Background blur fog overlay when dragging */}
-      {isDragging && (
-        <div
-          className="absolute inset-0 pointer-events-none transition-opacity duration-300"
-          style={{
-            background: 'rgba(100, 100, 100, 0.3)',
-            backdropFilter: 'blur(8px)',
-            WebkitBackdropFilter: 'blur(8px)',
-            zIndex: -1,
-          }}
-        />
-      )}
-      {users.map((user, index) => (
-        <div key={`${user.nickname}-${index}`} style={{ pointerEvents: 'auto' }}>
-          <UserStar
-            leaderboardPosition={index + 1}
-            x={user.x}
-            y={user.y}
-            src={user.src}
-            alt={user.alt}
-            nickname={user.nickname}
-            sunshines={user.sunshines}
-            stars={user.stars}
-            role={user.role}
-            funded={user.funded}
-            received={user.received}
-            issuesClosed={user.issuesClosed}
-            issuesActive={user.issuesActive}
-            walletAddress={user.walletAddress || '0x1027298987234987234987234987234987234987'}
-            githubUrl={user.githubUrl || 'https://github.com/ara-foundation/app'}
-            linkedinUrl={user.linkedinUrl || 'https://www.linkedin.com/in/ara-foundation/'}
-            tags={user.tags}
-            draggable={user.draggable}
-            animationDelay={index * 0.5} // Orchestrate: stagger each star's animation by 0.5s
-          />
-        </div>
-      ))}
+      {users
+        .filter((user) => user.x !== undefined && user.y !== undefined)
+        .map((user, index) => (
+          <div key={`${user.nickname}-${index}`} style={{ pointerEvents: 'auto' }}>
+            <UserStar
+              leaderboardPosition={index + 1}
+              x={user.x || 0}
+              y={user.y || 0}
+              userId={user.userId}
+              src={user.src}
+              alt={user.alt}
+              nickname={user.nickname}
+              sunshines={user.sunshines}
+              stars={user.stars}
+              role={user.role}
+              funded={user.funded}
+              received={user.received}
+              issuesClosed={user.issuesClosed}
+              issuesActive={user.issuesActive}
+              walletAddress={user.walletAddress || '0x1027298987234987234987234987234987234987'}
+              githubUrl={user.githubUrl || 'https://github.com/ara-foundation/app'}
+              linkedinUrl={user.linkedinUrl || 'https://www.linkedin.com/in/ara-foundation/'}
+              tags={user.tags}
+              draggable={user.draggable}
+              animationDelay={index * 0.5} // Orchestrate: stagger each star's animation by 0.5s
+            />
+          </div>
+        ))}
       {projectGalaxies && projectGalaxies.map((galaxy, index) => (
         <div key={`galaxy-${galaxy.projectName}-${index}`} style={{ pointerEvents: 'auto' }}>
           <ProjectGalaxy
@@ -222,7 +213,7 @@ const SpaceContent: React.FC<SpaceProps> = ({ users: initialUsers, className = '
           />
         </div>
       ))}
-    </div>
+    </DropTarget>
   )
 }
 

@@ -5,6 +5,47 @@ export interface AllStarStats {
     totalSunshines?: number;
 }
 
+export const SPACE_EVENT_TYPES = {
+    USER_STAR_CREATED: 'user-star-created',
+    USER_STAR_MOVED: 'user-star-moved',
+    USER_STAR_UPDATED: 'user-star-updated',
+} as const
+
+export type SpaceEventType = typeof SPACE_EVENT_TYPES[keyof typeof SPACE_EVENT_TYPES]
+
+export interface UserStar {
+    _id?: string
+    x?: number
+    y?: number
+    src?: string
+    alt?: string
+    nickname: string
+    sunshines?: number
+    stars?: number
+    role?: string
+    funded?: number
+    received?: number
+    issuesClosed?: number
+    issuesActive?: number
+    uri?: string
+    walletAddress?: string
+    githubUrl?: string
+    linkedinUrl?: string
+    tags?: string[]
+    draggable?: boolean
+    userId?: string
+    email?: string
+    galaxyId: string
+    createdTime?: number
+    updatedTime?: number
+}
+
+export interface GalaxySpace {
+    galaxyId: string
+    stars: UserStar[]
+}
+
+
 export interface SolarForgeModel {
     _id?: string;
     solarForgeType: 'issue';

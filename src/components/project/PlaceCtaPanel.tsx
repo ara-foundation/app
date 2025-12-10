@@ -5,19 +5,19 @@ import { getIcon } from '@/components/icon';
 import { cn } from '@/lib/utils';
 import confetti from 'canvas-confetti';
 import NumberFlow from '@number-flow/react';
-import { UserStarData } from '@/components/all-stars/Space';
+import { UserStar as UserStarData, SPACE_EVENT_TYPES } from '@/types/all-stars';
 import DraggableUserStar from '@/components/all-stars/DraggableUserStar';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { getDemo, incrementDemoStep } from '@/client-side/demo';
 
 interface PlaceCtaPanelProps {
-    userData: UserStarData;
+    userData: UserStarData | null;
 }
 
 const PlaceCtaPanel: React.FC<PlaceCtaPanelProps> = ({ userData }) => {
     const [hasTriggeredConfetti, setHasTriggeredConfetti] = useState(false);
-    const [isStarPlaced, setIsStarPlaced] = useState(false);
+    const [isStarPlaced, setIsStarPlaced] = useState(!!(userData?.x !== undefined && userData?.y !== undefined));
     const [countdown, setCountdown] = useState(3);
     const [isVisible, setIsVisible] = useState(true);
     const [showCountdown, setShowCountdown] = useState(false);
@@ -57,36 +57,24 @@ const PlaceCtaPanel: React.FC<PlaceCtaPanelProps> = ({ userData }) => {
         }, 250);
     };
 
-    const handleStarDrop = async (dropResult: { x: number; y: number }) => {
-        // Create new user star data with position from drop result
-        const newUserStar: UserStarData = {
-            ...userData,
-            x: dropResult.x,
-            y: dropResult.y,
-            draggable: true,
+    useEffect(() => {
+        if (!userData || !userData.userId) return;
+        const handleMoved = async (event: Event) => {
+            const detail = (event as CustomEvent).detail as { userId?: string };
+            if (detail?.userId === userData.userId) {
+                const demo = getDemo();
+                if (demo.email) {
+                    await incrementDemoStep({ email: demo.email, expectedStep: 8 });
+                }
+                setIsStarPlaced(true);
+                setShowCountdown(true);
+                triggerConfetti();
+            }
         };
 
-        // Dispatch event to create new user star
-        const event = new CustomEvent('user-star-created', {
-            detail: {
-                userData: newUserStar,
-                x: dropResult.x,
-                y: dropResult.y,
-            },
-        });
-        window.dispatchEvent(event);
-
-        // Step 8: Place Star in Galaxy
-        const demo = getDemo();
-        if (demo.email) {
-            await incrementDemoStep({ email: demo.email, expectedStep: 8 });
-        }
-
-        // Mark as placed, trigger confetti, and start countdown
-        setIsStarPlaced(true);
-        setShowCountdown(true);
-        triggerConfetti();
-    };
+        window.addEventListener(SPACE_EVENT_TYPES.USER_STAR_MOVED, handleMoved);
+        return () => window.removeEventListener(SPACE_EVENT_TYPES.USER_STAR_MOVED, handleMoved);
+    }, [userData]);
 
     // Countdown effect
     useEffect(() => {
@@ -107,6 +95,18 @@ const PlaceCtaPanel: React.FC<PlaceCtaPanelProps> = ({ userData }) => {
 
         return () => clearInterval(interval);
     }, [showCountdown]);
+
+    if (!userData) {
+        return (
+            <div className="mt-12 text-center text-slate-700 dark:text-slate-200">
+                You didn't obtain any stars yet - consider collaborating on this project first.
+            </div>
+        );
+    }
+
+    if (userData.x !== undefined && userData.y !== undefined) {
+        return null;
+    }
 
     if (!isVisible) return null;
 
@@ -156,11 +156,10 @@ const PlaceCtaPanel: React.FC<PlaceCtaPanelProps> = ({ userData }) => {
                             <DndProvider backend={HTML5Backend}>
                                 <DraggableUserStar
                                     userData={userData}
-                                    onDrop={handleStarDrop}
                                 />
                             </DndProvider>
                             <NumberFlow
-                                value={1}
+                                value={userData.stars!}
                                 locales="en-US"
                                 className="text-4xl font-bold text-slate-500 dark:text-yellow-500/70 -mt-2"
                                 format={{ style: 'decimal', maximumFractionDigits: 6, minimumFractionDigits: 2 }}

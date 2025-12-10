@@ -1,5 +1,5 @@
 import type { FC } from 'react'
-import { memo } from 'react'
+import { memo, useEffect } from 'react'
 import { useDrop } from 'react-dnd'
 import ElectricBorder from './ElectricBorder'
 import { getAnimationColors } from './custom-ui/Button'
@@ -8,12 +8,13 @@ import { cn } from '@/lib/utils'
 export interface DropTargetProps {
     id: string
     accept: string[]
-    onDrop: (item: any) => void
+    onDrop: (item: any, monitor: any) => any
     className?: string
     roundedClassName?: string
     innerClassName?: string
     children?: any
     disabled?: boolean
+    onStateChange?: (state: { isOver: boolean; canDrop: boolean }) => void
 }
 
 export const C: FC<DropTargetProps> = memo(function C({
@@ -25,10 +26,11 @@ export const C: FC<DropTargetProps> = memo(function C({
     innerClassName,
     children,
     disabled = false,
+    onStateChange,
 }) {
     const [{ isOver, canDrop }, drop] = useDrop({
         accept,
-        drop: disabled ? undefined : onDrop,
+        drop: disabled ? undefined : (item, monitor) => onDrop(item, monitor),
         canDrop: () => !disabled,
         collect: (monitor) => ({
             isOver: monitor.isOver(),
@@ -36,12 +38,19 @@ export const C: FC<DropTargetProps> = memo(function C({
         }),
     })
 
+    useEffect(() => {
+        if (onStateChange) {
+            onStateChange({ isOver, canDrop })
+        }
+    }, [isOver, canDrop, onStateChange])
+
     const isActive = isOver && canDrop
     const borderRadiusStyle = roundedClassName ? undefined : 8
 
     return (
         <div
             ref={drop as any}
+            id={id}
             className={cn(
                 'flex items-center justify-center h-full w-full transition-colors',
                 isActive ? 'border-2 border-emerald-400/80' : canDrop ? 'border-2 border-blue-400/70' : 'border-2 border-transparent',

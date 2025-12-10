@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react'
 import ProjectCard from './ProjectLink'
-import { UserStarData } from '@/components/all-stars/Space'
+import { UserStar as UserStarData } from '@/types/all-stars'
 
 const meta: Meta<typeof ProjectCard> = {
     title: 'Components/Project/Project Link',

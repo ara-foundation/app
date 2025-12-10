@@ -3,6 +3,7 @@ import Link from '@/components/custom-ui/Link'
 import Tooltip from '@/components/custom-ui/Tooltip'
 import NumberFlow from '@number-flow/react'
 import { getIcon } from '@/components/icon'
+import { SPACE_EVENT_TYPES } from '@/types/all-stars'
 
 interface UserStarProps {
   x: number
@@ -12,6 +13,7 @@ interface UserStarProps {
   className?: string
   imgClassName?: string
   uri?: string
+  userId?: string
   nickname: string
   email?: string
   sunshines?: number
@@ -38,6 +40,7 @@ const starClipPath = 'polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70
 const UserStar: React.FC<UserStarProps> = ({
   x,
   y,
+  userId,
   src,
   alt,
   className,
@@ -199,8 +202,9 @@ const UserStar: React.FC<UserStarProps> = ({
     const finalY = (e.clientY - containerRect.top - dragOffsetRef.current.y) / scale
 
     // Dispatch event to update star position
-    const event = new CustomEvent('user-star-moved', {
+    const event = new CustomEvent(SPACE_EVENT_TYPES.USER_STAR_MOVED, {
       detail: {
+        userId,
         nickname,
         x: finalX,
         y: finalY,

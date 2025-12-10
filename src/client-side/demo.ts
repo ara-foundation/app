@@ -13,6 +13,20 @@ export const getDemo = (): { email: string | null; users: User[] | null; role: R
     return getDemoCookies()
 }
 
+// (Client/Server) Get user by email via action
+export const getUserByEmail = async (email: string): Promise<User | null> => {
+    try {
+        const result = await actions.getUserByEmail({ email })
+        if (result.data?.success && result.data.data) {
+            return result.data.data
+        }
+        return null
+    } catch (error) {
+        console.error('Error getting user by email:', error)
+        return null
+    }
+}
+
 // (Server Side Action) Start demo and emit USER_CREATED event
 export const startDemo = async (email: string): Promise<{ success: boolean; error?: string }> => {
     const result = await callStartAction(email)

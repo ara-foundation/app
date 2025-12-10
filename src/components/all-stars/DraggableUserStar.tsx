@@ -1,28 +1,20 @@
 import React, { memo } from 'react'
 import { useDrag } from 'react-dnd'
 import UserStar from './UserStar'
-import { UserStarData } from './Space'
+import { UserStar as UserStarData } from '@/types/all-stars'
 
 interface DraggableUserStarProps {
     userData: UserStarData
-    onDrop?: (dropResult: { x: number; y: number }) => void
     className?: string
 }
 
 const DraggableUserStar: React.FC<DraggableUserStarProps> = memo(({
     userData,
-    onDrop,
     className
 }) => {
     const [{ opacity }, drag] = useDrag({
         type: 'user-star',
         item: () => userData,
-        end: (item, monitor) => {
-            const dropResult = monitor.getDropResult<{ x: number; y: number }>()
-            if (dropResult && onDrop) {
-                onDrop(dropResult)
-            }
-        },
         collect: (monitor) => ({
             opacity: monitor.isDragging() ? 0.4 : 1,
         }),
