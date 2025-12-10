@@ -239,10 +239,15 @@ export async function releaseVersion(params: {
             detail: eventDetail,
         }));
 
+        // Step 7: Release Version
+        console.log('incrementing demo step for the 7th step after release version')
+        await incrementDemoStep({ email: demo.email, expectedStep: 7 });
+
         return true;
     } catch (error) {
         console.error('Error releasing version:', error);
         return false;
     }
+
 }
 

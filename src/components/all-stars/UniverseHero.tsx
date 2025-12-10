@@ -22,8 +22,7 @@ function useAllStarStats(): AllStarStats {
         // Initial fetch
         const fetchStats = async () => {
             try {
-                const formData = new FormData();
-                const result = await actions.allStarStats(formData);
+                const result = await actions.allStarStats({});
 
                 if (result.error) {
                     console.error('Error fetching all star stats:', result.error);

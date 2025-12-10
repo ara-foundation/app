@@ -1,5 +1,4 @@
 import { actions } from 'astro:actions';
-import { clearCookie, getCookie, setCookie } from '@/server-side/astro-runtime-cookies'
 import type { Roles, User } from '../types/user'
 import { DEMO_COOKIE_NAMES, DEMO_EVENT_TYPES } from '../types/demo'
 
@@ -115,6 +114,7 @@ export const incrementDemoStep = async (params: {
 }): Promise<{ success: boolean; step?: number; error?: string }> => {
     try {
         const result = await actions.incrementDemoStep(params)
+        console.log('incrementDemoStep result:', result, ` for the ${params.expectedStep} step`)
         if (result.data?.success && result.data.step !== undefined) {
             // Broadcast DEMO_STEP_INCREMENTED event
             window.dispatchEvent(new CustomEvent(DEMO_EVENT_TYPES.DEMO_STEP_INCREMENTED, {
@@ -242,7 +242,7 @@ export function setCookie(name: string, value: string, days: number = 30): void 
     document.cookie = `${name}=${value}; expires=${expires}; path=/`
 }
 
-function clearCookie(name: string): void {
+export function clearCookie(name: string): void {
     if (typeof document === 'undefined') return
     document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/`
 }

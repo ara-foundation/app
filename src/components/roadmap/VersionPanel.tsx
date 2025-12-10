@@ -17,7 +17,7 @@ import type { Issue } from '@/types/issue'
 import MenuAvatar from '../MenuAvatar'
 import { DndProvider, useDrag } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
-import { getDemo } from '@/client-side/demo'
+import { getDemo, incrementDemoStep } from '@/client-side/demo'
 import { type DemoRoleChangeEvent, DEMO_EVENT_TYPES } from '@/types/demo'
 import { getIssueById, updateIssue } from '@/client-side/issue'
 import { getUserById } from '@/client-side/user'
@@ -334,6 +334,7 @@ const ProjectVersionPanel: React.FC<Version> = ({
         tag,
         galaxyId: galaxy,
       })
+
       return
     }
   }
@@ -343,35 +344,6 @@ const ProjectVersionPanel: React.FC<Version> = ({
       persistStatus('release')
     }
   }, [status, readyForRelease, loading, isMaintainer, persistStatus])
-
-  const handleRevertPatch = async (issueId: string) => {
-    if (revertingIssueId) return
-
-    setRevertingIssueId(issueId)
-    try {
-      const success = await revertPatch({
-        galaxyId: galaxy,
-        versionTag: tag,
-        issueId
-      })
-
-      if (success) {
-        // Remove patch from list
-        setPatchesList(prevPatches => prevPatches.filter(patch => patch.id !== issueId))
-        // Show notification
-        setNotificationMessage('Issue was added to the Issue page.')
-        setTimeout(() => setNotificationMessage(null), 3000)
-      } else {
-        console.error('Error reverting patch')
-        alert('Failed to revert patch. Please try again.')
-      }
-    } catch (error) {
-      console.error('Error calling API:', error)
-      alert('Failed to revert patch. Please try again.')
-    } finally {
-      setRevertingIssueId(null)
-    }
-  }
 
   const changePatchList = async (item: { id: string; title: string, sunshines?: number }, versionId: string, completed: boolean = false) => {
     try {
