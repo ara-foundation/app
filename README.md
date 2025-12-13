@@ -51,3 +51,20 @@ All commands are run from the root of the project, from a terminal:
 | `pnpm astro ...`       | Run CLI commands like `astro add`, `astro check` |
 | `pnpm astro -- --help` | Get help using the Astro CLI                     |
 
+## 🚀 Setup
+
+1. Clone the repository:
+   ```bash
+   git clone <repository-url>
+   ```
+
+2. Initialize and update git submodules:
+   ```bash
+   git submodule update --init --recursive
+   ```
+
+3. Install dependencies:
+   ```bash
+   pnpm install
+   ```
+

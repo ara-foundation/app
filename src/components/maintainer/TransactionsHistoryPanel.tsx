@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import PageLikePanel from '@/components/panel/PageLikePanel'
 import TransactionToggler from './TransactionToggler'
 import DonationReceiversPopup from './DonationReceiversPopup'
@@ -12,230 +12,68 @@ import { Popover } from '@base-ui-components/react/popover'
 import Button from '@/components/custom-ui/Button'
 import Badge from '@/components/badge/Badge'
 import BackButton from '@/components/custom-ui/BackButton'
-import { ReceiverInfoProps } from './ReceiverInfo'
-
-interface Transaction {
-  id: number
-  date: number
-  amount: number
-  user: {
-    nickname: string
-    icon?: string
-    sunshines: number
-    stars: number
-    isMaintainer?: boolean
-  }
-  memo?: string
-  blockchainTx?: string
-  receipt?: string
-  maintainer?: {
-    nickname: string
-    icon?: string
-    sunshines: number
-    stars: number
-  }
-  cascadeLevel?: number
-  receivers?: ReceiverInfoProps[]
-}
+import type { Transaction } from '@/types/transaction'
+import { getDonations } from '@/client-side/donations'
+import { getTransactionUrl } from '@/lib/utils'
 
 interface TransactionsHistoryPanelProps {
+  galaxyId: string
   defaultShowCascaded?: boolean
 }
 
-// Sample transaction data
-const sampleTransactions: Transaction[] = [
-  {
-    id: 1,
-    date: Date.now() - 86400000 * 2,
-    amount: 1250.00,
-    user: {
-      nickname: 'Alex Johnson',
-      sunshines: 1250,
-      stars: 3.47,
-      isMaintainer: false
-    },
-    memo: 'Thank you for your amazing work on this project! Keep it up!',
-    blockchainTx: '0x3f8e2094a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8',
-    receipt: 'example.pdf',
-    receivers: [
-      {
-        nickname: 'Emma Davis',
-        icon: 'https://api.backdropbuild.com/storage/v1/object/public/avatars/9nFM8HasgS.jpeg',
-        isMaintainer: false,
-        amount: 450.00,
-        sunshines: 450,
-        stars: 1.25,
-        receivers: [
-          {
-            nickname: 'John Smith',
-            icon: 'https://api.backdropbuild.com/storage/v1/object/public/avatars/9nFM8HasgS.jpeg',
-            isMaintainer: true,
-            amount: 200.00,
-            sunshines: 200,
-            stars: 0.56,
-            receivers: [
-              {
-                nickname: 'Alice Brown',
-                icon: 'https://api.backdropbuild.com/storage/v1/object/public/avatars/9nFM8HasgS.jpeg',
-                isMaintainer: false,
-                amount: 100.00,
-                sunshines: 100,
-                stars: 0.28
-              }
-            ]
-          },
-          {
-            nickname: 'Robert Wilson',
-            icon: 'https://api.backdropbuild.com/storage/v1/object/public/avatars/9nFM8HasgS.jpeg',
-            isMaintainer: false,
-            amount: 150.00,
-            sunshines: 150,
-            stars: 0.42
-          }
-        ]
-      },
-      {
-        nickname: 'Lisa Anderson',
-        icon: 'https://api.backdropbuild.com/storage/v1/object/public/avatars/9nFM8HasgS.jpeg',
-        isMaintainer: true,
-        amount: 500.00,
-        sunshines: 500,
-        stars: 1.39,
-        receivers: [
-          {
-            nickname: 'David Lee',
-            icon: 'https://api.backdropbuild.com/storage/v1/object/public/avatars/9nFM8HasgS.jpeg',
-            isMaintainer: false,
-            amount: 300.00,
-            sunshines: 300,
-            stars: 0.83
-          }
-        ]
-      },
-      {
-        nickname: 'Chris Taylor',
-        icon: 'https://api.backdropbuild.com/storage/v1/object/public/avatars/9nFM8HasgS.jpeg',
-        isMaintainer: false,
-        amount: 300.00,
-        sunshines: 300,
-        stars: 0.83
-      }
-    ]
-  },
-  {
-    id: 2,
-    date: Date.now() - 86400000 * 5,
-    amount: 3750.00,
-    user: {
-      nickname: 'Sarah Williams',
-      sunshines: 2500,
-      stars: 6.94,
-      isMaintainer: false
-    },
-    memo: 'Great progress!',
-    blockchainTx: '0x4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3',
-    receipt: 'example.pdf',
-    receivers: [
-      {
-        nickname: 'Mark Thompson',
-        icon: 'https://api.backdropbuild.com/storage/v1/object/public/avatars/9nFM8HasgS.jpeg',
-        isMaintainer: true,
-        amount: 1500.00,
-        sunshines: 1500,
-        stars: 4.17,
-        receivers: [
-          {
-            nickname: 'Jennifer White',
-            icon: 'https://api.backdropbuild.com/storage/v1/object/public/avatars/9nFM8HasgS.jpeg',
-            isMaintainer: false,
-            amount: 750.00,
-            sunshines: 750,
-            stars: 2.08
-          },
-          {
-            nickname: 'Kevin Martinez',
-            icon: 'https://api.backdropbuild.com/storage/v1/object/public/avatars/9nFM8HasgS.jpeg',
-            isMaintainer: true,
-            amount: 500.00,
-            sunshines: 500,
-            stars: 1.39,
-            receivers: [
-              {
-                nickname: 'Sophia Garcia',
-                icon: 'https://api.backdropbuild.com/storage/v1/object/public/avatars/9nFM8HasgS.jpeg',
-                isMaintainer: false,
-                amount: 250.00,
-                sunshines: 250,
-                stars: 0.69
-              }
-            ]
-          }
-        ]
-      },
-      {
-        nickname: 'Amanda Johnson',
-        icon: 'https://api.backdropbuild.com/storage/v1/object/public/avatars/9nFM8HasgS.jpeg',
-        isMaintainer: false,
-        amount: 1000.00,
-        sunshines: 1000,
-        stars: 2.78
-      }
-    ]
-  },
-  {
-    id: 3,
-    date: Date.now() - 86400000 * 10,
-    amount: 850.00,
-    user: {
-      nickname: 'Michael Chen',
-      sunshines: 850,
-      stars: 2.36,
-      isMaintainer: true
-    },
-    maintainer: {
-      nickname: 'Michael Chen',
-      sunshines: 850,
-      stars: 2.36
-    },
-    cascadeLevel: 3,
-    blockchainTx: '0x5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5',
-    receipt: 'example.pdf'
-  }
-]
-
 const TransactionsHistoryPanel: React.FC<TransactionsHistoryPanelProps> = ({
+  galaxyId,
   defaultShowCascaded = false
 }) => {
   const [showCascaded, setShowCascaded] = useState(defaultShowCascaded)
-  const [likedMemos, setLikedMemos] = useState<Set<number>>(new Set())
-  const [completedMemos, setCompletedMemos] = useState<Set<number>>(new Set())
+  const [transactions, setTransactions] = useState<Transaction[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [likedMemos, setLikedMemos] = useState<Set<string>>(new Set())
+  const [completedMemos, setCompletedMemos] = useState<Set<string>>(new Set())
 
-  const handleLikeMemo = (transactionId: number) => {
+  useEffect(() => {
+    const fetchTransactions = async () => {
+      setIsLoading(true)
+      try {
+        const donations = await getDonations(galaxyId)
+        setTransactions(donations)
+      } catch (error) {
+        console.error('Error fetching donations:', error)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    if (galaxyId) {
+      fetchTransactions()
+    }
+  }, [galaxyId])
+
+  const handleLikeMemo = (transactionId: string) => {
     setLikedMemos(new Set([...likedMemos, transactionId]))
     // Show popup notification
     alert('We sent email to the user notifying your feedback')
   }
 
-  const handleCompleteMemo = (transactionId: number) => {
+  const handleCompleteMemo = (transactionId: string) => {
     setCompletedMemos(new Set([...completedMemos, transactionId]))
   }
 
-  const getRandomEtherscanTx = () => {
-    const chars = '0123456789abcdef'
-    const tx = Array.from({ length: 64 }, () => chars[Math.floor(Math.random() * chars.length)]).join('')
-    return `https://etherscan.io/tx/0x${tx}`
-  }
-
-  const getRandomReceipt = () => {
-    return '/example.pdf'
-  }
 
   const filteredTransactions = showCascaded
-    ? sampleTransactions.filter(t => t.maintainer)
-    : sampleTransactions
+    ? transactions.filter(t => t.maintainer)
+    : transactions
+
+  if (isLoading) {
+    return (
+      <PageLikePanel title="Donation History">
+        <div className="text-center py-8 text-gray-500">Loading donations...</div>
+      </PageLikePanel>
+    )
+  }
 
   return (
-    <PageLikePanel title="Transaction History">
+    <PageLikePanel title="Donation History">
       <TransactionToggler
         defaultShowCascaded={defaultShowCascaded}
         showCascaded={showCascaded}
@@ -277,224 +115,232 @@ const TransactionsHistoryPanel: React.FC<TransactionsHistoryPanelProps> = ({
             </tr>
           </thead>
           <tbody>
-            {filteredTransactions.map((transaction) => (
-              <tr key={transaction.id} className="border-b border-gray-100 hover:bg-gray-50 dark:hover:bg-teal-900/40">
-                {/* ID Column */}
-                <td className="py-4 px-2">
-                  <div className="flex items-center gap-1 text-sm text-gray-800 dark:text-gray-400 pl-3">
-                    {transaction.id}
-                  </div>
+            {filteredTransactions.length === 0 ? (
+              <tr>
+                <td colSpan={showCascaded ? 6 : 6} className="py-8 text-center text-gray-500">
+                  No donations found
                 </td>
-
-                {/* Proof Column */}
-                <td className="py-4 px-2">
-                  <div className="flex items-center gap-2 text-sm">
-                    <Link
-                      uri={transaction.blockchainTx || getRandomEtherscanTx()}
-                      asNewTab={true}
-                      className="text-blue-600 hover:underline dark:text-blue-400 dark:hover:text-blue-300"
-                    >
-                      Blockchain Tx
-                    </Link>
-                    <span className="text-gray-400 dark:text-gray-600">|</span>
-                    <Link
-                      uri={transaction.receipt || getRandomReceipt()}
-                      asNewTab={true}
-                      className="text-blue-600 hover:underline dark:text-blue-400 dark:hover:text-blue-300"
-                    >
-                      Receipt
-                    </Link>
-                  </div>
-                </td>
-
-                {/* Amount Column */}
-                <td className="py-4 px-2">
-                  <div className="flex items-center gap-2">
-                    <Tooltip
-                      content={
-                        <div className="text-sm">
-                          {showCascaded && transaction.maintainer
-                            ? (
-                              <div className="space-y-2">
-                                <div>Maintainer who shared his donations with you</div>
-                                <div className="flex items-center gap-2">
-                                  <img
-                                    src={transaction.maintainer.icon || 'https://api.backdropbuild.com/storage/v1/object/public/avatars/9nFM8HasgS.jpeg'}
-                                    alt={transaction.maintainer.nickname}
-                                    className="w-12 h-12 rounded-full"
-                                  />
-                                  <div>
-                                    <div className="flex items-center gap-1">
-                                      <span className="font-medium">{transaction.maintainer.nickname}</span>
-                                      <span className="text-xs bg-blue-500 text-white px-1.5 py-0.5 rounded">Maintainer</span>
-                                    </div>
-                                    <div className="flex items-center gap-2 mt-1">
-                                      {getIcon({ iconType: 'sunshine', className: 'w-4 h-4' })}
-                                      <NumberFlow
-                                        value={transaction.maintainer.sunshines}
-                                        locales="en-US"
-                                        format={{ style: 'decimal', maximumFractionDigits: 0 }}
-                                        className="text-xs"
-                                      />
-                                      {getIcon({ iconType: 'star', className: 'w-4 h-4' })}
-                                      <NumberFlow
-                                        value={transaction.maintainer.stars}
-                                        locales="en-US"
-                                        format={{ style: 'decimal', maximumFractionDigits: 2 }}
-                                        className="text-xs"
-                                      />
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-                            )
-                            : 'Amount user donated'}
-                        </div>
-                      }
-                    >
-                      <NumberFlow
-                        value={transaction.amount}
-                        locales="en-US"
-                        format={{ style: 'currency', currency: 'USD', maximumFractionDigits: 2 }}
-                        className="text-sm font-medium text-gray-800 dark:text-gray-400"
-                      />
-                    </Tooltip>
-                    {!showCascaded && (
-                      <DonationReceiversPopup receivers={transaction.receivers} />
-                    )}
-                  </div>
-                </td>
-
-                {/* Date Column */}
-                <td className="py-4 px-2">
-                  <TimeAgo datetime={transaction.date} className="text-sm text-gray-800 dark:text-gray-400" />
-                </td>
-
-                {/* User Column */}
-                <td className="py-4 px-2">
-                  <div className="flex items-center gap-2">
-                    <Tooltip
-                      content={
-                        <div className="text-sm">
-                          Who donated
-                          <div className="mt-2">
-                            <MenuAvatar
-                              src={transaction.user.icon}
-                              nickname={transaction.user.nickname}
-                              sunshines={transaction.user.sunshines}
-                              stars={transaction.user.stars}
-                              isMaintainer={transaction.user.isMaintainer}
-                            />
-                          </div>
-                        </div>
-                      }
-                    >
-                      <MenuAvatar
-                        src={transaction.user.icon}
-                        nickname={transaction.user.nickname}
-                        sunshines={transaction.user.sunshines}
-                        stars={transaction.user.stars}
-                        isMaintainer={transaction.user.isMaintainer}
-                      />
-                    </Tooltip>
-                    <Tooltip
-                      content={
-                        <div className="text-sm">
-                          Received {transaction.user.sunshines} sunshines. {getIcon({ iconType: 'star', className: 'w-4 h-4 inline' })} 1 = 360 sunshines
-                        </div>
-                      }
-                    >
-                      <div className="flex items-center gap-1">
-                        {getIcon({ iconType: 'sunshine', className: 'w-4 h-4' })}
-                        <NumberFlow
-                          value={transaction.user.sunshines}
-                          locales="en-US"
-                          format={{ style: 'decimal', maximumFractionDigits: 0 }}
-                          className="text-sm text-gray-800 dark:text-gray-400"
-                        />
-                        <span className="text-gray-500">+</span>
-                      </div>
-                    </Tooltip>
-                  </div>
-                </td>
-
-                {/* Memo Column (only when not showing cascaded) */}
-                {!showCascaded && (
+              </tr>
+            ) : (
+              filteredTransactions.map((transaction) => (
+                <tr key={transaction._id || transaction.initiateTxId} className="border-b border-gray-100 hover:bg-gray-50 dark:hover:bg-teal-900/40">
+                  {/* ID Column */}
                   <td className="py-4 px-2">
-                    {transaction.memo ? (
-                      <Popover.Root>
-                        <Popover.Trigger className="hyperlink flex items-center justify-center shadow-none">
-                          <div className="text-sm text-gray-800 dark:text-gray-400 italic max-w-xs truncate">
-                            &quot;{transaction.memo.substring(0, 64)}
-                            {transaction.memo.length > 64 ? '...' : ''}&quot;
-                          </div>
-                        </Popover.Trigger>
-                        <Popover.Portal>
-                          <Popover.Positioner sideOffset={8} side='bottom' className={'z-999!'}>
-                            <Popover.Popup className="w-96 origin-[var(--transform-origin)] rounded-xs bg-[canvas] px-6 py-4 text-gray-900 shadow-sm shadow-gray-900 dark:text-slate-300 dark:shadow-slate-300 transition-[transform,scale,opacity] data-[ending-style]:scale-90 data-[ending-style]:opacity-0 data-[starting-style]:scale-90 data-[starting-style]:opacity-0">
-                              <Popover.Arrow className="data-[side=bottom]:top-[-8px] data-[side=left]:right-[-13px] data-[side=left]:rotate-90 data-[side=right]:left-[-13px] data-[side=right]:-rotate-90 data-[side=top]:bottom-[-8px] data-[side=top]:rotate-180">
-                              </Popover.Arrow>
-                              <Popover.Title className="text-gray-500 dark:text-gray-400 font-medium text-md mb-2">
-                                Memo
-                              </Popover.Title>
-                              <Popover.Description className="text-gray-600 dark:text-slate-400 text-sm mb-4">
-                                {transaction.memo}
-                              </Popover.Description>
-                              <div className="flex gap-2">
-                                <Button
-                                  variant="secondary"
-                                  size="sm"
-                                  onClick={() => handleCompleteMemo(transaction.id)}
-                                  disabled={completedMemos.has(transaction.id)}
-                                >
-                                  {completedMemos.has(transaction.id) ? 'Completed' : 'Complete'}
-                                </Button>
-                                <Button
-                                  variant="primary"
-                                  size="sm"
-                                  onClick={() => handleLikeMemo(transaction.id)}
-                                  disabled={likedMemos.has(transaction.id)}
-                                  className="flex items-center gap-1"
-                                >
-                                  {getIcon({ iconType: 'likes', className: 'w-4 h-4' })}
-                                  {likedMemos.has(transaction.id) ? 'Liked' : 'Like'}
-                                </Button>
-                              </div>
-                            </Popover.Popup>
-                          </Popover.Positioner>
-                        </Popover.Portal>
-                      </Popover.Root>
-                    ) : (
-                      <span className="text-sm text-gray-400">-</span>
-                    )}
+                    <div className="flex items-center gap-1 text-sm text-gray-800 dark:text-gray-400 pl-3">
+                      {transaction._id ? transaction._id.substring(0, 8) : 'N/A'}
+                    </div>
                   </td>
-                )}
 
-                {/* Cascade Column (only when showing cascaded) */}
-                {showCascaded && (
+                  {/* Proof Column */}
+                  <td className="py-4 px-2">
+                    <div className="flex items-center gap-2 text-sm">
+                      <Link
+                        uri={getTransactionUrl(transaction.initiateTxId)}
+                        asNewTab={true}
+                        className="text-blue-600 hover:underline dark:text-blue-400 dark:hover:text-blue-300"
+                      >
+                        Deposit Tx
+                      </Link>
+                      <span className="text-gray-400 dark:text-gray-600">|</span>
+                      <Link
+                        uri={getTransactionUrl(transaction.hyperpayTxId)}
+                        asNewTab={true}
+                        className="text-blue-600 hover:underline dark:text-blue-400 dark:hover:text-blue-300"
+                      >
+                        Hyperpay Tx
+                      </Link>
+                    </div>
+                  </td>
+
+                  {/* Amount Column */}
                   <td className="py-4 px-2">
                     <div className="flex items-center gap-2">
-                      <BackButton uri="/project/transactions" />
                       <Tooltip
                         content={
                           <div className="text-sm">
-                            Shared at the {transaction.cascadeLevel || 3} level
+                            {showCascaded && transaction.maintainer
+                              ? (
+                                <div className="space-y-2">
+                                  <div>Maintainer who shared his donations with you</div>
+                                  <div className="flex items-center gap-2">
+                                    <img
+                                      src={transaction.maintainer.icon || 'https://api.backdropbuild.com/storage/v1/object/public/avatars/9nFM8HasgS.jpeg'}
+                                      alt={transaction.maintainer.nickname}
+                                      className="w-12 h-12 rounded-full"
+                                    />
+                                    <div>
+                                      <div className="flex items-center gap-1">
+                                        <span className="font-medium">{transaction.maintainer.nickname}</span>
+                                        <span className="text-xs bg-blue-500 text-white px-1.5 py-0.5 rounded">Maintainer</span>
+                                      </div>
+                                      <div className="flex items-center gap-2 mt-1">
+                                        {getIcon({ iconType: 'sunshine', className: 'w-4 h-4' })}
+                                        <NumberFlow
+                                          value={transaction.maintainer.sunshines}
+                                          locales="en-US"
+                                          format={{ style: 'decimal', maximumFractionDigits: 0 }}
+                                          className="text-xs"
+                                        />
+                                        {getIcon({ iconType: 'star', className: 'w-4 h-4' })}
+                                        <NumberFlow
+                                          value={transaction.maintainer.stars}
+                                          locales="en-US"
+                                          format={{ style: 'decimal', maximumFractionDigits: 2 }}
+                                          className="text-xs"
+                                        />
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              )
+                              : 'Amount user donated'}
                           </div>
                         }
                       >
-                        <Badge variant="info" static={true}>
+                        <NumberFlow
+                          value={transaction.amount}
+                          locales="en-US"
+                          format={{ style: 'currency', currency: 'USD', maximumFractionDigits: 2 }}
+                          className="text-sm font-medium text-gray-800 dark:text-gray-400"
+                        />
+                      </Tooltip>
+                      {!showCascaded && (
+                        <DonationReceiversPopup receivers={transaction.receivers} />
+                      )}
+                    </div>
+                  </td>
+
+                  {/* Date Column */}
+                  <td className="py-4 px-2">
+                    <TimeAgo datetime={transaction.date} className="text-sm text-gray-800 dark:text-gray-400" />
+                  </td>
+
+                  {/* User Column */}
+                  <td className="py-4 px-2">
+                    <div className="flex items-center gap-2">
+                      <Tooltip
+                        content={
+                          <div className="text-sm">
+                            Who donated
+                            <div className="mt-2">
+                              <MenuAvatar
+                                src={transaction.user.icon}
+                                nickname={transaction.user.nickname}
+                                sunshines={transaction.user.sunshines}
+                                stars={transaction.user.stars}
+                                role={transaction.user.isMaintainer ? 'maintainer' : 'user'}
+                              />
+                            </div>
+                          </div>
+                        }
+                      >
+                        <MenuAvatar
+                          src={transaction.user.icon}
+                          nickname={transaction.user.nickname}
+                          sunshines={transaction.user.sunshines}
+                          stars={transaction.user.stars}
+                          role={transaction.user.isMaintainer ? 'maintainer' : 'user'}
+                        />
+                      </Tooltip>
+                      <Tooltip
+                        content={
+                          <div className="text-sm">
+                            Received {transaction.user.sunshines} sunshines. {getIcon({ iconType: 'star', className: 'w-4 h-4 inline' })} 1 = 360 sunshines
+                          </div>
+                        }
+                      >
+                        <div className="flex items-center gap-1">
+                          {getIcon({ iconType: 'sunshine', className: 'w-4 h-4' })}
                           <NumberFlow
-                            value={transaction.cascadeLevel || 3}
+                            value={transaction.user.sunshines}
                             locales="en-US"
                             format={{ style: 'decimal', maximumFractionDigits: 0 }}
+                            className="text-sm text-gray-800 dark:text-gray-400"
                           />
-                        </Badge>
+                          <span className="text-gray-500">+</span>
+                        </div>
                       </Tooltip>
                     </div>
                   </td>
-                )}
-              </tr>
-            ))}
+
+                  {/* Memo Column (only when not showing cascaded) */}
+                  {!showCascaded && (
+                    <td className="py-4 px-2">
+                      {transaction.memo ? (
+                        <Popover.Root>
+                          <Popover.Trigger className="hyperlink flex items-center justify-center shadow-none">
+                            <div className="text-sm text-gray-800 dark:text-gray-400 italic max-w-xs truncate">
+                              &quot;{transaction.memo.substring(0, 64)}
+                              {transaction.memo.length > 64 ? '...' : ''}&quot;
+                            </div>
+                          </Popover.Trigger>
+                          <Popover.Portal>
+                            <Popover.Positioner sideOffset={8} side='bottom' className={'z-999!'}>
+                              <Popover.Popup className="w-96 origin-[var(--transform-origin)] rounded-xs bg-[canvas] px-6 py-4 text-gray-900 shadow-sm shadow-gray-900 dark:text-slate-300 dark:shadow-slate-300 transition-[transform,scale,opacity] data-[ending-style]:scale-90 data-[ending-style]:opacity-0 data-[starting-style]:scale-90 data-[starting-style]:opacity-0">
+                                <Popover.Arrow className="data-[side=bottom]:top-[-8px] data-[side=left]:right-[-13px] data-[side=left]:rotate-90 data-[side=right]:left-[-13px] data-[side=right]:-rotate-90 data-[side=top]:bottom-[-8px] data-[side=top]:rotate-180">
+                                </Popover.Arrow>
+                                <Popover.Title className="text-gray-500 dark:text-gray-400 font-medium text-md mb-2">
+                                  Memo
+                                </Popover.Title>
+                                <Popover.Description className="text-gray-600 dark:text-slate-400 text-sm mb-4">
+                                  {transaction.memo}
+                                </Popover.Description>
+                                <div className="flex gap-2">
+                                  <Button
+                                    variant="secondary"
+                                    size="sm"
+                                    onClick={() => handleCompleteMemo(transaction._id || transaction.initiateTxId)}
+                                    disabled={completedMemos.has(transaction._id || transaction.initiateTxId)}
+                                  >
+                                    {completedMemos.has(transaction._id || transaction.initiateTxId) ? 'Completed' : 'Complete'}
+                                  </Button>
+                                  <Button
+                                    variant="primary"
+                                    size="sm"
+                                    onClick={() => handleLikeMemo(transaction._id || transaction.initiateTxId)}
+                                    disabled={likedMemos.has(transaction._id || transaction.initiateTxId)}
+                                    className="flex items-center gap-1"
+                                  >
+                                    {getIcon({ iconType: 'likes', className: 'w-4 h-4' })}
+                                    {likedMemos.has(transaction._id || transaction.initiateTxId) ? 'Liked' : 'Like'}
+                                  </Button>
+                                </div>
+                              </Popover.Popup>
+                            </Popover.Positioner>
+                          </Popover.Portal>
+                        </Popover.Root>
+                      ) : (
+                        <span className="text-sm text-gray-400">-</span>
+                      )}
+                    </td>
+                  )}
+
+                  {/* Cascade Column (only when showing cascaded) */}
+                  {showCascaded && (
+                    <td className="py-4 px-2">
+                      <div className="flex items-center gap-2">
+                        <BackButton uri="/project/transactions" />
+                        <Tooltip
+                          content={
+                            <div className="text-sm">
+                              Shared at the {transaction.cascadeLevel || 3} level
+                            </div>
+                          }
+                        >
+                          <Badge variant="info" static={true}>
+                            <NumberFlow
+                              value={transaction.cascadeLevel || 3}
+                              locales="en-US"
+                              format={{ style: 'decimal', maximumFractionDigits: 0 }}
+                            />
+                          </Badge>
+                        </Tooltip>
+                      </div>
+                    </td>
+                  )}
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>

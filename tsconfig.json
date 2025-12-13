@@ -5,7 +5,8 @@
     "**/*"
   ],
   "exclude": [
-    "dist"
+    "dist",
+    "packages/payment-gateway"
   ],
   "compilerOptions": {
     "verbatimModuleSyntax": false,

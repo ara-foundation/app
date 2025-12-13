@@ -1,6 +1,7 @@
 import { type Transaction } from '../types/transaction';
 import { type UserStar as UserStarData } from '@/types/all-stars';
 import type { User } from '@/types/user';
+import type { ReceiverInfoProps } from '@/components/maintainer/ReceiverInfo';
 
 export const mockUser: User = {
   nickname: 'Ahmeton',
@@ -233,5 +234,150 @@ export const mockContestData: ContestData = {
   toDate: new Date('2027-01-01'),
   description: 'Active, funded projects compete for 5% of donations pooled within the contest period. In the winning project it\'s shared by users, maintainers, and contributors according to their stars.',
 };
+
+// Mock receiver configurations for transactions (3 different receiver structures)
+export const mockTransactionReceivers: ReceiverInfoProps[][] = [
+  // Configuration 1: Complex nested structure
+  [
+    {
+      nickname: 'Emma Davis',
+      icon: 'https://api.backdropbuild.com/storage/v1/object/public/avatars/9nFM8HasgS.jpeg',
+      isMaintainer: false,
+      amount: 450.00,
+      sunshines: 450,
+      stars: 1.25,
+      receivers: [
+        {
+          nickname: 'John Smith',
+          icon: 'https://api.backdropbuild.com/storage/v1/object/public/avatars/9nFM8HasgS.jpeg',
+          isMaintainer: true,
+          amount: 200.00,
+          sunshines: 200,
+          stars: 0.56,
+          receivers: [
+            {
+              nickname: 'Alice Brown',
+              icon: 'https://api.backdropbuild.com/storage/v1/object/public/avatars/9nFM8HasgS.jpeg',
+              isMaintainer: false,
+              amount: 100.00,
+              sunshines: 100,
+              stars: 0.28
+            }
+          ]
+        },
+        {
+          nickname: 'Robert Wilson',
+          icon: 'https://api.backdropbuild.com/storage/v1/object/public/avatars/9nFM8HasgS.jpeg',
+          isMaintainer: false,
+          amount: 150.00,
+          sunshines: 150,
+          stars: 0.42
+        }
+      ]
+    },
+    {
+      nickname: 'Lisa Anderson',
+      icon: 'https://api.backdropbuild.com/storage/v1/object/public/avatars/9nFM8HasgS.jpeg',
+      isMaintainer: true,
+      amount: 500.00,
+      sunshines: 500,
+      stars: 1.39,
+      receivers: [
+        {
+          nickname: 'David Lee',
+          icon: 'https://api.backdropbuild.com/storage/v1/object/public/avatars/9nFM8HasgS.jpeg',
+          isMaintainer: false,
+          amount: 300.00,
+          sunshines: 300,
+          stars: 0.83
+        }
+      ]
+    },
+    {
+      nickname: 'Chris Taylor',
+      icon: 'https://api.backdropbuild.com/storage/v1/object/public/avatars/9nFM8HasgS.jpeg',
+      isMaintainer: false,
+      amount: 300.00,
+      sunshines: 300,
+      stars: 0.83
+    }
+  ],
+  // Configuration 2: Different nested structure
+  [
+    {
+      nickname: 'Mark Thompson',
+      icon: 'https://api.backdropbuild.com/storage/v1/object/public/avatars/9nFM8HasgS.jpeg',
+      isMaintainer: true,
+      amount: 1500.00,
+      sunshines: 1500,
+      stars: 4.17,
+      receivers: [
+        {
+          nickname: 'Jennifer White',
+          icon: 'https://api.backdropbuild.com/storage/v1/object/public/avatars/9nFM8HasgS.jpeg',
+          isMaintainer: false,
+          amount: 750.00,
+          sunshines: 750,
+          stars: 2.08
+        },
+        {
+          nickname: 'Kevin Martinez',
+          icon: 'https://api.backdropbuild.com/storage/v1/object/public/avatars/9nFM8HasgS.jpeg',
+          isMaintainer: true,
+          amount: 500.00,
+          sunshines: 500,
+          stars: 1.39,
+          receivers: [
+            {
+              nickname: 'Sophia Garcia',
+              icon: 'https://api.backdropbuild.com/storage/v1/object/public/avatars/9nFM8HasgS.jpeg',
+              isMaintainer: false,
+              amount: 250.00,
+              sunshines: 250,
+              stars: 0.69
+            }
+          ]
+        }
+      ]
+    },
+    {
+      nickname: 'Amanda Johnson',
+      icon: 'https://api.backdropbuild.com/storage/v1/object/public/avatars/9nFM8HasgS.jpeg',
+      isMaintainer: false,
+      amount: 1000.00,
+      sunshines: 1000,
+      stars: 2.78
+    }
+  ],
+  // Configuration 3: Simpler structure
+  [
+    {
+      nickname: 'Oliver Martinez',
+      icon: 'https://api.backdropbuild.com/storage/v1/object/public/avatars/9nFM8HasgS.jpeg',
+      isMaintainer: true,
+      amount: 800.00,
+      sunshines: 800,
+      stars: 2.22,
+      receivers: [
+        {
+          nickname: 'Nina Patel',
+          icon: 'https://api.backdropbuild.com/storage/v1/object/public/avatars/9nFM8HasgS.jpeg',
+          isMaintainer: false,
+          amount: 400.00,
+          sunshines: 400,
+          stars: 1.11
+        }
+      ]
+    },
+    {
+      nickname: 'Ryan Cooper',
+      icon: 'https://api.backdropbuild.com/storage/v1/object/public/avatars/9nFM8HasgS.jpeg',
+      isMaintainer: false,
+      amount: 600.00,
+      sunshines: 600,
+      stars: 1.67
+    }
+  ]
+];
 
 

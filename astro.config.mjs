@@ -35,6 +35,9 @@ export default defineConfig({
         key: './localhost-key.pem',
         cert: './localhost.pem',
       },
+      watch: {
+        ignored: ['**/packages/payment-gateway/**']
+      }
     }
   }
 });

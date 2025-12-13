@@ -30,3 +30,20 @@ services:
     depends_on:
       mongo:
         condition: service_healthy
+
+  payment-gateway:
+    build:
+      context: ./packages/payment-gateway
+      dockerfile: Dockerfile
+    container_name: ara-payment-gateway
+    restart: unless-stopped
+    ports:
+      - "5555:5555"
+    env_file:
+      - ./.env
+    environment:
+      NODE_ENV: production
+      PORT: ${PORT:-5555}
+    depends_on:
+      mongo:
+        condition: service_healthy

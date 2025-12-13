@@ -148,8 +148,9 @@ export const server = {
             galaxyId: z.string(),
             userId: z.string(),
             email: z.string().email(),
+            memo: z.string().optional(),
         }),
-        handler: async ({ galaxyId, userId, email }): Promise<{ success: boolean; sunshines?: number; totalSunshines?: number; error?: string }> => {
+        handler: async ({ galaxyId, userId, email, memo }): Promise<{ success: boolean; sunshines?: number; totalSunshines?: number; error?: string }> => {
             try {
                 const demo = await getDemoByEmail(email)
                 if (!demo) {
@@ -187,11 +188,11 @@ export const server = {
 
                 // Process payment ($50)
                 const donationAmount = 50;
-                const paymentResult = await processPayment(donationAmount, 'USD')
+                const paymentResult = await processPayment(donationAmount, userId, galaxyId, 'USD', memo)
                 if (!paymentResult.success) {
                     return {
                         success: false,
-                        error: 'Payment processing failed',
+                        error: paymentResult.error || 'Payment processing failed',
                     }
                 }
 

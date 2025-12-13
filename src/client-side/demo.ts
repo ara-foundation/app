@@ -98,6 +98,7 @@ export const obtainSunshines = async (params: {
     galaxyId: string;
     userId: string;
     email: string;
+    memo?: string;
 }): Promise<{ success: boolean; sunshines?: number; totalSunshines?: number; error?: string }> => {
     try {
         const result = await actions.obtainSunshines(params)

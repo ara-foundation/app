@@ -1,17 +1,50 @@
 ---
 import Layout from "@/layouts/PanelViewLayout.astro";
 import { MenuName } from "@/components/navbar/WorkNavbar.astro";
-
+import { ObjectId } from "mongodb";
+import { getGalaxyById } from "@/server-side/galaxy";
+import { getProjectById } from "@/server-side/project";
 import BackButton from "@/components/custom-ui/BackButton";
 import TransactionsHistoryPanel from "@/components/maintainer/TransactionsHistoryPanel";
 
+// Get galaxy ID from query parameter
+const galaxyIdParam = Astro.url.searchParams.get("galaxy");
+
+// Validate galaxy ID
+if (!galaxyIdParam) {
+  return Astro.redirect("/project/404?method=getGalaxyParam");
+}
+
+// Validate ObjectId format
+try {
+  new ObjectId(galaxyIdParam);
+} catch (error) {
+  return Astro.redirect("/project/404?method=validateGalaxyId");
+}
+
+// Fetch galaxy from database
+const galaxy = await getGalaxyById(galaxyIdParam);
+if (!galaxy || !galaxy.projectLink) {
+  return Astro.redirect("/project/404?method=getGalaxyById");
+}
+
+// Fetch project from database
+const project = await getProjectById(galaxy.projectLink);
+if (!project) {
+  return Astro.redirect("/project/404?method=getProjectById");
+}
+
 // Check for 'cascaded' query parameter
-const cascaded = Astro.url.searchParams.get('cascaded');
-const defaultShowCascaded = cascaded === 'true';
+const cascaded = Astro.url.searchParams.get("cascaded");
+const defaultShowCascaded = cascaded === "true";
 ---
 
 <Layout hideLinks={Object.keys(MenuName)}>
-  <BackButton uri="/project/donations" slot="left" />
-  <TransactionsHistoryPanel defaultShowCascaded={defaultShowCascaded} slot="center" client:only="react" />
+  <BackButton uri={`/project/donations?galaxy=${galaxyIdParam}`} slot="left" />
+  <TransactionsHistoryPanel
+    galaxyId={galaxyIdParam}
+    defaultShowCascaded={defaultShowCascaded}
+    slot="center"
+    client:only="react"
+  />
 </Layout>
-

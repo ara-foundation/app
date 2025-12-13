@@ -1,0 +1,3 @@
+[submodule "packages/payment-gateway"]
+	path = packages/payment-gateway
+	url = git@github.com:ara-foundation/cascadefund-blockchain-gateway.git

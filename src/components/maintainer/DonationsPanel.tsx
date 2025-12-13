@@ -41,7 +41,7 @@ const BalanceInfoItem: React.FC<BalanceInfoItemProps> = ({ icon, iconColor = 'bg
     )
 }
 
-const DonationsPanel: React.FC = () => {
+const DonationsPanel: React.FC<{ galaxyId: string }> = ({ galaxyId }) => {
     const cascadingDonationsTooltip = (
         <div className="text-sm">
             Indirectly received funds from other projects. Withdraw, and transfer or use for yourself. Check out{' '}
@@ -70,17 +70,17 @@ const DonationsPanel: React.FC = () => {
                 {
                     variant: 'primary',
                     children: 'Obtain Sunshines & Donate',
-                    uri: '/project'
+                    uri: '/project?galaxy=' + galaxyId
                 },
                 {
                     variant: 'secondary',
                     children: 'Donations History',
-                    uri: '/project/transactions'
+                    uri: '/project/transactions?galaxy=' + galaxyId
                 },
                 {
                     variant: 'secondary',
                     children: 'Cascaded donations history',
-                    uri: '/project/transactions?cascaded=true'
+                    uri: '/project/transactions?galaxy=' + galaxyId + '&cascaded=true'
                 }
             ]}
         >

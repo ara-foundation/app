@@ -16,9 +16,8 @@ if (!galaxyIdParam) {
 }
 
 // Validate ObjectId format
-let galaxyId: ObjectId;
 try {
-  galaxyId = new ObjectId(galaxyIdParam);
+  new ObjectId(galaxyIdParam);
 } catch (error) {
   return Astro.redirect("/project/404?method=validateGalaxyId");
 }
@@ -46,5 +45,5 @@ if (!project) {
     projectName={galaxy.name}
     starCount={galaxy.stars}
   />
-  <DonationsPanel slot="center" client:only="react" />
+  <DonationsPanel galaxyId={galaxyIdParam} slot="center" client:only="react" />
 </Layout>

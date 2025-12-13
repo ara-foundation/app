@@ -36,3 +36,30 @@ export const capitalizeFirstLetter = (str: string): string => {
   if (!str) return '';
   return str.charAt(0).toUpperCase() + str.slice(1)
 }
+
+/**
+ * Get the blockchain explorer base URL for transactions
+ * @returns The explorer URL prefix for transaction links
+ */
+export function getExplorerTxUrl(): string {
+  return 'https://sepolia.basescan.org/tx/'
+}
+
+/**
+ * Get the full transaction URL for a given transaction ID
+ * @param txId - The transaction ID (with or without 0x prefix)
+ * @returns The full explorer URL for the transaction
+ */
+export function getTransactionUrl(txId?: string): string {
+  if (!txId) {
+    return getExplorerTxUrl()
+  }
+  const explorerPrefix = getExplorerTxUrl()
+  // If txId already starts with http, return as is
+  if (txId.startsWith('http')) {
+    return txId
+  }
+  // If it starts with 0x, use as is, otherwise prepend 0x
+  const formattedTx = txId.startsWith('0x') ? txId : `0x${txId}`
+  return `${explorerPrefix}${formattedTx}`
+}
