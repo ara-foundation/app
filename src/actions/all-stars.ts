@@ -14,12 +14,10 @@ import type { SerializedSolarForge } from '../../packages/blockchain-gateway/ser
 
 // Shared function for solar forging an issue (used by both action and solarForgeByVersion)
 async function solarForgeByIssue(issueId: string): Promise<SolarForgeByIssueResult> {
-    console.log(`🔥 [solarForgeByIssue] Starting solar forge for issue: ${issueId}`)
     try {
         // Check if already solar forged
         const alreadyForged = await checkSolarForgeByIssue(issueId)
         if (alreadyForged) {
-            console.log(`⚠️ [solarForgeByIssue] Issue ${issueId} already forged, skipping`)
             return {
                 users: [],
                 solarForgeId: '',
@@ -30,7 +28,6 @@ async function solarForgeByIssue(issueId: string): Promise<SolarForgeByIssueResu
         // Get issue
         const issue = await getIssueById(issueId)
         if (!issue) {
-            console.error(`❌ [solarForgeByIssue] Issue ${issueId} not found`)
             return {
                 users: [],
                 solarForgeId: '',
@@ -38,11 +35,8 @@ async function solarForgeByIssue(issueId: string): Promise<SolarForgeByIssueResu
             }
         }
 
-        console.log(`📊 [solarForgeByIssue] Issue ${issueId}: sunshines=${issue.sunshines}, author=${issue.author}, contributor=${issue.contributor}, maintainer=${issue.maintainer}`)
-
         // Check if issue has sunshines
         if (!issue.sunshines || issue.sunshines <= 0) {
-            console.log(`⚠️ [solarForgeByIssue] Issue ${issueId} has no sunshines (${issue.sunshines}), skipping`)
             return {
                 users: [],
                 solarForgeId: '',
@@ -53,7 +47,6 @@ async function solarForgeByIssue(issueId: string): Promise<SolarForgeByIssueResu
         // Calculate stars
         const totalStars = solarForge(issue.sunshines)
         const starsPerRole = totalStars / 3
-        console.log(`⭐ [solarForgeByIssue] Calculated: totalStars=${totalStars}, starsPerRole=${starsPerRole}`)
 
         // Get stakeholders: author, contributor, maintainer
         const stakeholders: Array<{ userId: string; role: string }> = []
@@ -66,8 +59,6 @@ async function solarForgeByIssue(issueId: string): Promise<SolarForgeByIssueResu
         if (issue.maintainer) {
             stakeholders.push({ userId: issue.maintainer, role: 'maintainer' })
         }
-
-        console.log(`👥 [solarForgeByIssue] Found ${stakeholders.length} stakeholders:`, stakeholders.map(s => `${s.role}:${s.userId}`))
 
         // Reduce duplicates: group by userId, collect roles
         const userMap = new Map<string, { roles: string[]; stars: number }>()
@@ -84,40 +75,32 @@ async function solarForgeByIssue(issueId: string): Promise<SolarForgeByIssueResu
             }
         }
 
-        console.log(`👥 [solarForgeByIssue] After deduplication: ${userMap.size} unique users`)
-
         // Update issue: reset sunshines to 0, increment stars
-        console.log(`💾 [solarForgeByIssue] Updating issue: adding ${totalStars} stars, resetting ${issue.sunshines} sunshines`)
         const issueUpdated = await updateIssueStars(issueId, totalStars, issue.sunshines)
         if (!issueUpdated) {
-            console.error(`❌ [solarForgeByIssue] Failed to update issue ${issueId}`)
             return {
                 users: [],
                 solarForgeId: '',
                 error: 'Failed to update issue',
             }
         }
-        console.log(`✅ [solarForgeByIssue] Issue updated successfully`)
 
         // Update users: increment stars for each stakeholder
         const solarUsers: SolarUser[] = []
         const userIds: string[] = []
         const userAddresses: string[] = []
 
-        console.log(`👤 [solarForgeByIssue] Processing ${userMap.size} users for star updates`)
         for (const [userId, data] of userMap.entries()) {
-            console.log(`👤 [solarForgeByIssue] Processing user ${userId}: roles=${data.roles.join(',')}, stars=${data.stars}`)
             const userUpdated = await updateUserStars(userId, data.stars)
             if (userUpdated) {
                 const user = await getUserById(userId)
                 if (!user) {
-                    console.warn(`⚠️ [solarForgeByIssue] User ${userId} not found after update`)
                     continue
                 }
 
                 // Derive Ethereum address from demoPrivateKey
                 if (!user.demoPrivateKey) {
-                    console.error(`❌ [solarForgeByIssue] User ${userId} missing demoPrivateKey, skipping blockchain solar forge`)
+                    console.error(`User ${userId} missing demoPrivateKey, skipping blockchain solar forge`)
                     continue
                 }
 
@@ -125,9 +108,8 @@ async function solarForgeByIssue(issueId: string): Promise<SolarForgeByIssueResu
                     const wallet = new Wallet(user.demoPrivateKey)
                     const address = wallet.address
                     userAddresses.push(address)
-                    console.log(`✅ [solarForgeByIssue] User ${userId} address: ${address}`)
                 } catch (error) {
-                    console.error(`❌ [solarForgeByIssue] Error deriving address for user ${userId}:`, error)
+                    console.error(`Error deriving address for user ${userId}:`, error)
                     continue
                 }
 
@@ -157,7 +139,6 @@ async function solarForgeByIssue(issueId: string): Promise<SolarForgeByIssueResu
 
         // Check if we have addresses for all stakeholders
         if (userAddresses.length === 0) {
-            console.error(`❌ [solarForgeByIssue] No valid user addresses found for blockchain solar forge`)
             return {
                 users: [],
                 solarForgeId: '',
@@ -165,20 +146,15 @@ async function solarForgeByIssue(issueId: string): Promise<SolarForgeByIssueResu
             }
         }
 
-        console.log(`🌌 [solarForgeByIssue] Found ${userAddresses.length} user addresses for blockchain`)
-
         // Get galaxy to get blockchainId
         const galaxy = await getGalaxyById(issue.galaxy)
         if (!galaxy || !galaxy.blockchainId) {
-            console.error(`❌ [solarForgeByIssue] Galaxy ${issue.galaxy} not found or missing blockchainId`)
             return {
                 users: [],
                 solarForgeId: '',
                 error: 'Galaxy not found or missing blockchainId',
             }
         }
-
-        console.log(`🌌 [solarForgeByIssue] Galaxy blockchainId: ${galaxy.blockchainId}`)
 
         // Create SerializedSolarForge for blockchain
         const serializedSolarForge: SerializedSolarForge = {
@@ -188,13 +164,6 @@ async function solarForgeByIssue(issueId: string): Promise<SolarForgeByIssueResu
             users: userAddresses,
             stars: totalStars,
         }
-
-        console.log(`🔗 [solarForgeByIssue] Calling blockchain gateway:`, {
-            galaxyId: galaxy.blockchainId,
-            issueId: issueId,
-            users: userAddresses.length,
-            stars: totalStars,
-        })
 
         // Call blockchain gateway solarForge
         try {
@@ -206,13 +175,11 @@ async function solarForgeByIssue(issueId: string): Promise<SolarForgeByIssueResu
                 }
             }
 
-            console.log(`📡 [solarForgeByIssue] Sending request to blockchain gateway...`)
             const reply = await send(request)
-            console.log(`📡 [solarForgeByIssue] Received reply from blockchain gateway`)
 
             if ('error' in reply) {
                 const errorReply = reply as ReplyError
-                console.error(`❌ [solarForgeByIssue] Blockchain solar forge error:`, errorReply.error)
+                console.error('Blockchain solar forge error:', errorReply.error)
                 return {
                     users: [],
                     solarForgeId: '',
@@ -222,24 +189,20 @@ async function solarForgeByIssue(issueId: string): Promise<SolarForgeByIssueResu
 
             const successReply = reply as ReplySolarForge
             const txHash = successReply.params.txHash
-            console.log(`✅ [solarForgeByIssue] Blockchain transaction successful: ${txHash}`)
 
             // Update issue with solarForgeTxid
             const updated = await updateIssueSolarForgeTxid(issueId, txHash)
             if (!updated) {
-                console.error(`⚠️ [solarForgeByIssue] Failed to update issue with solarForgeTxid`)
+                console.error('Failed to update issue with solarForgeTxid')
                 // Still return success since blockchain transaction succeeded
-            } else {
-                console.log(`✅ [solarForgeByIssue] Issue updated with solarForgeTxid: ${txHash}`)
             }
 
-            console.log(`🎉 [solarForgeByIssue] Solar forge completed successfully for issue ${issueId}: ${solarUsers.length} users, tx: ${txHash}`)
             return {
                 users: solarUsers,
                 solarForgeId: txHash,
             }
         } catch (error) {
-            console.error(`❌ [solarForgeByIssue] Error calling blockchain gateway:`, error)
+            console.error('Error calling blockchain gateway for solar forge:', error)
             return {
                 users: [],
                 solarForgeId: '',
@@ -248,7 +211,7 @@ async function solarForgeByIssue(issueId: string): Promise<SolarForgeByIssueResu
         }
 
     } catch (error) {
-        console.error(`❌ [solarForgeByIssue] Unexpected error:`, error)
+        console.error('Error in solarForgeByIssue:', error)
         return {
             users: [],
             solarForgeId: '',
@@ -444,12 +407,10 @@ export const server = {
             versionId: z.string(),
         }),
         handler: async ({ versionId }): Promise<SolarForgeByVersionResult> => {
-            console.log(`🚀 [solarForgeByVersion] Starting solar forge for version: ${versionId}`)
             try {
                 // Get version
                 const version = await getVersionById(versionId)
                 if (!version) {
-                    console.error(`❌ [solarForgeByVersion] Version ${versionId} not found`)
                     return {
                         users: [],
                         totalIssues: 0,
@@ -457,13 +418,10 @@ export const server = {
                         totalStars: 0,
                     }
                 }
-
-                console.log(`📦 [solarForgeByVersion] Version found: ${version.tag || versionId}, patches: ${version.patches.length}`)
 
                 // Get all issues from patches
                 const issueIds = version.patches.map(patch => patch.id)
                 if (issueIds.length === 0) {
-                    console.warn(`⚠️ [solarForgeByVersion] No issues found in version ${versionId}`)
                     return {
                         users: [],
                         totalIssues: 0,
@@ -471,8 +429,6 @@ export const server = {
                         totalStars: 0,
                     }
                 }
-
-                console.log(`📋 [solarForgeByVersion] Processing ${issueIds.length} issues:`, issueIds)
 
                 // Call solarForgeByIssue for each issue
                 const allSolarUsers = new Map<string, SolarUser>()
@@ -482,36 +438,30 @@ export const server = {
 
                 for (let i = 0; i < issueIds.length; i++) {
                     const issueId = issueIds[i]
-                    console.log(`\n📝 [solarForgeByVersion] Processing issue ${i + 1}/${issueIds.length}: ${issueId}`)
 
                     // Get issue to check sunshines BEFORE calling solarForgeByIssue
                     // (because solarForgeByIssue will reset sunshines to 0)
                     const issue = await getIssueById(issueId)
                     if (!issue) {
-                        console.warn(`⚠️ [solarForgeByVersion] Issue ${issueId} not found, skipping`)
                         continue
                     }
 
                     const issueSunshines = issue.sunshines || 0
                     if (issueSunshines <= 0) {
-                        console.log(`⚠️ [solarForgeByVersion] Issue ${issueId} has no sunshines (${issueSunshines}), skipping`)
                         continue
                     }
 
                     // Calculate stars from original sunshines (before they're reset)
                     const issueStars = solarForge(issueSunshines)
-                    console.log(`⭐ [solarForgeByVersion] Issue ${issueId}: sunshines=${issueSunshines}, stars=${issueStars}`)
 
                     // Call solarForgeByIssue internal function (this will handle duplicate check internally)
                     const result = await solarForgeByIssue(issueId)
                     if (result.error && result.error !== 'duplicate') {
                         // Skip issues with errors (except duplicates which are expected)
-                        console.warn(`⚠️ [solarForgeByVersion] Issue ${issueId} had error: ${result.error}, skipping`)
                         continue
                     }
 
                     if (result.error === 'duplicate') {
-                        console.log(`ℹ️ [solarForgeByVersion] Issue ${issueId} already forged (duplicate), but counting stats`)
                         // Still count stats for duplicates
                         processedIssues++
                         totalSunshines += issueSunshines
@@ -523,7 +473,6 @@ export const server = {
                         processedIssues++
                         totalSunshines += issueSunshines
                         totalStars += issueStars
-                        console.log(`✅ [solarForgeByVersion] Issue ${issueId} processed: ${result.users.length} users, ${issueSunshines} sunshines, ${issueStars} stars`)
 
                         // Aggregate solar users: merge by userId, sum stars, combine roles
                         for (const solarUser of result.users) {
@@ -533,31 +482,19 @@ export const server = {
                                 const combinedRoles = [...new Set([...existing.roles, ...solarUser.roles])]
                                 existing.roles = combinedRoles
                                 existing.stars += solarUser.stars
-                                console.log(`👤 [solarForgeByVersion] Aggregated user ${solarUser.id}: total stars=${existing.stars}, roles=${combinedRoles.join(',')}`)
                             } else {
                                 allSolarUsers.set(solarUser.id, {
                                     id: solarUser.id,
                                     roles: [...solarUser.roles],
                                     stars: solarUser.stars,
                                 })
-                                console.log(`👤 [solarForgeByVersion] Added new user ${solarUser.id}: stars=${solarUser.stars}, roles=${solarUser.roles.join(',')}`)
                             }
                         }
-                    } else {
-                        console.warn(`⚠️ [solarForgeByVersion] Issue ${issueId} returned no users`)
                     }
                 }
 
                 // Convert map to array and sort by stars descending
                 const aggregatedUsers = Array.from(allSolarUsers.values()).sort((a, b) => b.stars - a.stars)
-
-                console.log(`\n🎉 [solarForgeByVersion] Completed: ${processedIssues} issues processed, ${aggregatedUsers.length} users, ${totalSunshines} total sunshines, ${totalStars} total stars`)
-                console.log(`📊 [solarForgeByVersion] Final result:`, {
-                    totalIssues: processedIssues,
-                    totalSunshines,
-                    totalStars,
-                    usersCount: aggregatedUsers.length,
-                })
 
                 return {
                     users: aggregatedUsers,
@@ -566,7 +503,7 @@ export const server = {
                     totalStars,
                 }
             } catch (error) {
-                console.error(`❌ [solarForgeByVersion] Unexpected error:`, error)
+                console.error('Error in solarForgeByVersion:', error)
                 return {
                     users: [],
                     totalIssues: 0,

@@ -26,18 +26,9 @@ const VersionSolarForge: React.FC = () => {
 
     // Listen for VERSION_RELEASED event
     useEffect(() => {
-        console.log('🎧 [VersionSolarForge] Setting up VERSION_RELEASED event listener')
-
         const handleVersionReleased = async (event: Event) => {
-            console.log('🎉 [VersionSolarForge] VERSION_RELEASED event received!', event)
             const customEvent = event as CustomEvent<VersionReleasedEventDetail>
             const { versionId, tag, galaxyId: eventGalaxyId } = customEvent.detail
-
-            console.log('📦 [VersionSolarForge] Event details:', {
-                versionId,
-                tag,
-                galaxyId: eventGalaxyId,
-            })
 
             // Clear any existing timeouts
             timeoutRefsRef.current.forEach(timeout => clearTimeout(timeout))
@@ -54,22 +45,13 @@ const VersionSolarForge: React.FC = () => {
             setVersionTag(tag)
             setGalaxyId(eventGalaxyId)
             setIsOpen(true)
-            console.log('✅ [VersionSolarForge] State reset and dialog opened')
 
             try {
-                console.log(`🔥 [VersionSolarForge] Calling solarForgeByVersion for versionId: ${versionId}`)
                 // Call solarForgeByVersion
                 const forgeResult = await solarForgeByVersion(versionId)
-                console.log('✅ [VersionSolarForge] solarForgeByVersion completed:', {
-                    totalIssues: forgeResult.totalIssues,
-                    totalSunshines: forgeResult.totalSunshines,
-                    totalStars: forgeResult.totalStars,
-                    usersCount: forgeResult.users.length,
-                })
                 setResult(forgeResult)
 
                 // Fetch user data for each solar user
-                console.log(`👤 [VersionSolarForge] Fetching user data for ${forgeResult.users.length} users`)
                 const userPromises = forgeResult.users.map(async (solarUser: SolarUser) => {
                     const user = await getUserById(solarUser.id)
                     return user ? { ...user, earnedStars: solarUser.stars, roles: solarUser.roles } : null
@@ -79,12 +61,6 @@ const VersionSolarForge: React.FC = () => {
                     (u): u is User & { earnedStars: number; roles: string[] } => u !== null
                 )
 
-                console.log(`✅ [VersionSolarForge] Fetched ${fetchedUsers.length} users:`, fetchedUsers.map(u => ({
-                    id: u._id,
-                    nickname: u.nickname,
-                    earnedStars: u.earnedStars,
-                    roles: u.roles,
-                })))
                 setUsers(fetchedUsers)
 
                 // Start animation sequence
@@ -114,18 +90,15 @@ const VersionSolarForge: React.FC = () => {
 
                 // Set summary step immediately
                 setCurrentStep('summary')
-                console.log('🎬 [VersionSolarForge] Animation sequence started')
             } catch (error) {
-                console.error('❌ [VersionSolarForge] Error in solar forge:', error)
+                console.error('Error in solar forge:', error)
                 setIsOpen(false)
             }
         }
 
-        console.log(`📡 [VersionSolarForge] Adding event listener for: ${ROADMAP_EVENT_TYPES.VERSION_RELEASED}`)
         window.addEventListener(ROADMAP_EVENT_TYPES.VERSION_RELEASED, handleVersionReleased as EventListener)
 
         return () => {
-            console.log('🧹 [VersionSolarForge] Cleaning up event listener')
             window.removeEventListener(ROADMAP_EVENT_TYPES.VERSION_RELEASED, handleVersionReleased as EventListener)
             // Clear all timeouts on unmount
             timeoutRefsRef.current.forEach(timeout => clearTimeout(timeout))
