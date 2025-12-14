@@ -72,9 +72,14 @@ if (demoEmail) {
     currentUserId = demoUser._id;
     const userStar = await getUserStar(galaxyIdParam, demoUser._id);
     if (userStar) {
-      currentUserData = { ...userStar, draggable: isPlaceMode };
+      currentUserData = {
+        ...userStar,
+        draggable: isPlaceMode,
+        galaxyId: galaxyIdParam,
+      };
     } else {
       currentUserData = {
+        galaxyId: galaxyIdParam,
         nickname: demoUser.nickname || demoEmail.split("@")[0],
         src: demoUser.src,
         alt: demoUser.alt,
