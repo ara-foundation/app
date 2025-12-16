@@ -149,7 +149,7 @@ const LandingVideoPanel: React.FC<LandingVideoPanelProps> = ({
                     <motion.a
                         href="/all-stars"
                         className={cn(
-                            'w-full flex items-center justify-center gap-2',
+                            'w-40 flex items-center justify-center gap-2 mx-auto',
                             'px-6 py-3 rounded-lg font-semibold',
                             'bg-gradient-to-r from-blue-600 to-indigo-600',
                             'dark:from-blue-500 dark:to-indigo-500',
@@ -175,7 +175,7 @@ const LandingVideoPanel: React.FC<LandingVideoPanelProps> = ({
                             transition={{ duration: 0.5, repeat: Infinity, repeatDelay: 1 }}
                         >
                             {getIcon({ iconType: 'star', className: 'w-5 h-5' })}
-                            <span>Visit Demo Page</span>
+                            <span>Demo</span>
                             <motion.span
                                 animate={isHovered ? { x: [0, 4, 0] } : {}}
                                 transition={{ duration: 0.5, repeat: Infinity, repeatDelay: 1 }}
