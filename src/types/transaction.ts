@@ -1,4 +1,4 @@
-import type { Donation } from './blockchain-gateway';
+import type { Donation } from './crypto-sockets';
 import type { ReceiverInfoProps } from '@/components/maintainer/ReceiverInfo';
 
 // Re-export ReceiverInfoProps for convenience

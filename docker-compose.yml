@@ -31,11 +31,11 @@ services:
       mongo:
         condition: service_healthy
 
-  blockchain-gateway:
+  crypto-sockets:
     build:
-      context: ./packages/blockchain-gateway
+      context: ./packages/crypto-sockets
       dockerfile: Dockerfile
-    container_name: ara-blockchain-gateway
+    container_name: ara-crypto-sockets
     restart: unless-stopped
     ports:
       - "5555:5555"

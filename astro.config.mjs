@@ -36,7 +36,7 @@ export default defineConfig({
         cert: './localhost.pem',
       },
       watch: {
-        ignored: ['**/packages/blockchain-gateway/**']
+        ignored: ['**/packages/crypto-sockets/**']
       }
     }
   }

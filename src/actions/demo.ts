@@ -5,7 +5,7 @@ import { Wallet } from 'ethers'
 import { getDemoByEmail, createDemo, updateDemoStep } from '@/server-side/demo'
 import { emailToNickname, createUsers, getUserByIds, getUserById, updateUserSunshines } from '@/server-side/user'
 import { getGalaxyById, updateGalaxySunshines } from '@/server-side/galaxy'
-import { processPayment } from '@/server-side/blockchain-gateway'
+import { processPayment } from '@/server-side/crypto-sockets'
 import type { User, Roles } from '@/types/user'
 
 /**

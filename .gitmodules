@@ -1,3 +1,3 @@
 [submodule "packages/blockchain-gateway"]
-	path = packages/blockchain-gateway
+	path = packages/crypto-sockets
 	url = git@github.com:ara-foundation/cascadefund-blockchain-gateway.git

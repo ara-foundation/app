@@ -6,8 +6,8 @@ import { createGalaxy, getAllGalaxies } from '../server-side/galaxy'
 import { getOrCreateProject, getProjectById } from '../server-side/project'
 import type { Galaxy } from '../types/galaxy'
 import type { Project } from '../types/project'
-import { send } from '../../packages/blockchain-gateway/client-side/client'
-import type { RequestAddGalaxy, ReplyGalaxyCreation, ReplyError } from '../../packages/blockchain-gateway/server-side/server.types'
+import { send } from '../../packages/crypto-sockets/client-side/client'
+import type { RequestAddGalaxy, ReplyGalaxyCreation, ReplyError } from '../../packages/crypto-sockets/server-side/server.types'
 
 // Internal model types for direct MongoDB operations
 interface GalaxyModel {

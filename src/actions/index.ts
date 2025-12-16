@@ -4,7 +4,7 @@ import { server as userActions } from './user'
 import { server as issueActions } from './issue'
 import { server as galaxyActions } from './galaxy'
 import { server as roadmapActions } from './roadmap'
-import { server as blockchainGatewayActions } from './blockchain-gateway'
+import { server as blockchainGatewayActions } from './crypto-sockets'
 import { server as personalizationActions } from './personalization'
 
 export const server = {

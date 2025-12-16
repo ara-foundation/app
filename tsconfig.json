@@ -6,7 +6,7 @@
   ],
   "exclude": [
     "dist",
-    "packages/blockchain-gateway"
+    "packages/crypto-sockets"
   ],
   "compilerOptions": {
     "verbatimModuleSyntax": false,

@@ -1,6 +1,6 @@
 import { actions } from 'astro:actions';
 import type { Transaction } from '@/types/transaction';
-import type { Donation } from '@/types/blockchain-gateway';
+import type { Donation } from '@/types/crypto-sockets';
 import { getUserById } from './user';
 import { mockTransactionReceivers } from '@/types/mock-data';
 import type { ReceiverInfoProps } from '@/types/transaction';
