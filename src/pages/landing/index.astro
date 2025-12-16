@@ -8,6 +8,7 @@ import { mockUserStars } from "@/types/mock-data";
 import type { Galaxy } from "@/types/galaxy";
 import AraGradientText from "@/components/AraGradientText";
 import LandingVideoPanel from "@/components/landing/LandingVideoPanel";
+import LandingVideoMiniPanel from "@/components/landing/LandingVideoMiniPanel";
 
 // Create a mock Galaxy object for the hero panel
 const mockGalaxy: Galaxy = {
@@ -37,8 +38,14 @@ const mockGalaxy: Galaxy = {
   <!-- Hero Section -->
   <section
     slot="hero"
-    class="flex flex-col items-center justify-center min-h-[60vh] text-center px-4 py-20"
+    class="relative flex flex-col items-center justify-center min-h-[60vh] text-center px-4 py-20"
   >
+    <!-- Video Panel - Part of Hero Section -->
+    <LandingVideoPanel
+      client:only="react"
+      youtubeUrl="https://youtu.be/suOaUQmMSGo?si=cbKjF74oBUmCbKQF"
+    />
+
     <div class="w-full max-w-4xl mx-auto space-y-6">
       <div class="flex items-center justify-center gap-4 mb-6">
         <img
@@ -65,10 +72,12 @@ const mockGalaxy: Galaxy = {
 
       <!-- Futuristic Feature Panels -->
       <div
-        class="w-full max-w-6xl mx-auto my-12 grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8"
+        class="w-full max-w-6xl mx-auto my-12 flex flex-row md:grid md:grid-cols-3 gap-6 md:gap-8 overflow-x-auto md:overflow-x-visible snap-x snap-mandatory md:snap-none scrollbar-hide"
       >
         <!-- Panel 1: Projects are represented as Galaxy -->
-        <div class="relative p-6 flex flex-col items-center justify-center">
+        <div
+          class="relative p-6 flex flex-col items-center justify-center min-w-[280px] md:min-w-0 flex-shrink-0 snap-center"
+        >
           <div
             class="h-48 w-full rounded-lg relative flex items-center justify-center"
           >
@@ -101,7 +110,9 @@ const mockGalaxy: Galaxy = {
         </div>
 
         <!-- Panel 2: People are represented as the Stars -->
-        <div class="relative p-6 flex flex-col items-center justify-center">
+        <div
+          class="relative p-6 flex flex-col items-center justify-center min-w-[280px] md:min-w-0 flex-shrink-0 snap-center"
+        >
           <div class="h-48 w-full flex items-center justify-center">
             <UserStar
               client:only="react"
@@ -144,7 +155,9 @@ const mockGalaxy: Galaxy = {
         </div>
 
         <!-- Panel 3: Graphs for the relationships -->
-        <div class="relative p-6 flex flex-col items-center justify-center">
+        <div
+          class="relative p-6 flex flex-col items-center justify-center min-w-[280px] md:min-w-0 flex-shrink-0 snap-center"
+        >
           <div class="h-48 w-full flex items-center justify-center">
             <svg
               viewBox="0 0 400 400"
@@ -254,6 +267,69 @@ const mockGalaxy: Galaxy = {
           </h3>
         </div>
       </div>
+
+      <!-- Mobile scroll hint -->
+      <div class="w-full max-w-6xl mx-auto -mt-8 mb-2 md:hidden">
+        <p
+          class="text-sm text-slate-400 dark:text-slate-500 text-center flex items-center justify-center gap-1.5 opacity-50 italic"
+        >
+          <svg
+            class="w-4 h-4"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M15 19l-7-7 7-7"></path>
+          </svg>
+          <!-- Finger touch/swipe icon -->
+          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+            <!-- Finger shape -->
+            <ellipse
+              cx="12"
+              cy="18"
+              rx="3"
+              ry="4"
+              fill="currentColor"
+              opacity="0.8"></ellipse>
+            <ellipse
+              cx="12"
+              cy="14"
+              rx="2.5"
+              ry="3.5"
+              fill="currentColor"
+              opacity="0.9"></ellipse>
+            <ellipse cx="12" cy="10" rx="2" ry="3" fill="currentColor"
+            ></ellipse>
+            <!-- Touch point/circle at tip -->
+            <circle cx="12" cy="7" r="1.5" fill="currentColor" opacity="0.6"
+            ></circle>
+            <!-- Swipe lines indicating movement -->
+            <path
+              d="M8 7 L10 7 M14 7 L16 7"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              opacity="0.5"></path>
+          </svg>
+          <span class="text-sm">horizontally scrollable</span>
+          <svg
+            class="w-4 h-4"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M9 5l7 7-7 7"></path>
+          </svg>
+        </p>
+      </div>
     </div>
 
     <p
@@ -307,7 +383,7 @@ const mockGalaxy: Galaxy = {
     </div>
 
     <!-- Why Ara -->
-    <section class="text-center space-y-12">
+    <section id="why-ara-section" class="text-center space-y-12">
       <div>
         <div class="flex items-center justify-center gap-3 mb-4">
           <svg
@@ -2239,9 +2315,9 @@ const mockGalaxy: Galaxy = {
     </section>
   </div>
 
-  <LandingVideoPanel
+  <LandingVideoMiniPanel
     slot="right"
-    client:only="react"
+    client:load
     youtubeUrl="https://youtu.be/suOaUQmMSGo?si=cbKjF74oBUmCbKQF"
   />
 </GalaxyLayout>
@@ -2314,5 +2390,15 @@ const mockGalaxy: Galaxy = {
 
   .event-notification {
     animation: pulse 2s ease-in-out infinite;
+  }
+
+  /* Hide scrollbar for horizontal scroll */
+  .scrollbar-hide {
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
   }
 </style>

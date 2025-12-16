@@ -59,8 +59,9 @@ const LandingVideoPanel: React.FC<LandingVideoPanelProps> = ({
 
     return (
         <motion.div
+            data-landing-video-panel
             className={cn(
-                'fixed top-[calc(20vh+60px)] right-8 z-40',
+                'absolute top-[20vh] right-8 z-40',
                 'w-full max-w-sm',
                 'hidden md:block' // Hide on mobile
             )}
