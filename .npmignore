@@ -7,6 +7,9 @@ node_modules/
 # logs
 *.log
 
+# deployment
+.vercel/
+
 # environment variables
 .env
 .env.production
@@ -14,8 +17,10 @@ node_modules/
 # macOS-specific files
 .DS_Store
 
+.vscode/
 .idea/
 .cursor/
 src/stories/
 storybook-static
+.storybook
 
