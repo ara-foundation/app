@@ -29,6 +29,9 @@ const GalaxyZoomWrapper: React.FC<GalaxyZoomWrapperProps> = ({
   const hasShownDialogRef = useRef(false);
   const [virtualScreenSize, setVirtualScreenSize] = useState({ width: window.innerWidth, height: window.innerHeight });
   const [isAllStarsPage, setIsAllStarsPage] = useState(false);
+  const previousZoomRef = useRef(initialZoom);
+  const scrollPositionRef = useRef({ x: 0, y: 0 });
+  const isZoomingRef = useRef(false);
 
   // Check if we're on the all-stars page
   useEffect(() => {
@@ -64,6 +67,12 @@ const GalaxyZoomWrapper: React.FC<GalaxyZoomWrapperProps> = ({
 
   // Calculate virtual screen size based on zoom (128px step increments)
   useEffect(() => {
+    // Save current scroll position before zoom changes
+    scrollPositionRef.current = {
+      x: window.scrollX || document.documentElement.scrollLeft,
+      y: window.scrollY || document.documentElement.scrollTop,
+    };
+
     const zoomDelta = 100 - zoom;
     const virtualWidth = Math.round(window.innerWidth + (zoomDelta * VIRTUAL_SCREEN_STEP / 10));
     const virtualHeight = Math.round(window.innerHeight + (zoomDelta * VIRTUAL_SCREEN_STEP / 10));
@@ -76,6 +85,7 @@ const GalaxyZoomWrapper: React.FC<GalaxyZoomWrapperProps> = ({
       setVirtualScreenSize(newSize)
     }
     handleZoomChange(zoom, newSize);
+    previousZoomRef.current = zoom;
   }, [zoom]);
 
   useEffect(() => {
@@ -116,10 +126,97 @@ const GalaxyZoomWrapper: React.FC<GalaxyZoomWrapperProps> = ({
     const contentContainer = document.querySelector('#galaxy-space');
     if (contentContainer) {
       const contentEl = contentContainer as HTMLElement;
-      contentEl.style.transform = `scale(${contentScale})`;
+
+      // Preserve scroll position when zoom changes
+      // Only adjust scroll if zoom actually changed (not initial render)
+      if (previousZoomRef.current !== initialZoom && previousZoomRef.current !== zoom && !isZoomingRef.current) {
+        isZoomingRef.current = true;
+
+        // Temporarily disable transition for instant scroll adjustment
+        const originalTransition = contentEl.style.transition;
+        contentEl.style.transition = 'none';
+
+        // Get current scroll position
+        const scrollBefore = {
+          x: window.scrollX || document.documentElement.scrollLeft,
+          y: window.scrollY || document.documentElement.scrollTop,
+        };
+
+        // Get viewport center in document coordinates
+        const viewportCenter = {
+          x: scrollBefore.x + window.innerWidth / 2,
+          y: scrollBefore.y + window.innerHeight / 2,
+        };
+
+        // Calculate previous scale
+        const previousScale = previousZoomRef.current <= 100
+          ? previousZoomRef.current / 100
+          : Math.min(previousZoomRef.current / 100, maxGalaxyContent / 100);
+
+        // Get content container's bounding box before transform
+        const contentRectBefore = contentEl.getBoundingClientRect();
+        const contentTopBefore = scrollBefore.y + contentRectBefore.top;
+        const contentLeftBefore = scrollBefore.x + contentRectBefore.left;
+        const contentCenterBefore = {
+          x: contentLeftBefore + contentRectBefore.width / 2,
+          y: contentTopBefore + contentRectBefore.height / 2,
+        };
+
+        // Calculate point relative to content center (transform origin is center center)
+        const pointRelativeToCenter = {
+          x: (viewportCenter.x - contentCenterBefore.x) / previousScale,
+          y: (viewportCenter.y - contentCenterBefore.y) / previousScale,
+        };
+
+        // Apply the new transform
+        contentEl.style.transform = `scale(${contentScale})`;
+
+        // Wait for transform to be applied
+        requestAnimationFrame(() => {
+          // Get content container's bounding box after transform
+          const contentRectAfter = contentEl.getBoundingClientRect();
+          const scrollAfter = {
+            x: window.scrollX || document.documentElement.scrollLeft,
+            y: window.scrollY || document.documentElement.scrollTop,
+          };
+          const contentTopAfter = scrollAfter.y + contentRectAfter.top;
+          const contentLeftAfter = scrollAfter.x + contentRectAfter.left;
+          const contentCenterAfter = {
+            x: contentLeftAfter + contentRectAfter.width / 2,
+            y: contentTopAfter + contentRectAfter.height / 2,
+          };
+
+          // Calculate where the reference point is now in document coordinates
+          const newDocumentPoint = {
+            x: contentCenterAfter.x + (pointRelativeToCenter.x * contentScale),
+            y: contentCenterAfter.y + (pointRelativeToCenter.y * contentScale),
+          };
+
+          // Calculate new scroll position to keep viewport center at the same document point
+          const newScroll = {
+            x: newDocumentPoint.x - window.innerWidth / 2,
+            y: newDocumentPoint.y - window.innerHeight / 2,
+          };
+
+          // Scroll to maintain viewport position
+          window.scrollTo({
+            left: Math.max(0, newScroll.x),
+            top: Math.max(0, newScroll.y),
+            behavior: 'auto'
+          });
+
+          // Re-enable transition
+          contentEl.style.transition = originalTransition;
+          isZoomingRef.current = false;
+        });
+      } else {
+        // Just apply transform without scroll adjustment (initial render or no zoom change)
+        contentEl.style.transform = `scale(${contentScale})`;
+        isZoomingRef.current = false;
+      }
     }
 
-  }, [virtualScreenSize]);
+  }, [virtualScreenSize, zoom, minZoom, maxGalaxyContent, isAllStarsPage, initialZoom]);
 
   const handleZoomChange = (zoom: number, virtualSize: { width: number; height: number }) => {
     // Dispatch custom event for GalaxyWrapper to listen
