@@ -11,8 +11,8 @@ import tsconfigPaths from 'vite-tsconfig-paths';
 export default defineConfig({
   integrations: [react()],
   output: 'server',
-  // Use .vercel/output for production/Vercel builds, dist for local development
-  outDir: process.env.NODE_ENV === "DEVELOPMENT" ? './dist' : './.vercel/output',
+  // Only set outDir for local development; Vercel adapter manages .vercel/output itself
+  ...(process.env.NODE_ENV === "DEVELOPMENT" && { outDir: './dist' }),
   adapter: process.env.NODE_ENV === "DEVELOPMENT" ? node({ mode: 'standalone' }) : vercel({}),
   vite: {
     plugins: [tailwindcss(), tsconfigPaths()],
