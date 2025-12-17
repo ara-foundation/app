@@ -8,9 +8,9 @@ import { getGalaxyById } from '@/server-side/galaxy'
 import { getVersionById } from '@/server-side/roadmap'
 import type { AllStarStats, SolarForgeByIssueResult, SolarForgeByVersionResult, SolarUser } from '@/types/all-stars'
 import { solarForge } from '@/types/all-stars'
-import { send } from '../../packages/crypto-sockets/client-side/client'
-import type { RequestSolarForge, ReplySolarForge, ReplyError, RequestSpaceCoord, ReplyTx } from '../../packages/crypto-sockets/server-side/server.types'
-import type { SerializedSolarForge, SerializedPosition } from '../../packages/crypto-sockets/server-side/server.types'
+import { send } from '@ara-web/crypto-sockets'
+import type { RequestSolarForge, ReplySolarForge, ReplyError, RequestSpaceCoord, ReplyTx } from '@ara-web/crypto-sockets'
+import type { SerializedSolarForge, SerializedPosition } from '@ara-web/crypto-sockets'
 
 // Shared function for solar forging an issue (used by both action and solarForgeByVersion)
 async function solarForgeByIssue(issueId: string): Promise<SolarForgeByIssueResult> {

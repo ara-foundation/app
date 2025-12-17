@@ -1,3 +1,0 @@
-[submodule "packages/crypto-sockets"]
-	path = packages/crypto-sockets
-	url = git@github.com:ara-foundation/crypto-sockets.git

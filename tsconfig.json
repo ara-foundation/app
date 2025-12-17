@@ -5,8 +5,7 @@
     "**/*"
   ],
   "exclude": [
-    "dist",
-    "packages/crypto-sockets"
+    "dist"
   ],
   "compilerOptions": {
     "verbatimModuleSyntax": false,

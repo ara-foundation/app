@@ -1,9 +1,8 @@
-import '../../packages/crypto-sockets/client-side/client';
-import { imitate50Deposit } from "../../packages/crypto-sockets/client-side/initiate-deposit";
-import { hyperpay } from "../../packages/crypto-sockets/client-side/hyperpay";
+import '@ara-web/crypto-sockets';
 import { ObjectId } from 'mongodb';
 import { getCollection, create } from './db';
 import type { Donation } from '@/types/crypto-sockets';
+import { imitate50Deposit, hyperpay } from '@ara-web/crypto-sockets';
 
 /**
  * Payment gateway simulation

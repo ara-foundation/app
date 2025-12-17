@@ -1,10 +1,13 @@
 services:
-  mongo:
+  ara-mongo:
     image: mongo:latest
     container_name: ara-mongo
     restart: unless-stopped
     ports:
       - "27017:27017"
+    volumes:
+      # Bind mount host directory to persist MongoDB data
+      - /data/ara-mongo:/data/db
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: password
@@ -15,7 +18,7 @@ services:
       retries: 5
       start_period: 40s
 
-  mongo-express:
+  ara-mongo-express:
     image: mongo-express:latest
     container_name: ara-mongo-express
     restart: unless-stopped
@@ -28,22 +31,5 @@ services:
       ME_CONFIG_BASICAUTH_USERNAME: admin
       ME_CONFIG_BASICAUTH_PASSWORD: admin
     depends_on:
-      mongo:
-        condition: service_healthy
-
-  crypto-sockets:
-    build:
-      context: ./packages/crypto-sockets
-      dockerfile: Dockerfile
-    container_name: ara-crypto-sockets
-    restart: unless-stopped
-    ports:
-      - "5555:5555"
-    env_file:
-      - ./.env
-    environment:
-      NODE_ENV: production
-      PORT: ${PORT:-5555}
-    depends_on:
-      mongo:
+      ara-mongo:
         condition: service_healthy
