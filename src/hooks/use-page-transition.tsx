@@ -6,7 +6,7 @@ interface UsePageTransitionReturn {
   showOverlay: boolean;
 }
 
-const MIN_DELAY_MS = 2500;
+const MIN_DELAY_MS = 1000;
 
 export function usePageTransition(): UsePageTransitionReturn {
   const [isTransitioning, setIsTransitioning] = useState(false);
