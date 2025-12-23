@@ -4,9 +4,11 @@ import GalaxyLayout from "@/layouts/GalaxyLayout.astro";
 import { MenuName } from "@/components/navbar/WorkNavbar.astro";
 import BackButton from "@/components/custom-ui/BackButton";
 import GalaxyAutoZoom from "@/components/all-stars/GalaxyAutoZoom";
-import UserProfilePanel from "@/components/user/UserProfilePanel";
+import UserProfileWithBlogs from "@/components/user/UserProfileWithBlogs";
+import CreateBlogCTA from "@/components/blog/CreateBlogCTA";
 import { getUserById, getUserByEmail } from "@/server-side/user";
 import { getGalaxiesByMaintainer } from "@/server-side/galaxy";
+import { getBlogsByAuthor } from "@/server-side/blog";
 import { mockUserStars } from "@/types/mock-data";
 
 // Get user identifier from query params
@@ -42,6 +44,9 @@ if (!user) {
 // Get user's galaxies (where user is maintainer)
 const userGalaxies = await getGalaxiesByMaintainer(user._id!);
 
+// Get user's blogs
+const userBlogs = await getBlogsByAuthor(user._id!);
+
 // Prepare galaxies for display in the virtual screen
 const allGalaxies = userGalaxies.map((galaxy, index) => ({
     x: galaxy.x,
@@ -76,12 +81,15 @@ const userY =
 >
     <BackButton slot="left" client:load />
 
-    <UserProfilePanel
+    <UserProfileWithBlogs
         slot="center"
         user={user}
         galaxies={userGalaxies}
+        blogs={userBlogs}
         client:only="react"
     />
+
+    <CreateBlogCTA slot="center" authorId={user._id!} client:only="react" />
 
     <GalaxyAutoZoom client:only="react" galaxyX={userX} galaxyY={userY} />
 </GalaxyLayout>

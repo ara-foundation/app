@@ -191,11 +191,12 @@ const TasksSection: React.FC<Props> = ({ title = 'My Tasks' }) => {
         <div className='flex items-center space-x-2 gap-1'>{title}
           <Badge variant='red'>{tasks.length}</Badge>
           <Badge variant='info'>Server is not connected</Badge>
+          <Badge variant='danger'>Work in progress</Badge>
         </div>
       }
         subtitle={
           <p className="text-sm text-gray-500 dark:text-gray-400 font-normal text-left">
-            The project management works are automatically converted into the tasks.
+            Instead of clicking across pages, why not to automate it? Ara turns the project management into a quest system.
           </p>
         }
       >

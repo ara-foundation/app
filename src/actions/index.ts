@@ -6,6 +6,7 @@ import { server as galaxyActions } from './galaxy'
 import { server as roadmapActions } from './roadmap'
 import { server as blockchainGatewayActions } from './crypto-sockets'
 import { server as personalizationActions } from './personalization'
+import { server as blogActions } from './blog'
 
 export const server = {
     ...demoActions,
@@ -16,5 +17,6 @@ export const server = {
     ...roadmapActions,
     ...blockchainGatewayActions,
     ...personalizationActions,
+    ...blogActions,
 }
 
