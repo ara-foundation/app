@@ -36,15 +36,7 @@ if (!blog) {
 </Layout>
 
 <style is:global>
-    /* Markdown content styling */
-    .prose {
-        color: rgb(51 65 85);
-    }
-
-    .dark .prose {
-        color: rgb(203 213 225);
-    }
-
+    /* Markdown content styling - structural only, colors handled by Tailwind in BlogPanel */
     .prose h1 {
         font-size: 2.25em;
         font-weight: 800;
@@ -69,6 +61,13 @@ if (!blog) {
         line-height: 1.6;
     }
 
+    .prose h4 {
+        font-size: 1.125em;
+        font-weight: 600;
+        margin-top: 1.5em;
+        margin-bottom: 0.5em;
+    }
+
     .prose p {
         margin-top: 1.25em;
         margin-bottom: 1.25em;
@@ -78,6 +77,8 @@ if (!blog) {
     .prose code {
         font-size: 0.875em;
         font-weight: 600;
+        padding: 0.125em 0.375em;
+        border-radius: 0.25rem;
     }
 
     .prose pre {
@@ -88,16 +89,17 @@ if (!blog) {
         padding-right: 1.1428571em;
         padding-bottom: 0.8571429em;
         padding-left: 1.1428571em;
+        overflow-x: auto;
+    }
+
+    .prose pre code {
+        background-color: transparent;
+        padding: 0;
     }
 
     .prose a {
-        color: rgb(37 99 235);
         text-decoration: underline;
         font-weight: 500;
-    }
-
-    .dark .prose a {
-        color: rgb(96 165 250);
     }
 
     .prose a:hover {
@@ -110,5 +112,71 @@ if (!blog) {
 
     .prose em {
         font-style: italic;
+    }
+
+    /* Lists */
+    .prose ul,
+    .prose ol {
+        margin-top: 1.25em;
+        margin-bottom: 1.25em;
+        padding-left: 1.625em;
+    }
+
+    .prose li {
+        margin-top: 0.5em;
+        margin-bottom: 0.5em;
+    }
+
+    .prose ul li {
+        list-style-type: disc;
+    }
+
+    .prose ol li {
+        list-style-type: decimal;
+    }
+
+    /* Blockquotes */
+    .prose blockquote {
+        margin-top: 1.6em;
+        margin-bottom: 1.6em;
+        padding-left: 1em;
+        border-left: 0.25em solid;
+        font-style: italic;
+    }
+
+    /* Horizontal rules */
+    .prose hr {
+        margin-top: 3em;
+        margin-bottom: 3em;
+        border: none;
+        border-top: 1px solid;
+    }
+
+    /* Images */
+    .prose img {
+        margin-top: 2em;
+        margin-bottom: 2em;
+        max-width: 100%;
+        height: auto;
+        border-radius: 0.5rem;
+    }
+
+    /* Tables */
+    .prose table {
+        width: 100%;
+        margin-top: 2em;
+        margin-bottom: 2em;
+        border-collapse: collapse;
+    }
+
+    .prose th,
+    .prose td {
+        padding: 0.75em;
+        border: 1px solid;
+        text-align: left;
+    }
+
+    .prose th {
+        font-weight: 600;
     }
 </style>
