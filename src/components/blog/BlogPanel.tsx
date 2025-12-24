@@ -6,8 +6,8 @@ import Link from '@/components/custom-ui/Link'
 import MenuAvatar from '@/components/MenuAvatar'
 import TimeAgo from 'timeago-react'
 import type { Blog } from '@/types/blog'
-import type { User } from '@/types/user'
-import { getUserById } from '@/client-side/user'
+import type { Star } from '@/types/star'
+import { getStarById } from '@/client-side/star'
 import { getIcon } from '@/components/icon'
 import { cn } from '@/lib/utils'
 
@@ -17,7 +17,7 @@ interface BlogPanelProps extends Blog {
 
 const BlogPanel: React.FC<BlogPanelProps> = (blog) => {
     const [blogData, setBlogData] = useState<Blog>(blog)
-    const [authorUser, setAuthorUser] = useState<User | null>(null)
+    const [authorUser, setAuthorUser] = useState<Star | null>(null)
     const [isLoadingAuthor, setIsLoadingAuthor] = useState(false)
 
     // Update blogData when blog prop changes
@@ -29,7 +29,7 @@ const BlogPanel: React.FC<BlogPanelProps> = (blog) => {
     useEffect(() => {
         if (blogData.author) {
             setIsLoadingAuthor(true)
-            getUserById(blogData.author)
+            getStarById(blogData.author)
                 .then((userData) => {
                     if (userData) {
                         setAuthorUser(userData)
@@ -134,7 +134,6 @@ const BlogPanel: React.FC<BlogPanelProps> = (blog) => {
                                     <span className="text-sm">By</span>
                                     <MenuAvatar
                                         src={authorUser?.src}
-                                        uri={authorUser?.uri}
                                         className="w-8 h-8"
                                     />
                                     <span className="text-sm font-medium">

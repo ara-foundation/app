@@ -7,7 +7,7 @@ import {
   updatePersonalization,
   deletePersonalization,
 } from '@/server-side/personalization';
-import { getUserByEmail } from '@/server-side/user';
+import { getStarByEmail } from '@/server-side/star';
 
 export const server = {
   /**
@@ -52,7 +52,7 @@ export const server = {
     }),
     handler: async ({ context, code, prompt, uris, email, personalizationId }) => {
       try {
-        const user = await getUserByEmail(email);
+        const user = await getStarByEmail(email);
         if (!user || !user._id) {
           return {
             success: false,
@@ -112,7 +112,7 @@ export const server = {
     }),
     handler: async ({ context, email }) => {
       try {
-        const user = await getUserByEmail(email);
+        const user = await getStarByEmail(email);
         if (!user || !user._id) {
           return {
             success: false,

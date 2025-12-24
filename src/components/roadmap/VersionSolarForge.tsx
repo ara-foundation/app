@@ -7,8 +7,8 @@ import NumberFlow from '@number-flow/react'
 import { ROADMAP_EVENT_TYPES, type VersionReleasedEventDetail } from '@/types/roadmap'
 import { solarForgeByVersion } from '@/client-side/all-stars'
 import type { SolarForgeByVersionResult, SolarUser } from '@/types/all-stars'
-import { getUserById } from '@/client-side/user'
-import type { User } from '@/types/user'
+import { getStarById } from '@/client-side/star'
+import type { User } from '@/types/star'
 import MenuAvatar from '@/components/MenuAvatar'
 import { cn } from '@/lib/utils'
 import confetti from 'canvas-confetti'
@@ -53,7 +53,7 @@ const VersionSolarForge: React.FC = () => {
 
                 // Fetch user data for each solar user
                 const userPromises = forgeResult.users.map(async (solarUser: SolarUser) => {
-                    const user = await getUserById(solarUser.id)
+                    const user = await getStarById(solarUser.id)
                     return user ? { ...user, earnedStars: solarUser.stars, roles: solarUser.roles } : null
                 })
 

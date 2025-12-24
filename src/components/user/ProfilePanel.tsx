@@ -4,29 +4,27 @@ import Link from '@/components/custom-ui/Link'
 import { FaGithub, FaLinkedin, FaTelegram } from 'react-icons/fa'
 import { getIcon } from '@/components/icon'
 import { BasePanel } from '@/components/panel'
-import type { User } from '@/types/user'
+import type { Star } from '@/types/star'
 import type { Galaxy } from '@/types/galaxy'
 import NumberFlow from '@number-flow/react'
 import { cn } from '@/lib/utils'
 
 
 
-interface UserProfilePanelProps {
-    user: User
+interface ProfilePanelProps {
+    user: Star
     galaxies: Galaxy[]
 }
 
 // 5-pointed star clip-path polygon
 const starClipPath = 'polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%)'
 
-const UserProfilePanel: React.FC<UserProfilePanelProps> = ({ user, galaxies }) => {
+const ProfilePanel: React.FC<ProfilePanelProps> = ({ user, galaxies }) => {
     const defaultSrc = 'https://api.backdropbuild.com/storage/v1/object/public/avatars/9nFM8HasgS.jpeg'
     const defaultAlt = 'Avatar'
 
-    // Extract social links from user (if stored) or use defaults
-    const socialLinks = [
-        user.uri?.includes('github') ? { type: 'github' as const, url: user.uri } : null,
-    ].filter(Boolean) as Array<{ type: 'github' | 'linkedin' | 'telegram'; url: string }>
+    // Social links removed - no longer stored in Star model
+    const socialLinks: Array<{ type: 'github' | 'linkedin' | 'telegram'; url: string }> = []
 
     const getSocialIcon = (type: 'github' | 'linkedin' | 'telegram') => {
         switch (type) {
@@ -69,7 +67,7 @@ const UserProfilePanel: React.FC<UserProfilePanelProps> = ({ user, galaxies }) =
                     >
                         <img
                             src={user.src || defaultSrc}
-                            alt={user.alt || defaultAlt || user.nickname || 'User avatar'}
+                            alt={defaultAlt || user.nickname || 'Star avatar'}
                             className="w-full h-full object-cover"
                         />
                     </div>
@@ -171,5 +169,5 @@ const UserProfilePanel: React.FC<UserProfilePanelProps> = ({ user, galaxies }) =
     )
 }
 
-export default UserProfilePanel
+export default ProfilePanel
 

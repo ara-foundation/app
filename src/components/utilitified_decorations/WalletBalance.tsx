@@ -19,7 +19,7 @@ const WalletBalance: React.FC<Props> = ({ className, balance = 0 }) => {
       }
     >
       <div className={`flex items-center gap-2 ${className || ''}`}>
-        <Link uri='/user/balance' className={`hover:bg-teal-300 bg-blue-200 dark:bg-blue-400 rounded-full h-6 w-6 flex items-center justify-center`}>
+        <Link uri='/star/balance' className={`hover:bg-teal-300 bg-blue-200 dark:bg-blue-400 rounded-full h-6 w-6 flex items-center justify-center`}>
           {getIcon({ iconType: 'wallet', width: 'w-4', height: 'h-4', className: 'text-blue-700 dark:text-blue-900' })}
         </Link>
         <NumberFlow

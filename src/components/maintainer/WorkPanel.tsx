@@ -7,9 +7,9 @@ import { HTML5Backend } from "react-dnd-html5-backend";
 import { getIcon } from '../icon';
 import { getDemo } from '@/client-side/demo'
 import { DEMO_EVENT_TYPES } from '@/types/demo'
-import { getUserById } from '@/client-side/user'
+import { getStarById } from '@/client-side/star'
 import { updateIssue } from '@/client-side/issue'
-import type { User } from '@/types/user'
+import type { Star } from '@/types/star'
 import { ISSUE_EVENT_TYPES, IssueTabKey } from '@/types/issue'
 
 interface WorkPanelProps {
@@ -17,7 +17,7 @@ interface WorkPanelProps {
 }
 
 const C: React.FC<WorkPanelProps> = ({ galaxyId }) => {
-  const [, setCurrentUser] = useState<User | null>(null);
+  const [, setCurrentUser] = useState<Star | null>(null);
   const [isMaintainer, setIsMaintainer] = useState(false);
   const [activeTab, setActiveTab] = useState<IssueTabKey>(IssueTabKey.SHINING);
 
@@ -28,7 +28,7 @@ const C: React.FC<WorkPanelProps> = ({ galaxyId }) => {
       if (demo.email && demo.users && demo.role) {
         const user = demo.users.find(u => u.role === demo.role) || demo.users[0];
         if (user && user._id) {
-          const userData = await getUserById(user._id.toString());
+          const userData = await getStarById(user._id.toString());
           if (userData) {
             setCurrentUser(userData);
             setIsMaintainer(userData.role === 'maintainer');

@@ -12,20 +12,20 @@ const blogIdParam = Astro.url.searchParams.get("id");
 
 // Validate blog ID
 if (!blogIdParam) {
-    return Astro.redirect("/user/404?method=getBlogIdParam");
+    return Astro.redirect("/star/404?method=getBlogIdParam");
 }
 
 // Validate ObjectId format
 try {
     new ObjectId(blogIdParam);
 } catch (error) {
-    return Astro.redirect("/user/404?method=validateBlogId");
+    return Astro.redirect("/star/404?method=validateBlogId");
 }
 
 // Fetch blog from database
 const blog = await getBlogById(blogIdParam);
 if (!blog) {
-    return Astro.redirect("/user/404?method=getBlogById");
+    return Astro.redirect("/star/404?method=getBlogById");
 }
 ---
 

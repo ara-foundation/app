@@ -1,5 +1,5 @@
 import { type UserStar as UserStarData } from '@/types/all-stars';
-import type { User } from '@/types/user';
+import type { User } from '@/types/star';
 import type { ReceiverInfoProps } from '@/components/maintainer/ReceiverInfo';
 
 export const mockUser: User = {

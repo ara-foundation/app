@@ -1,7 +1,7 @@
 import { actions } from 'astro:actions';
 import type { Transaction } from '@/types/transaction';
 import type { Donation } from '@/types/crypto-sockets';
-import { getUserById } from './user';
+import { getStarById } from './user';
 import { mockTransactionReceivers } from '@/types/mock-data';
 import type { ReceiverInfoProps } from '@/types/transaction';
 
@@ -23,8 +23,8 @@ export async function getDonations(galaxyId: string): Promise<Transaction[]> {
 
         // Convert each donation to a transaction
         for (const donation of donations) {
-            // Fetch user info
-            const user = await getUserById(donation.userId);
+            // Fetch star info
+            const user = await getStarById(donation.userId);
             if (!user) {
                 // Skip if user not found
                 continue;

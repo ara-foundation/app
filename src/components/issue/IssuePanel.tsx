@@ -20,9 +20,9 @@ import TimeAgo from 'timeago-react'
 import YourBadge from '../badge/YourBadge'
 import EditableBadge from '../badge/EditableBadge'
 import { actions as astroActions } from 'astro:actions'
-import type { User } from '@/types/user'
+import type { Star } from '@/types/star'
 import { getDemo } from '@/client-side/demo'
-import { getUserById } from '@/client-side/user'
+import { getStarById } from '@/client-side/star'
 import { ISSUE_EVENT_TYPES } from '@/types/issue'
 import { TheaterIcon } from 'lucide-react'
 
@@ -52,27 +52,27 @@ const IssueContentPanel: React.FC<IssueContentPanelProps> = ({
   // Check if this is a shining issue (has sunshines > 0)
   const isShiningIssue = issueData.sunshines > 0
 
-  // State for author user data
-  const [authorUser, setAuthorUser] = useState<User | null>(null)
+  // State for author star data
+  const [authorUser, setAuthorUser] = useState<Star | null>(null)
   const [isLoadingAuthor, setIsLoadingAuthor] = useState(false)
 
-  // State for contributor user data
-  const [contributorUser, setContributorUser] = useState<User | null>(null)
+  // State for contributor star data
+  const [contributorUser, setContributorUser] = useState<Star | null>(null)
   const [isLoadingContributor, setIsLoadingContributor] = useState(false)
 
-  // State for maintainer user data
-  const [maintainerUser, setMaintainerUser] = useState<User | null>(null)
+  // State for maintainer star data
+  const [maintainerUser, setMaintainerUser] = useState<Star | null>(null)
   const [isLoadingMaintainer, setIsLoadingMaintainer] = useState(false)
 
-  // State for current user
-  const [currentUser, setCurrentUser] = useState<User | null>(null)
+  // State for current star
+  const [currentUser, setCurrentUser] = useState<Star | null>(null)
 
   // Fetch author user data from issue.author (string ID)
   useEffect(() => {
     if (issueData.author && typeof issueData.author === 'string') {
       setIsLoadingAuthor(true)
-      astroActions.getUserById({ userId: issueData.author })
-        .then((result: { data?: { success?: boolean; data?: User; error?: string } }) => {
+      astroActions.getStarById({ starId: issueData.author })
+        .then((result: { data?: { success?: boolean; data?: Star; error?: string } }) => {
           if (result.data?.success && result.data.data) {
             setAuthorUser(result.data.data)
           }
@@ -92,8 +92,8 @@ const IssueContentPanel: React.FC<IssueContentPanelProps> = ({
   useEffect(() => {
     if (issueData.contributor && typeof issueData.contributor === 'string') {
       setIsLoadingContributor(true)
-      astroActions.getUserById({ userId: issueData.contributor })
-        .then((result: { data?: { success?: boolean; data?: User; error?: string } }) => {
+      astroActions.getStarById({ starId: issueData.contributor })
+        .then((result: { data?: { success?: boolean; data?: Star; error?: string } }) => {
           if (result.data?.success && result.data.data) {
             setContributorUser(result.data.data)
           }
@@ -113,8 +113,8 @@ const IssueContentPanel: React.FC<IssueContentPanelProps> = ({
   useEffect(() => {
     if (issueData.maintainer && typeof issueData.maintainer === 'string') {
       setIsLoadingMaintainer(true)
-      astroActions.getUserById({ userId: issueData.maintainer })
-        .then((result: { data?: { success?: boolean; data?: User; error?: string } }) => {
+      astroActions.getStarById({ starId: issueData.maintainer })
+        .then((result: { data?: { success?: boolean; data?: Star; error?: string } }) => {
           if (result.data?.success && result.data.data) {
             setMaintainerUser(result.data.data)
           }
@@ -136,7 +136,7 @@ const IssueContentPanel: React.FC<IssueContentPanelProps> = ({
     if (demo.email && demo.users && demo.role) {
       const user = demo.users.find(u => u.role === demo.role) || demo.users[0]
       if (user && user._id) {
-        getUserById(user._id.toString())
+        getStarById(user._id.toString())
           .then((userData) => {
             if (userData) {
               setCurrentUser(userData)
@@ -414,7 +414,6 @@ const IssueContentPanel: React.FC<IssueContentPanelProps> = ({
                     ) : (
                       <MenuAvatar
                         src={contributorUser.src}
-                        uri={contributorUser.uri}
                         className='w-7! h-7!'
                       />
                     )}
@@ -442,7 +441,6 @@ const IssueContentPanel: React.FC<IssueContentPanelProps> = ({
                     ) : (
                       <MenuAvatar
                         src={authorUser.src}
-                        uri={authorUser.uri}
                         className='w-7! h-7!'
                       />
                     )}

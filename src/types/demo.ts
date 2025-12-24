@@ -1,4 +1,4 @@
-import type { Roles, User } from "@/types/user"
+import type { Roles, Star } from "@/types/star"
 import { ObjectId } from "mongodb"
 
 export interface DemoModel {
@@ -47,7 +47,7 @@ export const DEMO_EVENT_TYPES = {
 // Event types
 export interface DemoUserCreatedEvent {
     email: string
-    users: User[]
+    users: Star[]
     role: Roles
 }
 

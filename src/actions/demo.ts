@@ -3,15 +3,15 @@ import { z } from 'astro:schema'
 import { ObjectId } from 'mongodb'
 import { Wallet } from 'ethers'
 import { getDemoByEmail, createDemo, updateDemoStep } from '@/server-side/demo'
-import { emailToNickname, createUsers, getUserByIds, getUserById, updateUserSunshines } from '@/server-side/user'
+import { emailToNickname, createStars, getStarByIds, getStarById, updateStarSunshines } from '@/server-side/star'
 import { getGalaxyById, updateGalaxySunshines } from '@/server-side/galaxy'
 import { processPayment } from '@/server-side/crypto-sockets'
-import type { User, Roles } from '@/types/user'
+import type { Star, Roles } from '@/types/star'
 
 /**
  * Generate a random user with profile picture from DiceBear
  */
-function generateRandomUser(role: Roles, index: number, email: string): User {
+function generateRandomStar(role: Roles, index: number, email: string): Star {
     const randomSeed = `${role}-${index}-${Date.now()}-${Math.random()}`
     const avatarUrl = `https://api.dicebear.com/9.x/avataaars/svg?seed=${randomSeed}&size=256`
 
@@ -33,8 +33,6 @@ function generateRandomUser(role: Roles, index: number, email: string): User {
 
     return {
         src: avatarUrl,
-        alt: `${role} avatar`,
-        uri: '/user?email=' + email,
         nickname: randomName.replace(' ', '-').toLowerCase(),
         email: email,
         sunshines: 0,
@@ -47,33 +45,31 @@ function generateRandomUser(role: Roles, index: number, email: string): User {
 /**
  * Create three demo users with different roles
  */
-async function generateDemoUsers(email: string): Promise<User[]> {
-    // Generate private keys for each user
+async function generateDemoStars(email: string): Promise<Star[]> {
+    // Generate private keys for each star
     const wallet1 = Wallet.createRandom()
     const wallet2 = Wallet.createRandom()
     const wallet3 = Wallet.createRandom()
 
-    const users = [{
+    const stars = [{
         email,
         role: 'user',
         nickname: emailToNickname(email),
         src: `https://api.dicebear.com/9.x/avataaars/svg?seed=${email}&size=256`,
-        alt: 'Donator avatar',
-        uri: '/user?email=' + emailToNickname(email),
         demoPrivateKey: wallet1.privateKey,
-    } as User,
+    } as Star,
     {
-        ...generateRandomUser('maintainer', 1, email + '.m'),
+        ...generateRandomStar('maintainer', 1, email + '.m'),
         demoPrivateKey: wallet2.privateKey,
-    } as User,
+    } as Star,
     {
-        ...generateRandomUser('contributor', 2, email + '.c'),
+        ...generateRandomStar('contributor', 2, email + '.c'),
         demoPrivateKey: wallet3.privateKey,
-    } as User
+    } as Star
     ]
-    const createdIds = await createUsers(users)
+    const createdIds = await createStars(stars)
     return createdIds.map((id, index) => ({
-        ...users[index],
+        ...stars[index],
         _id: id,
     }))
 
@@ -85,24 +81,24 @@ export const server = {
         input: z.object({
             email: z.string().email(),
         }),
-        handler: async ({ email }): Promise<{ success: boolean; users?: User[]; error?: string }> => {
+        handler: async ({ email }): Promise<{ success: boolean; users?: Star[]; error?: string }> => {
             try {
                 // Check if demo exists
                 const existingDemo = await getDemoByEmail(email)
 
                 if (existingDemo) {
-                    // Return existing users
-                    const users = await getUserByIds(existingDemo.users)
+                    // Return existing stars
+                    const stars = await getStarByIds(existingDemo.users)
                     // Convert ObjectId to string for serialization
                     return {
                         success: true,
-                        users: users,
+                        users: stars,
                     }
                 }
 
-                // Create new demo with three users
-                const users = await generateDemoUsers(email)
-                const created = await createDemo(email, users.map(user => new ObjectId(user._id!)))
+                // Create new demo with three stars
+                const stars = await generateDemoStars(email)
+                const created = await createDemo(email, stars.map(star => new ObjectId(star._id!)))
 
                 if (!created) {
                     return {
@@ -186,12 +182,12 @@ export const server = {
                     }
                 }
 
-                // Get user
-                const user = await getUserById(userId)
-                if (!user) {
+                // Get star
+                const star = await getStarById(userId)
+                if (!star) {
                     return {
                         success: false,
-                        error: 'User not found',
+                        error: 'Star not found',
                     }
                 }
 
@@ -208,12 +204,12 @@ export const server = {
                 // Convert $50 to sunshines
                 const sunshinesAmount = donationAmount * 1.8
 
-                // Update user sunshines
-                const userUpdated = await updateUserSunshines(userId, sunshinesAmount)
-                if (!userUpdated) {
+                // Update star sunshines
+                const starUpdated = await updateStarSunshines(userId, sunshinesAmount)
+                if (!starUpdated) {
                     return {
                         success: false,
-                        error: 'Failed to update user sunshines',
+                        error: 'Failed to update star sunshines',
                     }
                 }
 

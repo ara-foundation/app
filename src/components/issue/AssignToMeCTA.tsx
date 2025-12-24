@@ -4,11 +4,11 @@ import Tooltip from '@/components/custom-ui/Tooltip';
 import MenuAvatar from '@/components/MenuAvatar';
 import DemoAuthPanel from '@/components/demo/DemoAuthPanel';
 import { getDemo } from '@/client-side/demo';
-import { getUserById } from '@/client-side/user';
+import { getStarById } from '@/client-side/star';
 import { getIssueById, setContributor, unsetContributor } from '@/client-side/issue';
 import { cn } from '@/lib/utils';
 import { ISSUE_EVENT_TYPES } from '@/types/issue';
-import type { User } from '@/types/user';
+import type { Star } from '@/types/star';
 import type { Issue } from '@/types/issue';
 
 interface AssignToMeCTAProps {
@@ -41,7 +41,7 @@ const AssignToMeCTA: React.FC<AssignToMeCTAProps> = ({ issueId }) => {
             if (demo.email && demo.users && demo.role) {
                 const user = demo.users.find(u => u.role === demo.role) || demo.users[0];
                 if (user && user._id) {
-                    const userData = await getUserById(user._id.toString());
+                    const userData = await getStarById(user._id.toString());
                     if (userData) {
                         setCurrentUser(userData);
                         setIsMaintainer(userData.role === 'maintainer');
@@ -57,7 +57,7 @@ const AssignToMeCTA: React.FC<AssignToMeCTAProps> = ({ issueId }) => {
     useEffect(() => {
         if (issue?.contributor && typeof issue.contributor === 'string') {
             setIsLoadingContributor(true);
-            getUserById(issue.contributor)
+            getStarById(issue.contributor)
                 .then((userData) => {
                     if (userData) {
                         setContributorUser(userData);
@@ -168,7 +168,6 @@ const AssignToMeCTA: React.FC<AssignToMeCTAProps> = ({ issueId }) => {
                         ) : (
                             <MenuAvatar
                                 src={contributorUser.src}
-                                uri={contributorUser.uri}
                                 className='w-6! h-6!'
                             />
                         )}

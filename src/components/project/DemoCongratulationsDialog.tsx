@@ -4,11 +4,11 @@ import Link from '@/components/custom-ui/Link'
 import Button from '@/components/custom-ui/Button'
 import { getIcon } from '@/components/icon'
 import { cn } from '@/lib/utils'
-import type { User } from '@/types/user'
+import type { Star } from '@/types/star'
 
 interface DemoCongratulationsDialogProps {
   isOpen: boolean
-  users: User[]
+  users: Star[]
   onClose: () => void
 }
 
@@ -43,7 +43,7 @@ const DemoCongratulationsDialog: React.FC<DemoCongratulationsDialogProps> = ({
                 >
                   <img
                     src={user.src}
-                    alt={user.alt || user.nickname}
+                    alt={user.nickname || 'Avatar'}
                     className="w-32 h-32 rounded-full mb-2"
                   />
                   <div className="text-center">

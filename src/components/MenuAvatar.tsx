@@ -3,7 +3,7 @@ import Link from '@/components/custom-ui/Link'
 import Tooltip from './custom-ui/Tooltip'
 import NumberFlow from '@number-flow/react'
 import { getIcon } from './icon'
-import { Roles, type User } from '@/types/user'
+import { Roles, type Star } from '@/types/star'
 import { cn } from '@/lib/utils'
 
 interface MenuAvatarProps {
@@ -16,7 +16,7 @@ interface MenuAvatarProps {
   sunshines?: number
   stars?: number
   role?: Roles
-  user?: User // Accept User object as alternative to individual props
+  user?: Star // Accept Star object as alternative to individual props
 }
 
 const MenuAvatar: React.FC<MenuAvatarProps> = ({
@@ -24,16 +24,16 @@ const MenuAvatar: React.FC<MenuAvatarProps> = ({
   alt,
   className,
   imgClassName = '',
-  uri = '/user',
+  uri = '/star',
   nickname = 'Ahmetson',
   sunshines,
   stars,
   role,
   user
 }) => {
-  // Use user object if provided, otherwise fall back to individual props
+  // Use star object if provided, otherwise fall back to individual props
   const finalSrc = user?.src || src
-  const finalAlt = user?.alt || alt
+  const finalAlt = alt || 'Avatar'
   const finalNickname = user?.nickname || nickname
   const finalSunshines = user?.sunshines ?? sunshines
   const finalStars = user?.stars ?? stars

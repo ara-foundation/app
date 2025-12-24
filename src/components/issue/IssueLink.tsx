@@ -10,12 +10,12 @@ import MenuAvatar from '../MenuAvatar'
 import TimeAgo from 'timeago-react';
 import { ActionProps } from '@/types/eventTypes'
 import PanelAction from '../panel/PanelAction'
-import type { User } from '@/types/user'
+import type { Star } from '@/types/star'
 import { Spinner } from '@/components/ui/shadcn-io/spinner'
 import SunshinesPopover from './SunshinesPopover'
 import { getDemo } from '@/client-side/demo'
 import { updateIssueSunshines } from '@/client-side/issue'
-import { getUserById } from '@/client-side/user'
+import { getStarById } from '@/client-side/star'
 import Tooltip from '../custom-ui/Tooltip'
 import { TheaterIcon } from 'lucide-react'
 
@@ -30,9 +30,9 @@ interface IssueLinkProps extends Issue {
 }
 
 const IssueLinkPanel4: React.FC<IssueLinkProps> = (issue) => {
-  const [authorUser, setAuthorUser] = useState<User | null>(null);
+  const [authorUser, setAuthorUser] = useState<Star | null>(null);
   const [isLoadingAuthor, setIsLoadingAuthor] = useState(false);
-  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [currentUser, setCurrentUser] = useState<Star | null>(null);
   const [availableSunshines, setAvailableSunshines] = useState(0);
   const [, setIsUpdating] = useState(false);
 
@@ -48,7 +48,7 @@ const IssueLinkPanel4: React.FC<IssueLinkProps> = (issue) => {
   useEffect(() => {
     if (issue.author && typeof issue.author === 'string') {
       setIsLoadingAuthor(true);
-      getUserById(issue.author)
+      getStarById(issue.author)
         .then((userData) => {
           if (userData) {
             setAuthorUser(userData);
@@ -70,7 +70,7 @@ const IssueLinkPanel4: React.FC<IssueLinkProps> = (issue) => {
       if (demo.email && demo.users && demo.role) {
         const user = demo.users.find(u => u.role === demo.role) || demo.users[0];
         if (user && user._id) {
-          getUserById(user._id.toString())
+          getStarById(user._id.toString())
             .then((userData) => {
               if (userData) {
                 setCurrentUser(userData);
@@ -110,7 +110,7 @@ const IssueLinkPanel4: React.FC<IssueLinkProps> = (issue) => {
       if (success) {
         // Also update available sunshines
         if (currentUser._id) {
-          const updatedUser = await getUserById(currentUser._id.toString());
+          const updatedUser = await getStarById(currentUser._id.toString());
           if (updatedUser) {
             setAvailableSunshines(updatedUser.sunshines || 0);
           }

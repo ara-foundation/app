@@ -1,24 +1,23 @@
 export type Roles = 'user' | 'maintainer' | 'contributor'
 
-export interface User {
+export interface Star {
     _id?: string
     email?: string
     src?: string
-    alt?: string
-    uri?: string
     nickname?: string
     sunshines?: number
     stars?: number
     role?: Roles
     balance?: number
     demoPrivateKey?: string
+    userId?: string // Reference to better-auth User id (ObjectId as string)
 }
 
-export const USER_EVENT_TYPES = {
-    USER_UPDATE: 'user-update',
+export const STAR_EVENT_TYPES = {
+    STAR_UPDATE: 'star-update',
 } as const
 
-export interface UserUpdateEventDetail {
-    user: User
+export interface StarUpdateEventDetail {
+    star: Star
 }
 

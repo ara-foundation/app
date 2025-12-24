@@ -5,7 +5,7 @@ import type { Blog } from '@/types/blog';
 // Server-side BlogModel (uses ObjectId)
 export interface BlogModel {
     _id?: ObjectId;
-    author: ObjectId; // Reference to UserModel
+    author: ObjectId; // Reference to StarModel
     title: string;
     content: string; // Markdown content
     description?: string; // Meta description

@@ -19,7 +19,7 @@ interface VersionModel {
     createdTime: Date;
     status: 'complete' | 'testing' | 'release' | 'archived';
     patches: PatchModel[];
-    maintainer: ObjectId; // Reference to UserModel
+    maintainer: ObjectId; // Reference to StarModel
 }
 
 // Serialization functions

@@ -4,9 +4,9 @@ import GalaxyLayout from "@/layouts/GalaxyLayout.astro";
 import { MenuName } from "@/components/navbar/WorkNavbar.astro";
 import BackButton from "@/components/custom-ui/BackButton";
 import GalaxyAutoZoom from "@/components/all-stars/GalaxyAutoZoom";
-import UserProfileWithBlogs from "@/components/user/UserProfileWithBlogs";
+import ProfileWithBlogs from "@/components/user/ProfileWithBlogs";
 import CreateBlogCTA from "@/components/blog/CreateBlogCTA";
-import { getUserById, getUserByEmail } from "@/server-side/user";
+import { getStarById, getStarByEmail } from "@/server-side/star";
 import { getGalaxiesByMaintainer } from "@/server-side/galaxy";
 import { getBlogsByAuthor } from "@/server-side/blog";
 import { mockUserStars } from "@/types/mock-data";
@@ -17,28 +17,28 @@ const userEmailParam = Astro.url.searchParams.get("email");
 
 let user = null;
 
-// Try to get user by ID or email
+// Try to get star by ID or email
 if (userIdParam) {
-    console.log("user id param", userIdParam);
-    user = await getUserById(userIdParam);
-    console.log("user by id", user);
+    console.log("star id param", userIdParam);
+    user = await getStarById(userIdParam);
+    console.log("star by id", user);
 } else if (userEmailParam) {
-    user = await getUserByEmail(userEmailParam);
-    console.log("user by email", user);
+    user = await getStarByEmail(userEmailParam);
+    console.log("star by email", user);
 } else {
-    // Try to get current user from demo cookies (server-side fallback)
+    // Try to get current star from demo cookies (server-side fallback)
     const demoEmail = Astro.cookies.get("demo-email")?.value;
     if (demoEmail) {
-        user = await getUserByEmail(demoEmail);
-        console.log("user by demo email", user);
+        user = await getStarByEmail(demoEmail);
+        console.log("star by demo email", user);
     } else {
-        console.log("no user found");
+        console.log("no star found");
     }
 }
 
 // If no user found, redirect to 404
 if (!user) {
-    return Astro.redirect("/user/404");
+    return Astro.redirect("/star/404");
 }
 
 // Get user's galaxies (where user is maintainer)
@@ -81,7 +81,7 @@ const userY =
 >
     <BackButton slot="left" client:load />
 
-    <UserProfileWithBlogs
+    <ProfileWithBlogs
         slot="center"
         user={user}
         galaxies={userGalaxies}

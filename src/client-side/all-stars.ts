@@ -1,9 +1,9 @@
 import { actions } from 'astro:actions';
 import type { AllStarStats, SolarForgeByIssueResult, SolarForgeByVersionResult, UserStar } from '@/types/all-stars';
 import { ISSUE_EVENT_TYPES } from '@/types/issue';
-import { USER_EVENT_TYPES } from '@/types/user';
+import { STAR_EVENT_TYPES } from '@/types/star';
 import { getIssueById } from './issue';
-import { getUserById } from './user';
+import { getStarById } from './user';
 
 /**
  * Get all star stats (read-only, no event)
@@ -96,8 +96,8 @@ export async function updateUserStarPosition(params: { galaxyId: string; userId:
 //             for (const solarUser of result.data.users) {
 //                 const user = await getUserById(solarUser.id);
 //                 if (user) {
-//                     window.dispatchEvent(new CustomEvent(USER_EVENT_TYPES.USER_UPDATE, {
-//                         detail: { user },
+//                     window.dispatchEvent(new CustomEvent(STAR_EVENT_TYPES.STAR_UPDATE, {
+//                         detail: { star: user },
 //                     }));
 //                 }
 //             }

@@ -1,7 +1,7 @@
 import { defineAction } from 'astro:actions'
 import { z } from 'astro:schema'
 import { getDemoByEmail } from '@/server-side/demo'
-import { getUserById, updateUserSunshines, getUserByIds } from '@/server-side/user'
+import { getStarById, updateStarSunshines, getStarByIds } from '@/server-side/star'
 import { getGalaxyById, updateGalaxySunshines } from '@/server-side/galaxy'
 import { getIssuesByGalaxy, getShiningIssues, getPublicBacklogIssues, createIssue, updateIssueSunshines, getIssueById, setIssueContributor, unsetIssueContributor, updateIssue, patchIssue, unpatchIssue } from '@/server-side/issue'
 import type { Issue, IssueUser, IssueStat, IssueStatType } from '@/types/issue'
@@ -169,7 +169,7 @@ export const server = {
                 }
 
                 // Get current user
-                const user = await getUserById(userId);
+                const user = await getStarById(userId);
                 if (!user) {
                     return {
                         success: false,
@@ -188,7 +188,7 @@ export const server = {
                     }
 
                     // Deduct sunshines from user
-                    const userUpdated = await updateUserSunshines(userId, -sunshines);
+                    const userUpdated = await updateStarSunshines(userId, -sunshines);
                     if (!userUpdated) {
                         return {
                             success: false,
@@ -200,7 +200,7 @@ export const server = {
                     const galaxyUpdated = await updateGalaxySunshines(galaxyId, sunshines);
                     if (!galaxyUpdated) {
                         // Rollback user sunshines if galaxy update fails
-                        await updateUserSunshines(userId, sunshines);
+                        await updateStarSunshines(userId, sunshines);
                         return {
                             success: false,
                             error: 'Failed to update galaxy sunshines',
@@ -230,7 +230,7 @@ export const server = {
                 if (!created) {
                     // Rollback sunshines if issue creation fails
                     if (sunshines > 0) {
-                        await updateUserSunshines(userId, sunshines);
+                        await updateStarSunshines(userId, sunshines);
                         await updateGalaxySunshines(galaxyId, -sunshines);
                     }
                     return {
@@ -272,7 +272,7 @@ export const server = {
                 }
 
                 // Get current user
-                const user = await getUserById(userId);
+                const user = await getStarById(userId);
                 if (!user) {
                     return {
                         success: false,
@@ -290,7 +290,7 @@ export const server = {
                 }
 
                 // Deduct sunshines from user
-                const userUpdated = await updateUserSunshines(userId, -sunshinesToAdd);
+                const userUpdated = await updateStarSunshines(userId, -sunshinesToAdd);
                 if (!userUpdated) {
                     return {
                         success: false,
@@ -312,7 +312,7 @@ export const server = {
                 const issueUpdated = await updateIssueSunshines(issueId, userId, username, sunshinesToAdd);
                 if (!issueUpdated) {
                     // Rollback user sunshines if issue update fails
-                    await updateUserSunshines(userId, sunshinesToAdd);
+                    await updateStarSunshines(userId, sunshinesToAdd);
                     return {
                         success: false,
                         error: 'Failed to update issue sunshines',
@@ -323,7 +323,7 @@ export const server = {
                 const galaxyUpdated = await updateGalaxySunshines(issue.galaxy, sunshinesToAdd);
                 if (!galaxyUpdated) {
                     // Rollback user and issue sunshines if galaxy update fails
-                    await updateUserSunshines(userId, sunshinesToAdd);
+                    await updateStarSunshines(userId, sunshinesToAdd);
                     // Note: We'd need to rollback issue sunshines too, but for simplicity we'll just log
                     console.error('Failed to update galaxy sunshines, but issue was updated');
                 }
@@ -359,7 +359,7 @@ export const server = {
                 }
 
                 // Get current user
-                const user = await getUserById(userId);
+                const user = await getStarById(userId);
                 if (!user) {
                     return {
                         success: false,
@@ -441,11 +441,11 @@ export const server = {
                     };
                 }
 
-                // Verify user is maintainer (check if any demo user is maintainer)
-                const maintainerUser = await getUserById(issue.maintainer);
+                // Verify star is maintainer (check if any demo star is maintainer)
+                const maintainerUser = await getStarById(issue.maintainer);
                 if (!maintainerUser || maintainerUser.role !== 'maintainer') {
-                    // Check if any demo user is maintainer
-                    const demoUsers = await getUserByIds(demo.users);
+                    // Check if any demo star is maintainer
+                    const demoUsers = await getStarByIds(demo.users);
                     const isMaintainer = demoUsers.some(u => u.role === 'maintainer');
                     if (!isMaintainer) {
                         return {

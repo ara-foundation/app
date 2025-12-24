@@ -1,7 +1,7 @@
 import { Collection, ObjectId } from 'mongodb'
 import { Wallet } from 'ethers'
 import { getCollection } from '../server-side/db'
-import { getOrCreateUserByEmail, getUserByEmail } from '../server-side/user'
+import { getOrCreateStarByEmail, getStarByEmail } from '../server-side/user'
 import { createGalaxy, getAllGalaxies } from '../server-side/galaxy'
 import { getOrCreateProject, getProjectById } from '../server-side/project'
 import type { Galaxy } from '../types/galaxy'
@@ -89,7 +89,7 @@ const initialGalaxies: Omit<Galaxy, '_id' | 'maintainer' | 'projectLink'>[] = [
  */
 async function ensureUsersHavePrivateKeys(): Promise<void> {
     try {
-        const collection = await getCollection<any>('users')
+        const collection = await getCollection<any>('stars')
         const users = await collection.find({}).toArray()
         let updatedCount = 0
 
@@ -125,7 +125,7 @@ export async function setup(): Promise<void> {
         await ensureUsersHavePrivateKeys()
 
         // Get or create one maintainer of the projects.
-        const maintainerId = await getOrCreateUserByEmail('milayter@gmail.com')
+        const maintainerId = await getOrCreateStarByEmail('milayter@gmail.com')
         console.log(`✅ Maintainer user ID: ${maintainerId}`)
 
         // Step 1: Create projects for each initial galaxy
@@ -223,7 +223,7 @@ async function ensureGalaxiesOnBlockchain(collection: Collection<GalaxyModel>): 
     console.log('🔄 Ensuring galaxies on blockchain...')
     try {
         const galaxies = await getAllGalaxies()
-        const maintainerUser = await getUserByEmail('milayter@gmail.com')
+        const maintainerUser = await getStarByEmail('milayter@gmail.com')
 
         if (!maintainerUser || !maintainerUser._id || !maintainerUser.demoPrivateKey) {
             console.error('Maintainer user not found or missing private key, skipping blockchain setup')

@@ -3,7 +3,7 @@ import { z } from 'astro:schema'
 import { Wallet } from 'ethers'
 import { getAllStarStats, checkSolarForgeByIssue, updateIssueStars, getGalaxySpace, getUserStar as getUserStarFromSpace, upsertSpaceUserStar, updateUserStarPosition as updateUserStarPositionDb, createSpaceTracer } from '@/server-side/all-stars'
 import { getIssueById, updateIssueSolarForgeTxid } from '@/server-side/issue'
-import { updateUserStars, getUserById } from '@/server-side/user'
+import { updateStarStars, getStarById } from '@/server-side/star'
 import { getGalaxyById } from '@/server-side/galaxy'
 import { getVersionById } from '@/server-side/roadmap'
 import type { AllStarStats, SolarForgeByIssueResult, SolarForgeByVersionResult, SolarUser } from '@/types/all-stars'
@@ -91,9 +91,9 @@ async function solarForgeByIssue(issueId: string): Promise<SolarForgeByIssueResu
         const userAddresses: string[] = []
 
         for (const [userId, data] of userMap.entries()) {
-            const userUpdated = await updateUserStars(userId, data.stars)
+            const userUpdated = await updateStarStars(userId, data.stars)
             if (userUpdated) {
-                const user = await getUserById(userId)
+                const user = await getStarById(userId)
                 if (!user) {
                     continue
                 }
@@ -272,7 +272,7 @@ export const server = {
         handler: async ({ galaxyId, userId, x, y }) => {
             try {
                 // Get user to derive Ethereum address
-                const user = await getUserById(userId)
+                const user = await getStarById(userId)
                 if (!user) {
                     console.error(`User ${userId} not found`)
                     return { success: false }
@@ -428,7 +428,7 @@ export const server = {
     //             const solarUsers: SolarUser[] = []
     //             const userIds: string[] = []
     //             for (const [userId, data] of userMap.entries()) {
-    //                 const userUpdated = await updateUserStars(userId, data.stars)
+    //                 const userUpdated = await updateStarStars(userId, data.stars)
     //                 if (userUpdated) {
     //                     solarUsers.push({
     //                         id: userId,
@@ -454,7 +454,7 @@ export const server = {
 
     //             // Broadcast USER_UPDATE events for each updated user
     //             for (const userId of userIds) {
-    //                 const user = await getUserById(userId)
+    //                 const user = await getStarById(userId)
     //                 if (user) {
     //                     // Note: Events are typically handled client-side
     //                     // The client will listen and update accordingly

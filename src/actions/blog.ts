@@ -2,7 +2,7 @@ import { defineAction } from 'astro:actions'
 import { z } from 'astro:schema'
 import { createBlog, getBlogById, getBlogsByAuthor, getAllBlogs } from '@/server-side/blog'
 import { getDemoByEmail } from '@/server-side/demo'
-import { getUserById } from '@/server-side/user'
+import { getStarById } from '@/server-side/star'
 import type { Blog } from '@/types/blog'
 
 export const server = {
@@ -30,17 +30,17 @@ export const server = {
                     };
                 }
 
-                // Get current user
-                const user = await getUserById(userId);
-                if (!user) {
+                // Get current star
+                const star = await getStarById(userId);
+                if (!star) {
                     return {
                         success: false,
-                        error: 'User not found',
+                        error: 'Star not found',
                     };
                 }
 
-                // Validate that user is creating blog for themselves
-                if (user._id?.toString() !== userId) {
+                // Validate that star is creating blog for themselves
+                if (star._id?.toString() !== userId) {
                     return {
                         success: false,
                         error: 'You can only create blog posts for your own account',

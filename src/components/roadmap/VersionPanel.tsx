@@ -12,7 +12,7 @@ import ByAuthor from '../ByAuthor'
 import LoadingSpinner from '../LoadingSpinner'
 import DropTarget from '../DropTarget'
 import type { Version, Patch } from '@/types/roadmap'
-import type { User } from '@/types/user'
+import type { Star } from '@/types/star'
 import type { Issue } from '@/types/issue'
 import MenuAvatar from '../MenuAvatar'
 import { DndProvider, useDrag } from 'react-dnd'
@@ -20,7 +20,7 @@ import { HTML5Backend } from 'react-dnd-html5-backend'
 import { getDemo, incrementDemoStep } from '@/client-side/demo'
 import { type DemoRoleChangeEvent, DEMO_EVENT_TYPES } from '@/types/demo'
 import { getIssueById, updateIssue } from '@/client-side/issue'
-import { getUserById } from '@/client-side/user'
+import { getStarById } from '@/client-side/star'
 import { updatePatches, markPatchTested, removePatch, updateVersionStatus, revertPatch, completePatch, releaseVersion } from '@/client-side/roadmap'
 import { PATCH_EVENT_TYPES, PATCH_KEYWORD } from '@/types/patch'
 import { cn, truncateStr } from '@/lib/utils'
@@ -48,9 +48,9 @@ const ProjectVersionPanel: React.FC<Version> = ({
   const [patchesList, setPatchesList] = useState<Patch[]>(patches)
   const [revertingIssueId, setRevertingIssueId] = useState<string | null>(null)
   const [notificationMessage, setNotificationMessage] = useState<string | null>(null)
-  const [maintainerUser, setMaintainerUser] = useState<User | null>(null)
+  const [maintainerUser, setMaintainerUser] = useState<Star | null>(null)
   const [isLoadingMaintainer, setIsLoadingMaintainer] = useState<boolean>(false)
-  const [currentUser, setCurrentUser] = useState<User | null>(null)
+  const [currentUser, setCurrentUser] = useState<Star | null>(null)
   const [demoRole, setDemoRole] = useState<string | null>(null)
   const [totalSunshines, setTotalSunshines] = useState<number>(0)
   const [isLoadingSunshines, setIsLoadingSunshines] = useState<boolean>(false)
@@ -61,7 +61,7 @@ const ProjectVersionPanel: React.FC<Version> = ({
   useEffect(() => {
     if (maintainer && typeof maintainer === 'string') {
       setIsLoadingMaintainer(true)
-      getUserById(maintainer)
+      getStarById(maintainer)
         .then((userData) => {
           if (userData) {
             setMaintainerUser(userData)
@@ -118,7 +118,7 @@ const ProjectVersionPanel: React.FC<Version> = ({
     }
     const selected = demo.users?.find(u => u.role === demo.role) || demo.users?.[0]
     if (selected?._id) {
-      getUserById(selected._id.toString())
+      getStarById(selected._id.toString())
         .then((userData) => {
           if (userData) {
             setCurrentUser(userData)
@@ -442,9 +442,9 @@ const ProjectVersionPanel: React.FC<Version> = ({
   const MinimalDraggablePatch: React.FC<{ patch: Patch }> = memo(({ patch }) => {
     const [patchCompleted, setPatchCompleted] = useState<boolean>(patch.completed || false)
     const [issue, setIssue] = useState<Issue | null>(null)
-    const [currentUser, setCurrentUser] = useState<User | null>(null)
-    const [contributorUser, setContributorUser] = useState<User | null>(null)
-    const [maintainerUser, setMaintainerUser] = useState<User | null>(null)
+    const [currentUser, setCurrentUser] = useState<Star | null>(null)
+    const [contributorUser, setContributorUser] = useState<Star | null>(null)
+    const [maintainerUser, setMaintainerUser] = useState<Star | null>(null)
     const [isLoadingIssue, setIsLoadingIssue] = useState<boolean>(false)
     const [isToggling, setIsToggling] = useState<boolean>(false)
 
@@ -488,7 +488,7 @@ const ProjectVersionPanel: React.FC<Version> = ({
       if (demo.email && demo.users && demo.role) {
         const user = demo.users.find(u => u.role === demo.role) || demo.users[0]
         if (user && user._id) {
-          getUserById(user._id.toString())
+          getStarById(user._id.toString())
             .then((userData) => {
               if (userData) {
                 setCurrentUser(userData)
@@ -504,7 +504,7 @@ const ProjectVersionPanel: React.FC<Version> = ({
     // Fetch contributor user
     useEffect(() => {
       if (issue?.contributor && typeof issue.contributor === 'string') {
-        getUserById(issue.contributor)
+        getStarById(issue.contributor)
           .then((userData) => {
             if (userData) {
               setContributorUser(userData)
@@ -521,7 +521,7 @@ const ProjectVersionPanel: React.FC<Version> = ({
     // Fetch maintainer user (from issue)
     useEffect(() => {
       if (issue?.maintainer && typeof issue.maintainer === 'string') {
-        getUserById(issue.maintainer)
+        getStarById(issue.maintainer)
           .then((userData) => {
             if (userData) {
               setMaintainerUser(userData)
@@ -696,7 +696,7 @@ const ProjectVersionPanel: React.FC<Version> = ({
 
     useEffect(() => {
       if (issue?.author && typeof issue.author === 'string') {
-        getUserById(issue.author)
+        getStarById(issue.author)
           .then((userData) => {
             if (userData) {
               setAuthorUser(userData)

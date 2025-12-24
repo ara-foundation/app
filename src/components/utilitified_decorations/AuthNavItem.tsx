@@ -6,8 +6,8 @@ import { useDemoStart } from '@/hooks/use-demo-start'
 import DemoCongratulationsDialog from '@/components/project/DemoCongratulationsDialog'
 import { cn } from '@/lib/utils'
 import { type DemoUserCreatedEvent, type DemoRoleChangeEvent, DEMO_EVENT_TYPES } from '@/types/demo'
-import { USER_EVENT_TYPES, type UserUpdateEventDetail } from '@/types/user'
-import { getUserById } from '@/client-side/user'
+import { STAR_EVENT_TYPES, type StarUpdateEventDetail } from '@/types/star'
+import { getStarById } from '@/client-side/star'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,7 +19,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/animate-ui/components/radix/dropdown-menu'
 import { ChevronDownIcon } from 'lucide-react'
-import type { Roles, User } from '@/types/user'
+import type { Roles, Star } from '@/types/star'
 import { startDemo, clearDemo, changeRole, getDemo, updateDemoUsers } from '@/client-side/demo'
 
 interface Props {
@@ -32,12 +32,12 @@ const AuthNavItem: React.FC<Props> = ({ className }) => {
 
   // Get initial demo state
   const demoState = getDemo()
-  const [demoUser, setDemoUser] = useState<User | null>(
+  const [demoUser, setDemoUser] = useState<Star | null>(
     demoState.users && demoState.role
       ? demoState.users.find((u) => u.role === demoState.role) || demoState.users[0] || null
       : null
   )
-  const [users, setUsers] = useState<User[] | null>(demoState.users)
+  const [users, setUsers] = useState<Star[] | null>(demoState.users)
   const [role, setRole] = useState<Roles | null>(demoState.role)
 
   // Mount only once on the client side
@@ -101,7 +101,7 @@ const AuthNavItem: React.FC<Props> = ({ className }) => {
         const userIndex = currentDemo.users.findIndex((u) => u._id === updatedUser._id)
         if (userIndex >= 0) {
           // Fetch updated user data to ensure we have the latest
-          const freshUser = await getUserById(updatedUser._id)
+          const freshUser = await getStarById(updatedUser._id)
           if (freshUser) {
             // Update users array in demo cache
             const updatedUsers = [...currentDemo.users]
@@ -131,13 +131,13 @@ const AuthNavItem: React.FC<Props> = ({ className }) => {
     window.addEventListener(DEMO_EVENT_TYPES.USER_CREATED, handleDemoUserCreated as EventListener)
     window.addEventListener(DEMO_EVENT_TYPES.USER_DELETED, handleDemoUserDeleted)
     window.addEventListener(DEMO_EVENT_TYPES.ROLE_CHANGED, handleDemoRoleChange as EventListener)
-    window.addEventListener(USER_EVENT_TYPES.USER_UPDATE, handleUserUpdate as EventListener)
+    window.addEventListener(STAR_EVENT_TYPES.STAR_UPDATE, handleUserUpdate as EventListener)
 
     return () => {
       window.removeEventListener(DEMO_EVENT_TYPES.USER_CREATED, handleDemoUserCreated as EventListener)
       window.removeEventListener(DEMO_EVENT_TYPES.USER_DELETED, handleDemoUserDeleted)
       window.removeEventListener(DEMO_EVENT_TYPES.ROLE_CHANGED, handleDemoRoleChange as EventListener)
-      window.removeEventListener(USER_EVENT_TYPES.USER_UPDATE, handleUserUpdate as EventListener)
+      window.removeEventListener(STAR_EVENT_TYPES.STAR_UPDATE, handleUserUpdate as EventListener)
     }
   }, [])
 

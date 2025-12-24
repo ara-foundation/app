@@ -7,8 +7,8 @@ import Badge from '../badge/Badge'
 import PanelFooter from '../panel/PanelFooter'
 import MenuAvatar from '../MenuAvatar'
 import TimeAgo from 'timeago-react'
-import type { User } from '@/types/user'
-import { getUserById } from '@/client-side/user'
+import type { Star } from '@/types/star'
+import { getStarById } from '@/client-side/star'
 import { BasePanel } from '../panel'
 import { cn } from '@/lib/utils'
 
@@ -17,14 +17,14 @@ interface BlogCardProps extends Blog {
 }
 
 const BlogCard: React.FC<BlogCardProps> = (blog) => {
-    const [authorUser, setAuthorUser] = useState<User | null>(null)
+    const [authorUser, setAuthorUser] = useState<Star | null>(null)
     const [isLoadingAuthor, setIsLoadingAuthor] = useState(false)
 
     // Fetch author user
     useEffect(() => {
         if (blog.author) {
             setIsLoadingAuthor(true)
-            getUserById(blog.author)
+            getStarById(blog.author)
                 .then((userData) => {
                     if (userData) {
                         setAuthorUser(userData)
@@ -124,7 +124,6 @@ const BlogCard: React.FC<BlogCardProps> = (blog) => {
                                     <span>By</span>
                                     <MenuAvatar
                                         src={authorUser?.src}
-                                        uri={authorUser?.uri}
                                         className="w-6 h-6"
                                     />
                                     <span>{authorUser?.nickname || authorUser?.email?.split('@')[0] || 'Unknown'}</span>

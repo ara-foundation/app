@@ -3,7 +3,7 @@ import MenuAvatar from './MenuAvatar'
 import AvatarList from './AvatarList'
 import ProfileRating from './rating/ProfileRating'
 import TimeAgo from 'timeago-react'
-import { ProfileLink } from '@/types/user'
+import { ProfileLink } from '@/types/star'
 
 export interface ByAuthorProps {
   author?: ProfileLink | ProfileLink[]

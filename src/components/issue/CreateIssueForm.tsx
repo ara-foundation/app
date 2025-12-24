@@ -6,7 +6,7 @@ import * as RadixSlider from '@radix-ui/react-slider';
 import { IssueTag } from '@/types/issue';
 import { getDemo } from '@/client-side/demo';
 import { createIssue } from '@/client-side/issue';
-import { getUserById } from '@/client-side/user';
+import { getStarById } from '@/client-side/star';
 import NumberFlow from '@number-flow/react';
 import { cn } from '@/lib/utils';
 
@@ -37,7 +37,7 @@ const CreateIssueForm: React.FC<CreateIssueFormProps> = ({ galaxyId, onSuccess, 
                 if (demo.email && demo.users) {
                     const currentUser = demo.users.find(u => u.role === 'user') || demo.users[0];
                     if (currentUser && currentUser._id) {
-                        const user = await getUserById(currentUser._id.toString());
+                        const user = await getStarById(currentUser._id.toString());
                         if (user) {
                             setAvailableSunshines(user.sunshines || 0);
                         }

@@ -1,18 +1,18 @@
 'use client'
 import React, { useState, useEffect, useRef } from 'react'
-import UserProfilePanel from './UserProfilePanel'
+import ProfilePanel from './ProfilePanel'
 import BlogListPanel from '../blog/BlogListPanel'
-import type { User } from '@/types/user'
+import type { Star } from '@/types/star'
 import type { Galaxy } from '@/types/galaxy'
 import type { Blog } from '@/types/blog'
 
-interface UserProfileWithBlogsProps {
-    user: User
+interface ProfileWithBlogsProps {
+    user: Star
     galaxies: Galaxy[]
     blogs: Blog[]
 }
 
-const UserProfileWithBlogs: React.FC<UserProfileWithBlogsProps> = ({ user, galaxies, blogs }) => {
+const ProfileWithBlogs: React.FC<ProfileWithBlogsProps> = ({ user, galaxies, blogs }) => {
     const [isMerged, setIsMerged] = useState(false)
     const profileRef = useRef<HTMLDivElement>(null)
 
@@ -52,7 +52,7 @@ const UserProfileWithBlogs: React.FC<UserProfileWithBlogsProps> = ({ user, galax
                     "transition-all duration-500",
                     isMerged ? "w-1/2 flex-shrink-0" : "w-full"
                 )}>
-                    <UserProfilePanel
+                    <ProfilePanel
                         user={user}
                         galaxies={galaxies}
                     />
@@ -76,4 +76,4 @@ function cn(...classes: (string | undefined | false)[]): string {
     return classes.filter(Boolean).join(' ')
 }
 
-export default UserProfileWithBlogs
+export default ProfileWithBlogs

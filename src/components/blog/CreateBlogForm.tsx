@@ -4,7 +4,7 @@ import Button from '@/components/custom-ui/Button';
 import Badge from '@/components/badge/Badge';
 import { getDemo } from '@/client-side/demo';
 import { createBlog } from '@/client-side/blog';
-import { getUserById } from '@/client-side/user';
+import { getStarById } from '@/client-side/star';
 import { cn } from '@/lib/utils';
 
 interface CreateBlogFormProps {

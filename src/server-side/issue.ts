@@ -25,17 +25,17 @@ interface IssueModel {
     title: string;
     description: string;
     tags: IssueTag[];
-    maintainer: ObjectId; // Reference to UserModel
+    maintainer: ObjectId; // Reference to StarModel
     listHistory?: string[]; // Track issue location history (e.g., ['patcher'])
     stats?: {
         [key in IssueStatType]?: IssueStatServer;
     };
     createdTime?: Date;
-    sunshines: number; // Cached sum of users sunshines
+    sunshines: number; // Cached sum of stars sunshines
     stars?: number; // Stars earned from solar forge
-    users: IssueUserServer[]; // Array of users with their contributions
-    author?: ObjectId; // Reference to UserModel who created the issue
-    contributor?: ObjectId; // Reference to UserModel assigned as contributor
+    users: IssueUserServer[]; // Array of stars with their contributions
+    author?: ObjectId; // Reference to StarModel who created the issue
+    contributor?: ObjectId; // Reference to StarModel assigned as contributor
     solarForgeTxid?: string; // Blockchain transaction ID for solar forge
 }
 

@@ -1,5 +1,5 @@
 import { actions } from 'astro:actions';
-import type { Roles, User } from '../types/user'
+import type { Roles, Star } from '../types/user'
 import { DEMO_COOKIE_NAMES, DEMO_EVENT_TYPES } from '../types/demo'
 
 
@@ -9,14 +9,14 @@ export const demoExists = (): boolean => {
 }
 
 // (Client Side) Get demo from the cookies
-export const getDemo = (): { email: string | null; users: User[] | null; role: Roles | null } => {
+export const getDemo = (): { email: string | null; users: Star[] | null; role: Roles | null } => {
     return getDemoCookies()
 }
 
 // (Client/Server) Get user by email via action
-export const getUserByEmail = async (email: string): Promise<User | null> => {
+export const getStarByEmail = async (email: string): Promise<Star | null> => {
     try {
-        const result = await actions.getUserByEmail({ email })
+        const result = await actions.getStarByEmail({ email })
         if (result.data?.success && result.data.data) {
             return result.data.data
         }
@@ -72,7 +72,7 @@ export const changeRole = (role: Roles) => {
 };
 
 // (Client Side) Update demo users in cache
-export const updateDemoUsers = (updatedUsers: User[]) => {
+export const updateDemoUsers = (updatedUsers: Star[]) => {
     const { email, role } = getDemoCookies()
     if (email && role) {
         setDemoCookies(email, updatedUsers, role)
@@ -162,14 +162,14 @@ export const incrementDemoStep = async (params: {
 // Get all demo cookies
 function getDemoCookies(): {
     email: string | null
-    users: User[] | null
+    users: Star[] | null
     role: Roles | null
 } {
     const email = getCookie(DEMO_COOKIE_NAMES.email)
     const usersStr = getCookie(DEMO_COOKIE_NAMES.users)
     const role = getCookie(DEMO_COOKIE_NAMES.role) as Roles | null
 
-    let users: User[] | null = null
+    let users: Star[] | null = null
     if (usersStr) {
         try {
             users = JSON.parse(usersStr)
@@ -197,7 +197,7 @@ function clearDemoCookies(): void {
 // Set all demo cookies
 function setDemoCookies(
     email: string,
-    users: User[],
+    users: Star[],
     role: Roles,
     days: number = 30
 ): void {
@@ -207,7 +207,7 @@ function setDemoCookies(
 }
 
 // Call the start action
-async function callStartAction(email: string): Promise<{ success: boolean; users?: User[]; error?: string }> {
+async function callStartAction(email: string): Promise<{ success: boolean; users?: Star[]; error?: string }> {
     try {
         const result = await actions.start({ email: email.trim() })
 

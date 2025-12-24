@@ -14,7 +14,7 @@ import AllStarsContest from "@/components/all-stars/AllStarsContest";
 import { getGalaxySpace, getUserStar } from "@/server-side/all-stars";
 import { getGalaxyById } from "@/server-side/galaxy";
 import { getProjectById } from "@/server-side/project";
-import { getUserById, getUserByEmail } from "@/server-side/user";
+import { getStarById, getStarByEmail } from "@/server-side/star";
 import { DEMO_COOKIE_NAMES } from "@/types/demo";
 import type { UserStar } from "@/types/all-stars";
 
@@ -39,9 +39,8 @@ if (!project) {
 }
 
 // Fetch maintainer user for author info
-const maintainer = await getUserById(galaxy.maintainer);
-const authorUri =
-  maintainer?.uri || `/user?email=${maintainer?.email || "unknown"}`;
+const maintainer = await getStarById(galaxy.maintainer);
+const authorUri = `/star?email=${maintainer?.email || "unknown"}`;
 const authorName =
   maintainer?.nickname || maintainer?.email?.split("@")[0] || "Unknown";
 
@@ -67,7 +66,7 @@ let currentUserData: UserStar | null = null;
 let currentUserId: string | undefined;
 
 if (demoEmail) {
-  const demoUser = await getUserByEmail(demoEmail);
+  const demoUser = await getStarByEmail(demoEmail);
   if (demoUser?._id) {
     currentUserId = demoUser._id;
     const userStar = await getUserStar(galaxyIdParam, demoUser._id);

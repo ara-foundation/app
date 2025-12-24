@@ -3,7 +3,7 @@ import { getCollection } from './db'
 import { getAllGalaxies } from './galaxy'
 import { getIssueById } from './issue'
 import type { AllStarStats, SolarForgeModel, UserStar, SpaceTracer } from '@/types/all-stars'
-import type { UserModel } from './user'
+import type { StarModel } from './user'
 
 /**
  * Get all star statistics by aggregating data from galaxies and users
@@ -18,9 +18,9 @@ export async function getAllStarStats(): Promise<AllStarStats> {
         const totalStars = galaxies.reduce((sum, galaxy) => sum + (galaxy.stars || 0), 0)
         const totalSunshines = galaxies.reduce((sum, galaxy) => sum + (galaxy.sunshines || 0), 0)
 
-        // Count distinct users from users collection
-        const usersCollection = await getCollection<UserModel>('users')
-        const totalUsers = await usersCollection.countDocuments({})
+        // Count distinct stars from stars collection
+        const starsCollection = await getCollection<StarModel>('stars')
+        const totalUsers = await starsCollection.countDocuments({})
 
         return {
             totalGalaxies,
@@ -121,8 +121,8 @@ export async function upsertSpaceUserStar(params: {
         return userStarModelToUserStar(updated)
     }
 
-    const { getUserById } = await import('./user')
-    const user = await getUserById(userId)
+    const { getStarById } = await import('./user')
+    const user = await getStarById(userId)
     const base: UserStarModel = {
         galaxyId,
         userId,
