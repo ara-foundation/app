@@ -7,7 +7,7 @@ import GalaxyAutoZoom from "@/components/all-stars/GalaxyAutoZoom";
 import ProfileWithBlogs from "@/components/user/ProfileWithBlogs";
 import CreateBlogCTA from "@/components/blog/CreateBlogCTA";
 import ConditionalSignOutButton from "@/components/auth/ConditionalSignOutButton";
-import { getStarById, getStarByEmail } from "@/server-side/star";
+import { getStarById, getStarByUserId } from "@/server-side/star";
 import { getAuthUserById } from "@/server-side/auth";
 import { getGalaxiesByMaintainer } from "@/server-side/galaxy";
 import { getBlogsByAuthor } from "@/server-side/blog";
@@ -26,13 +26,13 @@ if (userIdParam) {
     user = await getStarById(userIdParam);
     console.log("star by id", user);
 } else if (userEmailParam) {
-    user = await getStarByEmail(userEmailParam);
+    user = await getStarByUserId(userEmailParam);
     console.log("star by email", user);
 } else {
     // Try to get current star from demo cookies (server-side fallback)
     const demoEmail = Astro.cookies.get("demo-email")?.value;
     if (demoEmail) {
-        user = await getStarByEmail(demoEmail);
+        user = await getStarByUserId(demoEmail);
         console.log("star by demo email", user);
     } else {
         console.log("no star found");
@@ -97,7 +97,11 @@ let displayName = "User Profile";
 if (user?.userId) {
     starAuthUser = await getAuthUserById(user.userId);
     if (starAuthUser) {
-        displayName = starAuthUser.name || starAuthUser.username || starAuthUser.email?.split("@")[0] || "User Profile";
+        displayName =
+            starAuthUser.name ||
+            starAuthUser.username ||
+            starAuthUser.email?.split("@")[0] ||
+            "User Profile";
     }
 }
 ---
@@ -114,7 +118,11 @@ if (user?.userId) {
 >
     <BackButton slot="left" client:load />
 
-    <ConditionalSignOutButton slot="right" starEmail={starAuthUser?.email} client:load />
+    <ConditionalSignOutButton
+        slot="right"
+        starEmail={starAuthUser?.email}
+        client:load
+    />
 
     <ProfileWithBlogs
         slot="center"

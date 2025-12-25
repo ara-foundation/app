@@ -16,7 +16,7 @@ export const getDemo = (): { email: string | null; users: Star[] | null; role: R
 // (Client/Server) Get user by email via action
 export const getStarByEmail = async (email: string): Promise<Star | null> => {
     try {
-        const result = await actions.getStarByEmail({ email })
+        const result = await actions.getStarByUserId({ email })
         if (result.data?.success && result.data.data) {
             return result.data.data
         }

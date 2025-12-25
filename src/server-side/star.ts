@@ -3,9 +3,8 @@ import { Wallet } from 'ethers'
 import { getCollection } from './db'
 import type { Star } from '@/types/star'
 
-export interface StarModel extends Omit<Star, '_id' | 'userId'> {
+export interface StarModel extends Omit<Star, '_id'> {
     _id?: ObjectId
-    userId?: ObjectId // Reference to better-auth User id
 }
 
 // Serialization functions
@@ -15,10 +14,9 @@ function starModelToStar(model: StarModel | null): Star | null {
         _id: model._id?.toString(),
         sunshines: model.sunshines,
         stars: model.stars,
-        role: model.role,
         balance: model.balance,
         demoPrivateKey: model.demoPrivateKey,
-        userId: model.userId?.toString(),
+        userId: model.userId,
     }
 }
 
@@ -27,29 +25,26 @@ function starToStarModel(star: Star): StarModel {
         _id: star._id ? new ObjectId(star._id) : undefined,
         sunshines: star.sunshines,
         stars: star.stars,
-        role: star.role,
         balance: star.balance,
         demoPrivateKey: star.demoPrivateKey,
-        userId: star.userId ? new ObjectId(star.userId) : undefined,
+        userId: star.userId,
     }
 }
 
-export const emailToNickname = (email: string): string => {
-    return email.split('@')[0]
-}
 /**
- * Get star by email
+ * Get star by userId
  */
-export async function getStarByEmail(email: string): Promise<Star | null> {
+export async function getStarByUserId(userId: string): Promise<Star | null> {
     try {
         const collection = await getCollection<StarModel>('stars')
-        const result = await collection.findOne({ email })
+        const result = await collection.findOne({ userId })
         return starModelToStar(result)
     } catch (error) {
-        console.error('Error getting star by email:', error)
+        console.error('Error getting star by userId:', error)
         return null
     }
 }
+
 
 /**
  * Get star by ID
@@ -118,68 +113,18 @@ export async function createStars(stars: Star[]): Promise<string[]> {
 }
 
 /**
- * Get or create star by email (returns star ID as string)
- * Note: This function is deprecated. Use getOrCreateStarByUserId instead.
- * Kept for backward compatibility with demo mode.
- */
-export async function getOrCreateStarByEmail(email: string): Promise<string> {
-    try {
-        // Try to get existing star by email (legacy support)
-        const existingStar = await getStarByEmail(email)
-        if (existingStar && existingStar._id) {
-            // Generate private key if star doesn't have one
-            if (!existingStar.demoPrivateKey) {
-                const wallet = Wallet.createRandom()
-                const collection = await getCollection<StarModel>('stars')
-                const objectId = new ObjectId(existingStar._id)
-                await collection.updateOne(
-                    { _id: objectId },
-                    { $set: { demoPrivateKey: wallet.privateKey } }
-                )
-            }
-            return existingStar._id
-        }
-
-        // Create new star if doesn't exist (for demo mode only)
-        const wallet = Wallet.createRandom()
-        const newStar: Star = {
-            role: 'maintainer',
-            demoPrivateKey: wallet.privateKey,
-        }
-        const insertedId = await createStar(newStar)
-        return insertedId
-    } catch (error) {
-        console.error('Error getting or creating star by email:', error)
-        throw error
-    }
-}
-
-/**
  * Get or create star by userId (returns star ID as string)
  */
-export async function getOrCreateStarByUserId(userId: string): Promise<string> {
+export async function createStarByUserId(userId: string): Promise<string> {
     try {
-        const collection = await getCollection<StarModel>('stars')
-        const existingStar = await collection.findOne({ userId: new ObjectId(userId) })
-        
-        if (existingStar && existingStar._id) {
-            // Generate private key if star doesn't have one
-            if (!existingStar.demoPrivateKey) {
-                const wallet = Wallet.createRandom()
-                await collection.updateOne(
-                    { _id: existingStar._id },
-                    { $set: { demoPrivateKey: wallet.privateKey } }
-                )
-            }
-            return existingStar._id.toString()
-        }
-
         // Create new star if doesn't exist
         const wallet = Wallet.createRandom()
         const newStar: Star = {
-            userId,
-            role: 'maintainer',
+            sunshines: 100,
+            stars: 0,
+            balance: 0,
             demoPrivateKey: wallet.privateKey,
+            userId: userId,
         }
         const insertedId = await createStar(newStar)
         return insertedId

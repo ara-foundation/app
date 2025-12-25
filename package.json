@@ -18,7 +18,8 @@
     "db:down": "./scripts/check-docker.sh && docker compose down",
     "db:stats": "./scripts/check-docker.sh && docker compose ps",
     "db:sync": "tsx scripts/sync-db.ts",
-    "db:setup-auth": "tsx scripts/better-auth-setup.ts"
+    "db:setup-auth": "tsx scripts/better-auth-setup.ts",
+    "db:setup-stars": "tsx scripts/setup-stars.ts"
   },
   "dependencies": {
     "@ara-web/crypto-sockets": "1.0.5",

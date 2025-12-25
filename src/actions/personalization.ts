@@ -7,7 +7,7 @@ import {
   updatePersonalization,
   deletePersonalization,
 } from '@/server-side/personalization';
-import { getStarByEmail } from '@/server-side/star';
+import { getStarByUserId } from '@/server-side/star';
 
 export const server = {
   /**
@@ -18,9 +18,9 @@ export const server = {
       prompt: z.string().min(1),
       context: z.string(),
       componentStructure: z.array(z.string()),
-      email: z.string().email(),
+      userId: z.string(),
     }),
-    handler: async ({ prompt, context, componentStructure, email }) => {
+    handler: async ({ prompt, context, componentStructure, userId }) => {
       try {
         const result = await generateCode({ prompt, context, componentStructure });
         return {
@@ -47,12 +47,12 @@ export const server = {
       code: z.string(),
       prompt: z.string(),
       uris: z.array(z.string()),
-      email: z.string().email(),
+      userId: z.string(),
       personalizationId: z.string().optional(),
     }),
-    handler: async ({ context, code, prompt, uris, email, personalizationId }) => {
+    handler: async ({ context, code, prompt, uris, userId, personalizationId }) => {
       try {
-        const user = await getStarByEmail(email);
+        const user = await getStarByUserId(userId);
         if (!user || !user._id) {
           return {
             success: false,
@@ -108,11 +108,11 @@ export const server = {
   getPersonalizations: defineAction({
     input: z.object({
       context: z.string(),
-      email: z.string().email(),
+      userId: z.string(),
     }),
-    handler: async ({ context, email }) => {
+    handler: async ({ context, userId }) => {
       try {
-        const user = await getStarByEmail(email);
+        const user = await getStarByUserId(userId);
         if (!user || !user._id) {
           return {
             success: false,

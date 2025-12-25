@@ -1,7 +1,7 @@
 'use client'
 import { useEffect, useState } from 'react'
 import { authClient } from '@/client-side/auth'
-import { getStarByEmail } from '@/client-side/star'
+import { getStarByUserId } from '@/client-side/star'
 import type { AuthUser } from '@/types/auth'
 import type { Star } from '@/types/star'
 

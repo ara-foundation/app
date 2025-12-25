@@ -158,6 +158,23 @@ export async function getAuthUserById(userId: string): Promise<AuthUser | null> 
 }
 
 /**
+ * Get auth user by email
+ */
+export async function getAuthUserByEmail(email: string): Promise<AuthUser | null> {
+    try {
+        const { getDb } = await import('@/server-side/db')
+        const db = await getDb()
+        const collection = db.collection<AuthUserModel>('user')
+        
+        const user = await collection.findOne({ email })
+        return authUserModelToAuthUser(user)
+    } catch (error) {
+        console.error('Error getting auth user by email:', error)
+        return null
+    }
+}
+
+/**
  * Get accounts by user ID
  */
 export async function getAccountsByUserId(userId: string): Promise<AuthAccount[]> {
