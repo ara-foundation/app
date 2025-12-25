@@ -1,6 +1,7 @@
-import { getDemo } from './demo';
+import { authClient } from './auth';
 import { actions } from 'astro:actions';
 import type { Personalization } from '@/types/personalization';
+import type { AuthUser } from '@/types/auth';
 
 /**
  * Get personalizations for current user and context
@@ -9,14 +10,15 @@ export async function getPersonalizations(
   context: string
 ): Promise<Personalization[]> {
   try {
-    const demo = getDemo();
-    if (!demo.email) {
+    const session = await authClient.getSession();
+    const user = session?.data?.user as AuthUser | undefined;
+    if (!user?.id) {
       return [];
     }
 
     const result = await actions.getPersonalizations({
       context,
-      email: demo.email,
+      userId: user.id,
     });
 
     if (result.data?.success && result.data.data) {
@@ -38,8 +40,9 @@ export async function generatePersonalizationCode(
   componentStructure: string[]
 ): Promise<{ success: boolean; code?: string; uris?: string[]; error?: string }> {
   try {
-    const demo = getDemo();
-    if (!demo.email) {
+    const session = await authClient.getSession();
+    const user = session?.data?.user as AuthUser | undefined;
+    if (!user?.id) {
       return { success: false, error: 'User not logged in' };
     }
 
@@ -47,7 +50,7 @@ export async function generatePersonalizationCode(
       prompt,
       context,
       componentStructure,
-      email: demo.email,
+      userId: user.id,
     });
 
     if (result.data?.success && result.data.code) {
@@ -75,8 +78,9 @@ export async function savePersonalization(
   personalizationId?: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    const demo = getDemo();
-    if (!demo.email) {
+    const session = await authClient.getSession();
+    const user = session?.data?.user as AuthUser | undefined;
+    if (!user?.id) {
       return { success: false, error: 'User not logged in' };
     }
 
@@ -85,7 +89,7 @@ export async function savePersonalization(
       code,
       prompt,
       uris,
-      email: demo.email,
+      userId: user.id,
       personalizationId,
     });
 
