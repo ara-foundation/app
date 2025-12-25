@@ -8,7 +8,6 @@ import AllStarsLeaderboardPanels from "@/components/all-stars/AllStarsLeaderboar
 import UniverseResearchPanel from "@/components/all-stars/UniverseResearchPanel";
 import GalaxyAutoZoom from "@/components/all-stars/GalaxyAutoZoom";
 import BackButton from "@/components/custom-ui/BackButton";
-import NewGalaxyButton from "@/components/all-stars/NewGalaxyButton";
 import DemoCtaPanel from "@/components/project/DemoCtaPanel";
 import { mockContestData } from "@/types/mock-data";
 import { getAllGalaxies, getGalaxyById } from "@/server-side/galaxy";
@@ -44,10 +43,6 @@ const allGalaxies = allGalaxiesData.map((galaxy, index) => ({
   projectGalaxies={allGalaxies}
 >
   {selectedGalaxy && <BackButton slot="left" client:load />}
-
-  <div slot="header-navbar" class="flex items-center justify-center pt-4">
-    <NewGalaxyButton client:only="react" />
-  </div>
 
   <UniverseHero slot="center" client:only="react" />
   <DemoCtaPanel

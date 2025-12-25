@@ -4,6 +4,7 @@ import { getIcon } from '@/components/icon';
 import SearchBar from '@/components/SearchBar';
 import Tooltip from '@/components/custom-ui/Tooltip';
 import { cn } from '@/lib/utils';
+import NewGalaxyButton from '@/components/all-stars/NewGalaxyButton';
 
 interface UniverseResearchPanelProps {
     starsunshines?: number;
@@ -65,7 +66,7 @@ const UniverseResearchPanel: React.FC<UniverseResearchPanelProps> = ({
 
                 <ControlPanel className="p-3 min-w-[400px] max-w-[600px]">
                     {/* Console Header with Icon and SearchBar */}
-                    <div>
+                    <div className="flex items-center gap-2 space-x-4">
                         <Tooltip content={isLocked ? lockTooltipContent : <span className="text-xs">Search projects, users, issues, and more...</span>}>
                             <div className="flex-1">
                                 <SearchBar
@@ -84,6 +85,7 @@ const UniverseResearchPanel: React.FC<UniverseResearchPanelProps> = ({
                                 />
                             </div>
                         </Tooltip>
+                        <NewGalaxyButton />
                     </div>
                 </ControlPanel>
             </div>
