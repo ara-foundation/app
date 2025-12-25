@@ -12,7 +12,6 @@ export interface SocialLink {
 
 export interface Project {
     _id?: string;
-    uri: string;
     forkLines: ForkLine[];
     socialLinks: SocialLink[];
     createdAt?: number; // Unix timestamp

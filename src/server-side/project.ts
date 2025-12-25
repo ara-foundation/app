@@ -1,23 +1,16 @@
 import { ObjectId } from 'mongodb';
 import { getCollection, create } from './db'
-import type { Project, SocialLink } from '@/types/project'
+import type { ForkLine, Project } from '@/types/project'
 
-interface ForkLineModel {
+interface ForkLineModel extends Omit<ForkLine, 'from' | 'via' | 'to'> {
     from: ObjectId; // Source project ID
     via: ObjectId[]; // Array of issue IDs
     to: ObjectId; // Target project ID
 }
 
-interface ProjectModel {
+interface ProjectModel extends Omit<Project, '_id' | 'forkLines'> {
     _id?: ObjectId;
-    uri: string;
     forkLines: ForkLineModel[];
-    socialLinks: SocialLink[];
-    createdAt?: Date;
-    lastCommitId?: string;
-    lastCommitUpdateTime?: Date;
-    license?: string;
-    totalCommits?: number;
 }
 
 // Serialization functions
@@ -25,16 +18,15 @@ function projectModelToProject(model: ProjectModel | null): Project | null {
     if (!model) return null
     return {
         _id: model._id?.toString(),
-        uri: model.uri,
         forkLines: model.forkLines.map(fl => ({
             from: fl.from.toString(),
             via: fl.via.map(v => v.toString()),
             to: fl.to.toString(),
         })),
         socialLinks: model.socialLinks,
-        createdAt: model.createdAt ? Math.floor(model.createdAt.getTime() / 1000) : undefined,
+        createdAt: model.createdAt,
         lastCommitId: model.lastCommitId,
-        lastCommitUpdateTime: model.lastCommitUpdateTime ? Math.floor(model.lastCommitUpdateTime.getTime() / 1000) : undefined,
+        lastCommitUpdateTime: model.lastCommitUpdateTime,
         license: model.license,
         totalCommits: model.totalCommits,
     }
@@ -43,16 +35,15 @@ function projectModelToProject(model: ProjectModel | null): Project | null {
 function projectToProjectModel(project: Project): ProjectModel {
     return {
         _id: project._id ? new ObjectId(project._id) : undefined,
-        uri: project.uri,
         forkLines: project.forkLines.map(fl => ({
             from: new ObjectId(fl.from),
             via: fl.via.map(v => new ObjectId(v)),
             to: new ObjectId(fl.to),
         })),
         socialLinks: project.socialLinks,
-        createdAt: project.createdAt ? new Date(project.createdAt * 1000) : undefined,
+        createdAt: project.createdAt,
         lastCommitId: project.lastCommitId,
-        lastCommitUpdateTime: project.lastCommitUpdateTime ? new Date(project.lastCommitUpdateTime * 1000) : undefined,
+        lastCommitUpdateTime: project.lastCommitUpdateTime,
         license: project.license,
         totalCommits: project.totalCommits,
     }
@@ -74,20 +65,6 @@ export async function getProjectById(id: string | ObjectId): Promise<Project | n
 }
 
 /**
- * Get project by URI
- */
-export async function getProjectByUri(uri: string): Promise<Project | null> {
-    try {
-        const collection = await getCollection<ProjectModel>('projects')
-        const result = await collection.findOne({ uri })
-        return projectModelToProject(result)
-    } catch (error) {
-        console.error('Error getting project by uri:', error)
-        return null
-    }
-}
-
-/**
  * Create a new project
  */
 export async function createProject(project: Project): Promise<boolean> {
@@ -97,32 +74,5 @@ export async function createProject(project: Project): Promise<boolean> {
     } catch (error) {
         console.error('Error creating project:', error)
         return false
-    }
-}
-
-/**
- * Get or create a project - returns the project ID as string
- */
-export async function getOrCreateProject(projectData: Omit<Project, '_id'>): Promise<string> {
-    try {
-        const collection = await getCollection<ProjectModel>('projects')
-
-        // Try to find existing project by URI
-        const existing = await collection.findOne({ uri: projectData.uri })
-        if (existing && existing._id) {
-            return existing._id.toString()
-        }
-
-        // Create new project
-        const projectModel = projectToProjectModel(projectData as Project)
-        const result = await collection.insertOne(projectModel as any)
-        if (result.insertedId) {
-            return result.insertedId.toString()
-        }
-
-        throw new Error('Failed to create project')
-    } catch (error) {
-        console.error('Error getting or creating project:', error)
-        throw error
     }
 }

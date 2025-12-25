@@ -18,7 +18,6 @@ import { getIcon } from '../icon'
 import { UserStar as UserStarData } from '@/types/all-stars'
 
 export interface ProjectInfoProps {
-  uri?: string
   title: string
   isInfluencer: boolean
   rating: ProjectRatingProps
@@ -51,7 +50,6 @@ export interface ProjectInfoProps {
 }
 
 const ProjectCard: React.FC<ProjectInfoProps> = ({
-  uri,
   title,
   isInfluencer,
   rating,
@@ -82,7 +80,6 @@ const ProjectCard: React.FC<ProjectInfoProps> = ({
 }) => {
   // Convert UserStarData to ProfileLink for AvatarList
   const influencers: ProfileLink[] = stars.map(star => ({
-    uri: star.uri || '#',
     children: star.nickname,
     icon: star.src,
     avatar: star.src,

@@ -49,7 +49,11 @@ if (maintainer?.userId) {
   const maintainerAuthUser = await getAuthUserById(maintainer.userId);
   if (maintainerAuthUser) {
     authorUri = `/star?id=${maintainer._id || "unknown"}`;
-    authorName = maintainerAuthUser.name || maintainerAuthUser.username || maintainerAuthUser.email?.split("@")[0] || "Unknown";
+    authorName =
+      maintainerAuthUser.name ||
+      maintainerAuthUser.username ||
+      maintainerAuthUser.email?.split("@")[0] ||
+      "Unknown";
     maintainerSrc = maintainerAuthUser.image;
   }
 }
@@ -120,7 +124,6 @@ const starsWithDraggable = galaxySpace.map((star) => ({
 
 // Transform database models to ProjectInfoProps
 const projectData: ProjectInfoProps = {
-  uri: project.uri,
   title: galaxy.name,
   isInfluencer: false, // TODO: Determine from user data
   rating: {
