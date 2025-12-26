@@ -99,9 +99,10 @@ const authUser: AuthUser | null = betterAuthUser
 
 let currentUserData: UserStar | null = null;
 let currentUserId: string | undefined;
+let userStar: any = null;
 
 if (authUser?.id) {
-  const userStar = await getStarByUserId(authUser.id);
+  userStar = await getStarByUserId(authUser.id);
   if (userStar?._id) {
     currentUserId = userStar._id;
     const galaxyUserStar = await getUserStar(galaxyIdParam, userStar._id);
@@ -302,6 +303,12 @@ const maxY = Math.max(...galaxyYValues);
     projectIcon={project.socialLinks?.find((link) => link.type === "project")
       ?.uri}
     projectName={galaxy.name}
+    userSunshines={currentUserData?.sunshines ?? userStar?.sunshines ?? 0}
+    userStars={currentUserData?.stars ?? userStar?.stars ?? 0}
+    hasStarOnPage={currentUserData?.x !== undefined &&
+      currentUserData?.y !== undefined &&
+      currentUserData.x! > 0 &&
+      currentUserData.y! > 0}
   />
 
   <!-- <HighlightedInteraction slot="right" /> -->

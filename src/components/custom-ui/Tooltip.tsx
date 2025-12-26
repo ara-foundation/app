@@ -11,9 +11,10 @@ interface Props {
   content: string | React.ReactNode;
   children: any
   openDelay?: number;
+  tooltipClassName?: string;
 }
 
-const Component: React.FC<Props> = ({ children, content, openDelay = 50 }) => {
+const Component: React.FC<Props> = ({ children, content, openDelay = 50, tooltipClassName }) => {
   // Track content changes to force re-render when content updates
   const [contentKey, setContentKey] = React.useState(0);
 
@@ -36,7 +37,8 @@ const Component: React.FC<Props> = ({ children, content, openDelay = 50 }) => {
             "bg-white/90 backdrop-blur-md text-slate-800",
             "dark:bg-white/10 dark:backdrop-blur-md dark:text-slate-100",
             "border border-slate-200/50 dark:border-slate-700/50",
-            "shadow-lg text-lg"
+            "shadow-lg text-lg",
+            tooltipClassName // Allow custom className override
           )}
         >
           {content}

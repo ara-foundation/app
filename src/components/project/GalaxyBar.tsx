@@ -7,17 +7,24 @@ import Button from '@/components/custom-ui/Button';
 import Link from '@/components/custom-ui/Link';
 import ObtainSunshines501Dialog from './ObtainSunshines501Dialog';
 import GalaxyBarMenuPopover from './GalaxyBarMenuPopover';
+import GalaxyBarSpeedometer from './GalaxyBarSpeedometer';
 
 interface GalaxyBarProps {
   galaxyId: string;
   projectIcon?: string;
   projectName?: string;
+  userSunshines?: number;
+  userStars?: number;
+  hasStarOnPage?: boolean;
 }
 
 const GalaxyBar: React.FC<GalaxyBarProps> = ({
   galaxyId,
   projectIcon,
   projectName = 'Ara',
+  userSunshines = 0,
+  userStars = 0,
+  hasStarOnPage = false,
 }) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
@@ -35,6 +42,15 @@ const GalaxyBar: React.FC<GalaxyBarProps> = ({
     <>
       <div className="fixed bottom-20 left-1/2 transform -translate-x-1/2 z-10">
         <div className="relative">
+          {/* Speedometer Panel - Above left control wheel */}
+          <div className="absolute -left-[11rem] top-1/2 transform -translate-y-1/2 -translate-y-[4.5rem] -z-1">
+            <GalaxyBarSpeedometer
+              sunshines={userSunshines}
+              stars={userStars}
+              hasStarOnPage={hasStarOnPage}
+            />
+          </div>
+
           {/* Additional Side Panels - Control Wheels (almost invisible) */}
           <div className="absolute -left-3 top-1/2 transform -translate-y-1/2 -z-1">
             <div className={cn(
