@@ -7,7 +7,7 @@ export interface ForkLine {
 export interface SocialLink {
     label: string;
     uri: string;
-    type?: 'github' | 'blockchain-explorer' | 'documentation' | 'project' | string;
+    type?: 'github' | 'gitlab' | 'blockchain-explorer' | 'documentation' | 'project' | string;
 }
 
 export interface Project {
@@ -19,6 +19,7 @@ export interface Project {
     lastCommitUpdateTime?: number; // Unix timestamp
     license?: string;
     totalCommits?: number;
+    branchName?: string; // Default branch name from Git repository
 }
 
 // Legacy type for backward compatibility

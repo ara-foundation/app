@@ -153,7 +153,7 @@ export const server = {
                 if (!galaxy) {
                     return {
                         success: false,
-                        error: 'Galaxy not found',
+                        error: 'Can not obtain sunshines, galaxy id invalid',
                     }
                 }
 
@@ -162,7 +162,7 @@ export const server = {
                 if (!star) {
                     return {
                         success: false,
-                        error: 'Star not found',
+                        error: 'Can not obtain sunshines, user id invalid',
                     }
                 }
 
@@ -172,7 +172,7 @@ export const server = {
                 if (!paymentResult.success) {
                     return {
                         success: false,
-                        error: paymentResult.error || 'Payment processing failed',
+                        error: paymentResult.error || 'Can not obtain sunshines, payment processing failed',
                     }
                 }
 
@@ -184,7 +184,7 @@ export const server = {
                 if (!starUpdated) {
                     return {
                         success: false,
-                        error: 'Failed to update star sunshines',
+                        error: 'Can not obtain sunshines, failed to update star sunshines',
                     }
                 }
 
@@ -194,7 +194,7 @@ export const server = {
                 if (!galaxyUpdated) {
                     return {
                         success: false,
-                        error: 'Failed to update galaxy sunshines',
+                        error: 'Can not obtain sunshines, failed to update galaxy sunshines',
                     }
                 }
 
@@ -203,7 +203,7 @@ export const server = {
                 if (!stepUpdated) {
                     return {
                         success: false,
-                        error: 'Failed to update demo step',
+                        error: 'Can not obtain sunshines, failed to update demo step',
                     }
                 }
 
@@ -219,7 +219,7 @@ export const server = {
                 console.error('Error in obtain sunshines action:', error)
                 return {
                     success: false,
-                    error: 'An error occurred while obtaining sunshines',
+                    error: 'Can not obtain sunshines, an error occurred: ' + (error instanceof Error ? error.message : 'Unknown error'),
                 }
             }
         },

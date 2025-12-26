@@ -4,7 +4,8 @@ import { getIcon } from '@/components/icon';
 import SearchBar from '@/components/SearchBar';
 import Tooltip from '@/components/custom-ui/Tooltip';
 import { cn } from '@/lib/utils';
-import NewGalaxyButton from '@/components/all-stars/NewGalaxyButton';
+import Button from '../custom-ui/Button';
+import GalaxyCreationStepper from '@/components/all-stars/galaxy/GalaxyCreationStepper';
 
 interface UniverseResearchPanelProps {
     starsunshines?: number;
@@ -14,13 +15,9 @@ const UniverseResearchPanel: React.FC<UniverseResearchPanelProps> = ({
     starsunshines = 0,
 }) => {
     const [searchQuery, setSearchQuery] = useState('');
-    const [selectedCategory, setSelectedCategory] = useState('');
-    const [selectedTrend, setSelectedTrend] = useState('');
+    const [currentStep, setCurrentStep] = useState<number>(0); // 0 = search, 1 = stepper
 
     const isLocked = starsunshines === 0;
-
-    const categories = ['All', 'Web Development', 'Blockchain', 'AI/ML', 'DevOps', 'Mobile'];
-    const trends = ['Trending', 'Most Stars', 'Most Sunshines', 'Newest', 'Most Active'];
 
     const lockTooltipContent = (
         <div className="flex items-center gap-2 text-sm">
@@ -29,14 +26,39 @@ const UniverseResearchPanel: React.FC<UniverseResearchPanelProps> = ({
         </div>
     );
 
-    // Console icon SVG
-    const ConsoleIcon = () => (
-        <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <rect x="2" y="4" width="20" height="16" rx="2" />
-            <path d="M6 8h.01M10 8h.01M14 8h.01" />
-            <path d="M6 12h12M6 16h8" />
-        </svg>
-    );
+    const handleCancel = () => {
+        setCurrentStep(0); // Back to search
+    };
+
+    const handleComplete = () => {
+        // Reset after completion
+        setTimeout(() => {
+            setCurrentStep(0);
+        }, 3000);
+    };
+
+    // Show dialog overlay for multi-step flow
+    if (currentStep > 0) {
+        return (
+            <>
+                {/* Backdrop */}
+                <div
+                    className="fixed top-0 left-0 w-full h-full bg-black/50 backdrop-blur-sm z-[100]"
+                    onClick={currentStep === 1 ? handleCancel : undefined}
+                />
+
+                {/* Dialog with Stepper */}
+                <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[101] flex items-center justify-center max-w-4xl w-full px-4">
+                    <div className="w-full max-w-2xl">
+                        <GalaxyCreationStepper
+                            onCancel={handleCancel}
+                            onComplete={handleComplete}
+                        />
+                    </div>
+                </div>
+            </>
+        );
+    }
 
     return (
         <div className="fixed bottom-20 left-1/2 transform -translate-x-1/2 z-10">
@@ -70,7 +92,7 @@ const UniverseResearchPanel: React.FC<UniverseResearchPanelProps> = ({
                         <Tooltip content={isLocked ? lockTooltipContent : <span className="text-xs">Search projects, users, issues, and more...</span>}>
                             <div className="flex-1">
                                 <SearchBar
-                                    icon={<ConsoleIcon />}
+                                    icon="console"
                                     value={searchQuery}
                                     onChange={setSearchQuery}
                                     placeholder="Search universe..."
@@ -85,7 +107,21 @@ const UniverseResearchPanel: React.FC<UniverseResearchPanelProps> = ({
                                 />
                             </div>
                         </Tooltip>
-                        <NewGalaxyButton />
+                        <Tooltip content="Add open-source repository to create its galaxy">
+                            <Button
+                                onClick={() => setCurrentStep(1)}
+                                className={cn(
+                                    "px-3 py-1.5 text-xs rounded",
+                                    "opacity-70 hover:opacity-100",
+                                    "text-slate-400 dark:text-white",
+                                    "border border-slate-300/20 dark:border-slate-600/20",
+                                    "hover:border-slate-400/30 dark:hover:border-slate-500/30",
+                                    "transition-all",
+                                )}
+                            >
+                                New Galaxy
+                            </Button>
+                        </Tooltip>
                     </div>
                 </ControlPanel>
             </div>
@@ -94,4 +130,3 @@ const UniverseResearchPanel: React.FC<UniverseResearchPanelProps> = ({
 };
 
 export default UniverseResearchPanel;
-

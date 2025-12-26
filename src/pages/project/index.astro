@@ -14,10 +14,10 @@ import AllStarsContest from "@/components/all-stars/AllStarsContest";
 import { getGalaxySpace, getUserStar } from "@/server-side/all-stars";
 import { getGalaxyById } from "@/server-side/galaxy";
 import { getProjectById } from "@/server-side/project";
-import { getStarById, getStarByEmail } from "@/server-side/star";
+import { getStarById, getStarByUserId } from "@/server-side/star";
 import { getAuthUserById } from "@/server-side/auth";
-import { DEMO_COOKIE_NAMES } from "@/types/demo";
 import type { UserStar } from "@/types/all-stars";
+import type { AuthUser } from "@/types/auth";
 
 // Get galaxy ID from query parameter
 const galaxyIdParam = Astro.url.searchParams.get("galaxy");
@@ -72,45 +72,57 @@ const isPlaceMode = Astro.url.searchParams.get("place") === "true";
 
 const galaxySpace = await getGalaxySpace(galaxyIdParam);
 
-const demoEmail = Astro.cookies.get(DEMO_COOKIE_NAMES.email)?.value
-  ? decodeURIComponent(Astro.cookies.get(DEMO_COOKIE_NAMES.email)!.value!)
+// Get authenticated user from middleware
+const betterAuthUser = Astro.locals.user;
+const authUser: AuthUser | null = betterAuthUser
+  ? {
+      id: betterAuthUser.id,
+      email: betterAuthUser.email,
+      emailVerified: betterAuthUser.emailVerified || false,
+      username: (betterAuthUser as any).username as string | undefined,
+      displayUsername: (betterAuthUser as any).displayUsername as
+        | string
+        | undefined,
+      name: betterAuthUser.name,
+      image: betterAuthUser.image
+        ? (betterAuthUser.image as string)
+        : undefined,
+      createdAt: betterAuthUser.createdAt,
+      updatedAt: betterAuthUser.updatedAt,
+    }
   : null;
 
 let currentUserData: UserStar | null = null;
 let currentUserId: string | undefined;
 
-if (demoEmail) {
-  const demoUser = await getStarByEmail(demoEmail);
-  if (demoUser?._id) {
-    currentUserId = demoUser._id;
-    const userStar = await getUserStar(galaxyIdParam, demoUser._id);
-    if (userStar) {
+if (authUser?.id) {
+  const userStar = await getStarByUserId(authUser.id);
+  if (userStar?._id) {
+    currentUserId = userStar._id;
+    const galaxyUserStar = await getUserStar(galaxyIdParam, userStar._id);
+    if (galaxyUserStar) {
       currentUserData = {
-        ...userStar,
+        ...galaxyUserStar,
         draggable: isPlaceMode,
         galaxyId: galaxyIdParam,
       };
     } else {
-      // Get auth user data if userId is available
-      let nickname = demoEmail.split("@")[0];
-      let src: string | undefined;
-      if (demoUser.userId) {
-        const authUser = await getAuthUserById(demoUser.userId);
-        if (authUser) {
-          nickname = authUser.name || authUser.username || nickname;
-          src = authUser.image;
-        }
-      }
+      // Get auth user data for display
+      const nickname =
+        authUser.name ||
+        authUser.username ||
+        authUser.email?.split("@")[0] ||
+        "User";
       currentUserData = {
         galaxyId: galaxyIdParam,
         nickname,
-        src,
+        src: authUser.image,
         alt: undefined,
-        stars: demoUser.stars,
-        sunshines: demoUser.sunshines,
-        role: demoUser.role,
+        stars: userStar.stars || 0,
+        sunshines: userStar.sunshines || 0,
+        role: undefined, // Star type doesn't have role, will be set when user places star in galaxy
         uri: undefined,
-        userId: demoUser._id,
+        userId: userStar._id,
         draggable: isPlaceMode,
       };
     }
@@ -153,19 +165,13 @@ const projectData: ProjectInfoProps = {
   closedIssues: 0, // TODO: Add closed issues count to galaxy model
   avgResponseTime: "N/A", // TODO: Calculate from issues
   author: {
-    uri: authorUri,
+    _id: maintainer?._id,
+    userId: maintainer?.userId,
+    src: maintainerSrc,
     children: authorName,
     icon: maintainerSrc,
-    rating:
-      maintainer?.role === "maintainer"
-        ? {
-            ratingType: "maintainer",
-            lvl: Math.floor((maintainer?.stars || 0) * 2),
-            maxLvl: 10,
-            top: 0, // TODO: Calculate top position
-          }
-        : undefined,
-  },
+    rating: undefined,
+  } as any, // Type mismatch: ProfileLink (Star) doesn't match actual usage
   stars: starsWithDraggable,
   originalProjectUrl: "",
   followers: galaxy.users,

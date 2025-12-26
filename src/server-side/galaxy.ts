@@ -45,8 +45,7 @@ function galaxyModelToGalaxy(model: GalaxyModel | null): Galaxy | null {
 }
 
 function galaxyToGalaxyModel(galaxy: Galaxy): GalaxyModel {
-    return {
-        _id: galaxy._id ? new ObjectId(galaxy._id) : undefined,
+    const model: GalaxyModel = {
         maintainer: new ObjectId(galaxy.maintainer),
         projectLink: new ObjectId(galaxy.projectLink),
         name: galaxy.name,
@@ -61,6 +60,10 @@ function galaxyToGalaxyModel(galaxy: Galaxy): GalaxyModel {
         blockchainId: galaxy.blockchainId,
         blockchainTx: galaxy.blockchainTx,
     }
+    if (galaxy._id) {
+        model._id = new ObjectId(galaxy._id)
+    }
+    return model
 }
 
 /**
@@ -108,14 +111,20 @@ export async function getGalaxyByName(name: string): Promise<Galaxy | null> {
 
 /**
  * Create a new galaxy
+ * @returns The created galaxy ID, or null if creation failed
  */
-export async function createGalaxy(galaxy: Galaxy): Promise<boolean> {
+export async function createGalaxy(galaxy: Galaxy): Promise<string | null> {
     try {
         const galaxyModel = galaxyToGalaxyModel(galaxy)
-        return await create<GalaxyModel>('galaxies', galaxyModel)
+        const collection = await getCollection<GalaxyModel>('galaxies')
+        const result = await collection.insertOne(galaxyModel as any)
+        if (!result.insertedId) {
+            return null
+        }
+        return result.insertedId.toString()
     } catch (error) {
         console.error('Error creating galaxy:', error)
-        return false
+        return null
     }
 }
 

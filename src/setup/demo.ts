@@ -3,7 +3,7 @@ import { Wallet } from 'ethers'
 import { getCollection } from '../server-side/db'
 import { getOrCreateStarByEmail, getStarByEmail } from '../server-side/star'
 import { createGalaxy, getAllGalaxies } from '../server-side/galaxy'
-import { createProject, getProjectById } from '../server-side/project'
+import { createProject, getProjectById, getOrCreateProject, createProjectIndexes } from '../server-side/project'
 import type { Galaxy } from '../types/galaxy'
 import type { Project } from '../types/project'
 import { send } from '@ara-web/crypto-sockets'
@@ -124,6 +124,9 @@ export async function setup(): Promise<void> {
         // Step 0: Ensure all users have private keys (must be done before creating galaxies)
         await ensureUsersHavePrivateKeys()
 
+        // Step 0.5: Create indexes on projects collection
+        await createProjectIndexes()
+
         // Get or create one maintainer of the projects.
         const maintainerId = await getOrCreateStarByEmail('milayter@gmail.com')
         console.log(`✅ Maintainer user ID: ${maintainerId}`)
@@ -133,7 +136,6 @@ export async function setup(): Promise<void> {
         const now = Math.floor(Date.now() / 1000)
         for (const galaxy of initialGalaxies) {
             const projectData: Omit<Project, '_id'> = {
-                uri: `/project?galaxy=${galaxy.name.toLowerCase().replace(/\s+/g, '-')}`,
                 forkLines: [],
                 socialLinks: [
                     {
@@ -248,9 +250,9 @@ async function ensureGalaxiesOnBlockchain(collection: Collection<GalaxyModel>): 
                 continue
             }
 
-            // Find GitHub link
-            const githubLink = project.socialLinks?.find(link => link.type === 'github')
-            const repoUrl = githubLink?.uri || `https://github.com/example/${galaxy.name.toLowerCase().replace(/\s+/g, '-')}`
+            // Find GitHub or GitLab link
+            const gitLink = project.socialLinks?.find(link => link.type === 'github' || link.type === 'gitlab')
+            const repoUrl = gitLink?.uri || `https://github.com/example/${galaxy.name.toLowerCase().replace(/\s+/g, '-')}`
 
             // Construct issues URL
             const issuesUrl = `https://app.ara.foundation/project/issues?galaxy=${galaxy._id}`

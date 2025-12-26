@@ -1,10 +1,12 @@
 import React, { useState, Children, useRef, useLayoutEffect, HTMLAttributes, ReactNode } from 'react';
 import { motion, AnimatePresence, Variants } from 'motion/react';
+import Button from './custom-ui/Button';
 
 interface StepperProps extends HTMLAttributes<HTMLDivElement> {
   children: ReactNode;
   initialStep?: number;
   onStepChange?: (step: number) => void;
+  onBeforeStepChange?: (currentStep: number, nextStep: number) => boolean | void;
   onFinalStepCompleted?: () => void;
   stepCircleContainerClassName?: string;
   stepContainerClassName?: string;
@@ -26,6 +28,7 @@ export default function Stepper({
   children,
   initialStep = 1,
   onStepChange = () => { },
+  onBeforeStepChange,
   onFinalStepCompleted = () => { },
   stepCircleContainerClassName = '',
   stepContainerClassName = '',
@@ -57,15 +60,31 @@ export default function Stepper({
 
   const handleBack = () => {
     if (currentStep > 1) {
+      const nextStep = currentStep - 1;
+      // Check if navigation is allowed
+      if (onBeforeStepChange) {
+        const canProceed = onBeforeStepChange(currentStep, nextStep);
+        if (canProceed === false) {
+          return; // Prevent navigation
+        }
+      }
       setDirection(-1);
-      updateStep(currentStep - 1);
+      updateStep(nextStep);
     }
   };
 
   const handleNext = () => {
     if (!isLastStep) {
+      const nextStep = currentStep + 1;
+      // Check if navigation is allowed
+      if (onBeforeStepChange) {
+        const canProceed = onBeforeStepChange(currentStep, nextStep);
+        if (canProceed === false) {
+          return; // Prevent navigation
+        }
+      }
       setDirection(1);
-      updateStep(currentStep + 1);
+      updateStep(nextStep);
     }
   };
 
@@ -80,8 +99,7 @@ export default function Stepper({
       {...rest}
     >
       <div
-        className={`mx-auto w-full rounded-xs shadow-xl ${stepCircleContainerClassName}`}
-        style={{ border: '1px solid #222' }}
+        className={`mx-auto w-full rounded-xs shadow-xl border border-slate-300 dark:border-slate-700 ${stepCircleContainerClassName}`}
       >
         <div className={`${stepContainerClassName} flex w-full items-center p-8`}>
           {stepsArray.map((_, index) => {
@@ -94,6 +112,13 @@ export default function Stepper({
                     step: stepNumber,
                     currentStep,
                     onStepClick: clicked => {
+                      // Check if navigation is allowed
+                      if (onBeforeStepChange) {
+                        const canProceed = onBeforeStepChange(currentStep, clicked);
+                        if (canProceed === false) {
+                          return; // Prevent navigation
+                        }
+                      }
                       setDirection(clicked > currentStep ? 1 : -1);
                       updateStep(clicked);
                     }
@@ -104,6 +129,13 @@ export default function Stepper({
                     disableStepIndicators={disableStepIndicators}
                     currentStep={currentStep}
                     onClickStep={clicked => {
+                      // Check if navigation is allowed
+                      if (onBeforeStepChange) {
+                        const canProceed = onBeforeStepChange(currentStep, clicked);
+                        if (canProceed === false) {
+                          return; // Prevent navigation
+                        }
+                      }
                       setDirection(clicked > currentStep ? 1 : -1);
                       updateStep(clicked);
                     }}
@@ -128,24 +160,44 @@ export default function Stepper({
           <div className={`px-8 pb-8 ${footerClassName}`}>
             <div className={`mt-10 flex ${currentStep !== 1 ? 'justify-between' : 'justify-end'}`}>
               {currentStep !== 1 && (
-                <button
-                  onClick={handleBack}
+                <Button
+                  variant='secondary'
+                  onClick={(event) => {
+                    handleBack();
+                    if (backButtonProps.onClick && event) {
+                      backButtonProps.onClick(event as React.MouseEvent<HTMLButtonElement>);
+                    }
+                  }}
                   className={`duration-350 rounded px-2 py-1 transition ${currentStep === 1
-                    ? 'pointer-events-none opacity-50 text-neutral-400'
-                    : 'text-neutral-400 hover:text-neutral-700'
+                    ? 'pointer-events-none opacity-50 text-neutral-400 dark:text-neutral-500'
+                    : 'text-neutral-400 dark:text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300'
                     }`}
-                  {...backButtonProps}
+                  {...(Object.fromEntries(
+                    Object.entries(backButtonProps).filter(([key]) => key !== 'onClick')
+                  ) as Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'onClick'>)}
                 >
                   {backButtonText}
-                </button>
+                </Button>
               )}
-              <button
-                onClick={isLastStep ? handleComplete : handleNext}
-                className="duration-350 flex items-center justify-center rounded-full bg-green-500 py-1.5 px-3.5 font-medium tracking-tight text-white transition hover:bg-green-600 active:bg-green-700"
-                {...nextButtonProps}
+              <Button
+                variant="primary"
+                onClick={(event) => {
+                  if (isLastStep) {
+                    handleComplete();
+                  } else {
+                    handleNext();
+                  }
+                  if (nextButtonProps.onClick && event) {
+                    nextButtonProps.onClick(event as React.MouseEvent<HTMLButtonElement>);
+                  }
+                }}
+                className="duration-350 flex items-center justify-center py-1.5 px-3.5 font-medium tracking-tight transition"
+                {...(Object.fromEntries(
+                  Object.entries(nextButtonProps).filter(([key]) => key !== 'onClick')
+                ) as Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'onClick'>)}
               >
                 {isLastStep ? 'Complete' : nextButtonText}
-              </button>
+              </Button>
             </div>
           </div>
         )}
@@ -268,19 +320,19 @@ function StepIndicator({ step, currentStep, onClickStep, disableStepIndicators =
     >
       <motion.div
         variants={{
-          inactive: { scale: 1, backgroundColor: '#222', color: '#a3a3a3' },
+          inactive: { scale: 1, backgroundColor: '#22222', color: '#a3a3a3' },
           active: { scale: 1, backgroundColor: '#5227FF', color: '#5227FF' },
           complete: { scale: 1, backgroundColor: '#5227FF', color: '#3b82f6' }
         }}
         transition={{ duration: 0.3 }}
-        className="flex h-8 w-8 items-center justify-center rounded-full font-semibold"
+        className="flex h-8 w-8 items-center justify-center rounded-full font-semibold border border-slate-300 dark:border-slate-600 bg-slate-100 dark:bg-slate-800"
       >
         {status === 'complete' ? (
-          <CheckIcon className="h-4 w-4 text-black" />
+          <CheckIcon className="h-4 w-4 text-green-600 dark:text-green-400" />
         ) : status === 'active' ? (
-          <div className="h-3 w-3 rounded-full bg-[#060010]" />
+          <div className="h-3 w-3 rounded-full bg-sky-500 dark:bg-sky-400" />
         ) : (
-          <span className="text-sm">{step}</span>
+          <span className="text-sm text-slate-600 dark:text-slate-400">{step}</span>
         )}
       </motion.div>
     </motion.div>
@@ -298,7 +350,7 @@ function StepConnector({ isComplete }: StepConnectorProps) {
   };
 
   return (
-    <div className="relative mx-2 h-0.5 flex-1 overflow-hidden rounded bg-neutral-600">
+    <div className="relative mx-2 h-0.5 flex-1 overflow-hidden rounded bg-neutral-300 dark:bg-neutral-700">
       <motion.div
         className="absolute left-0 top-0 h-full"
         variants={lineVariants}

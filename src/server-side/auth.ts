@@ -1,5 +1,6 @@
 import { ObjectId } from 'mongodb'
 import type { AuthUser, AuthSession, AuthAccount, AuthVerification } from '@/types/auth'
+import { getDb } from './db'
 
 /**
  * Better-Auth User Model (MongoDB)
@@ -145,10 +146,9 @@ function authVerificationToAuthVerificationModel(verification: AuthVerification)
  */
 export async function getAuthUserById(userId: string): Promise<AuthUser | null> {
     try {
-        const { getDb } = await import('@/server-side/db')
         const db = await getDb()
         const collection = db.collection<AuthUserModel>('user')
-        
+
         const user = await collection.findOne({ id: userId })
         return authUserModelToAuthUser(user)
     } catch (error) {
@@ -162,10 +162,9 @@ export async function getAuthUserById(userId: string): Promise<AuthUser | null> 
  */
 export async function getAuthUserByEmail(email: string): Promise<AuthUser | null> {
     try {
-        const { getDb } = await import('@/server-side/db')
         const db = await getDb()
         const collection = db.collection<AuthUserModel>('user')
-        
+
         const user = await collection.findOne({ email })
         return authUserModelToAuthUser(user)
     } catch (error) {
@@ -178,7 +177,6 @@ export async function getAuthUserByEmail(email: string): Promise<AuthUser | null
  * Get accounts by user ID
  */
 export async function getAccountsByUserId(userId: string): Promise<AuthAccount[]> {
-    const { getDb } = await import('@/server-side/db')
     const db = await getDb()
     const collection = db.collection<AuthAccountModel>('account')
 

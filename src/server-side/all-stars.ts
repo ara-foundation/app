@@ -5,6 +5,8 @@ import { getIssueById } from './issue'
 import { getAuthUserById } from './auth'
 import type { AllStarStats, SolarForgeModel, UserStar, SpaceTracer } from '@/types/all-stars'
 import type { StarModel } from './star'
+import { getStarById } from './star'
+import { getCollection as getIssueCollection } from './db'
 
 /**
  * Get all star statistics by aggregating data from galaxies and users
@@ -58,14 +60,6 @@ function userStarModelToUserStar(model: UserStarModel): UserStar {
     }
 }
 
-function userStarToModel(star: UserStar): UserStarModel {
-    const { _id, ...rest } = star
-    return {
-        ...rest,
-        _id: _id ? new ObjectId(_id) : undefined,
-    }
-}
-
 export async function getGalaxySpace(galaxyId: string): Promise<UserStar[]> {
     const collection = await getSpaceCollection()
     const stars = await collection.find({ galaxyId }).toArray()
@@ -79,24 +73,6 @@ export async function getUserStar(galaxyId: string, userId: string): Promise<Use
         return userStarModelToUserStar(existing)
     }
 
-    // const { getUserById } = await import('./user')
-    // const user = await getUserById(userId)
-    // const now = Math.floor(Date.now() / 1000)
-    // const placeholder: UserStarModel = {
-    //     galaxyId,
-    //     userId,
-    //     nickname: user?.nickname || userId,
-    //     src: user?.src,
-    //     alt: user?.alt,
-    //     stars: user?.stars,
-    //     sunshines: user?.sunshines,
-    //     role: user?.role,
-    //     uri: user?.uri,
-    //     createdTime: now,
-    //     updatedTime: now,
-    // }
-
-    // await collection.insertOne(placeholder as any)
     return null
 }
 
@@ -122,9 +98,8 @@ export async function upsertSpaceUserStar(params: {
         return userStarModelToUserStar(updated)
     }
 
-    const { getStarById } = await import('./star')
     const star = await getStarById(userId)
-    
+
     // Get auth user data for nickname and src
     let nickname = data?.nickname || userId
     let src = data?.src
@@ -135,7 +110,7 @@ export async function upsertSpaceUserStar(params: {
             src = data?.src ?? authUser.image
         }
     }
-    
+
     const base: UserStarModel = {
         galaxyId,
         userId,
@@ -144,7 +119,6 @@ export async function upsertSpaceUserStar(params: {
         alt: data?.alt,
         stars: data?.stars ?? star?.stars,
         sunshines: data?.sunshines ?? star?.sunshines,
-        role: data?.role ?? star?.role,
         uri: data?.uri,
         createdTime: now,
         updatedTime: now,
@@ -235,7 +209,6 @@ export async function updateIssueStars(
     sunshines: number
 ): Promise<boolean> {
     try {
-        const { getCollection: getIssueCollection } = await import('./db')
         const collection = await getIssueCollection<any>('issues')
         const objectId = typeof issueId === 'string' ? new ObjectId(issueId) : issueId
 

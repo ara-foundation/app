@@ -155,6 +155,43 @@ export const mockContestData: ContestData = {
   description: 'Active, funded projects compete for 5% of donations pooled within the contest period. In the winning project it\'s shared by users, maintainers, and contributors according to their stars.',
 };
 
+import type { RepositoryAnalysis } from '@/types/git-repository';
+
+// Mock repository analysis data for development/testing when GitHub API rate limit is exceeded
+export const mockRepositoryAnalysis: RepositoryAnalysis = {
+  gitUrl: 'https://github.com/example/mock-repo',
+  provider: 'github',
+  owner: 'example',
+  repo: 'mock-repo',
+  metadata: {
+    lastCommitId: 'abc123def456',
+    lastCommitTimestamp: Math.floor(Date.now() / 1000) - 86400, // 1 day ago
+    totalCommits: 150,
+    visibility: 'public',
+    defaultBranch: 'master',
+    name: 'Mock Repository',
+    description: 'A mock repository for testing purposes when API rate limits are exceeded',
+    language: 'TypeScript',
+    homepage: 'https://example.com',
+    topics: ['mock', 'testing', 'development'],
+  },
+  license: {
+    license: 'MIT',
+    confidence: 0.9,
+    source: 'package.json',
+  },
+  projectLinks: {
+    homepage: 'https://example.com',
+    documentation: 'https://example.com/docs',
+    packageLinks: ['https://www.npmjs.com/package/mock-repo'],
+  },
+  dependencyTree: {
+    dependencies: [],
+    source: 'mock',
+    completeness: 'direct-only',
+  },
+};
+
 // Mock receiver configurations for transactions (3 different receiver structures)
 export const mockTransactionReceivers: ReceiverInfoProps[][] = [
   // Configuration 1: Complex nested structure

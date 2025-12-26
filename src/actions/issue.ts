@@ -165,7 +165,7 @@ export const server = {
                 if (!galaxy || !galaxy.maintainer) {
                     return {
                         success: false,
-                        error: 'Galaxy not found',
+                        error: 'Can not create issue, galaxy id invalid',
                     };
                 }
 
@@ -174,7 +174,7 @@ export const server = {
                 if (!user) {
                     return {
                         success: false,
-                        error: 'User not found',
+                        error: 'Can not create issue, user id invalid',
                     };
                 }
 
@@ -184,7 +184,7 @@ export const server = {
                     if (sunshines > availableSunshines) {
                         return {
                             success: false,
-                            error: `Insufficient sunshines. Available: ${availableSunshines}`,
+                            error: `Can not create issue, insufficient sunshines. Available: ${availableSunshines}`,
                         };
                     }
 
@@ -193,7 +193,7 @@ export const server = {
                     if (!userUpdated) {
                         return {
                             success: false,
-                            error: 'Failed to update user sunshines',
+                            error: 'Can not create issue, failed to update user sunshines',
                         };
                     }
 
@@ -204,7 +204,7 @@ export const server = {
                         await updateStarSunshines(userId, sunshines);
                         return {
                             success: false,
-                            error: 'Failed to update galaxy sunshines',
+                            error: 'Can not create issue, failed to update galaxy sunshines',
                         };
                     }
                 }
@@ -217,7 +217,7 @@ export const server = {
                         username = authUser.name || authUser.username || authUser.email?.split('@')[0] || 'unknown'
                     }
                 }
-                
+
                 // Create issue with authorId
                 const issue: Issue = {
                     galaxy: galaxyId,
@@ -394,12 +394,10 @@ export const server = {
                 }
 
                 // Check if user role is maintainer (we need to check the actual user role)
-                if (user.role !== 'maintainer') {
-                    return {
-                        success: false,
-                        error: 'Only maintainers can assign contributors',
-                    };
-                }
+                return {
+                    success: false,
+                    error: 'Only maintainers can assign contributors',
+                };
 
                 // Get issue
                 const issue = await getIssueById(issueId);

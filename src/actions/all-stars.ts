@@ -135,7 +135,7 @@ async function solarForgeByIssue(issueId: string): Promise<SolarForgeByIssueResu
                             alt: undefined,
                             stars: user.stars,
                             sunshines: user.sunshines,
-                            role: user.role,
+                            role: 'maintainer',
                             uri: undefined,
                         },
                     })
@@ -164,7 +164,7 @@ async function solarForgeByIssue(issueId: string): Promise<SolarForgeByIssueResu
             return {
                 users: [],
                 solarForgeId: '',
-                error: 'Galaxy not found or missing blockchainId',
+                error: 'Can not solar forge issue, galaxy id invalid or missing blockchainId',
             }
         }
 
@@ -195,7 +195,7 @@ async function solarForgeByIssue(issueId: string): Promise<SolarForgeByIssueResu
                 return {
                     users: [],
                     solarForgeId: '',
-                    error: `Blockchain error: ${errorReply.error}`,
+                    error: `Crypto-sockets error while solar forging issue: ${errorReply.error}`,
                 }
             }
 
@@ -227,7 +227,7 @@ async function solarForgeByIssue(issueId: string): Promise<SolarForgeByIssueResu
         return {
             users: [],
             solarForgeId: '',
-            error: 'An error occurred while solar forging issue',
+            error: 'Can not solar forge issue, an error occurred: ' + (error instanceof Error ? error.message : 'Unknown error'),
         }
     }
 }

@@ -1,6 +1,6 @@
 import { defineAction } from 'astro:actions';
 import { z } from 'astro:schema';
-import { generateCode } from '@/server-side/ai-code-generator';
+import { generateCode } from '@/server-side/ai';
 import {
   createPersonalization,
   getPersonalizationsByUserAndContext,

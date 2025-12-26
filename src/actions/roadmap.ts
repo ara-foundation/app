@@ -2,6 +2,8 @@ import { defineAction } from 'astro:actions'
 import { z } from 'astro:schema'
 import { getVersionsByGalaxy, getVersionById, updateVersionStatus, revertPatch, createVersion, updatePatches, removePatch, completePatch, testPatch } from '@/server-side/roadmap'
 import type { Version, Patch } from '@/types/roadmap'
+import { getDemoByEmail } from '@/server-side/demo'
+import { getStarByIds } from '@/server-side/star'
 
 export const server = {
     getVersionsByGalaxy: defineAction({
@@ -112,8 +114,6 @@ export const server = {
         handler: async ({ galaxyId, tag, email }): Promise<{ success: boolean; version?: Version; error?: string }> => {
             try {
                 // Get demo to find maintainer user
-                const { getDemoByEmail } = await import('@/server-side/demo');
-                const { getStarByIds } = await import('@/server-side/star');
                 const demo = await getDemoByEmail(email);
                 if (!demo || !demo.users || demo.users.length === 0) {
                     return {
@@ -132,7 +132,7 @@ export const server = {
                 }
 
                 // Find maintainer user
-                const maintainerUser = users.find(u => u.role === 'maintainer');
+                const maintainerUser = users.find(u => u.userId === demo.users[0].toString());
                 if (!maintainerUser || !maintainerUser._id) {
                     return {
                         success: false,
