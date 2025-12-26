@@ -111,7 +111,6 @@ const RepositoryInfoPanel: React.FC<RepositoryInfoPanelProps> = ({
                 </button>
                 {expandedSections.has('galaxy') && (
                     <div className="space-y-2 pl-4 border-l-2 border-slate-200 dark:border-slate-700">
-                        <LabelValue label="Position (X, Y)" value={`(${galaxy.x}, ${galaxy.y})`} />
                         {galaxy.blockchainId && (
                             <LabelValue label="Blockchain ID" value={galaxy.blockchainId} />
                         )}

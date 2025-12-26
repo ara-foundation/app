@@ -10,7 +10,7 @@ import ProjectGoalPanel from "@/components/project/ProjectGoalPanel";
 import BackButton from "@/components/custom-ui/BackButton";
 import AllStarsContest from "@/components/all-stars/AllStarsContest";
 import { getGalaxySpace, getUserStar } from "@/server-side/all-stars";
-import { getGalaxyById } from "@/server-side/galaxy";
+import { getGalaxyById, getAllGalaxies } from "@/server-side/galaxy";
 import { getProjectById } from "@/server-side/project";
 import { getStarById, getStarByUserId } from "@/server-side/star";
 import { getAuthUserById } from "@/server-side/auth";
@@ -19,6 +19,7 @@ import type { UserStar } from "@/types/all-stars";
 import type { AuthUser } from "@/types/auth";
 import RepositoryInfoPanel from "@/components/project/RepositoryInfoPanel";
 import GalaxyBar from "@/components/project/GalaxyBar";
+import AllStarsUniversePanel from "@/components/project/AllStarsUniversePanel";
 
 // Get galaxy ID from query parameter
 const galaxyIdParam = Astro.url.searchParams.get("galaxy");
@@ -183,6 +184,17 @@ const projectData: ProjectInfoProps = {
   actions: [],
   projectGoal: 1000, // TODO: Add project goal to galaxy or project model
 };
+
+// Calculate universe bounds from all galaxies
+const allGalaxies = await getAllGalaxies();
+const galaxyXValues =
+  allGalaxies.length > 0 ? allGalaxies.map((g) => g.x || 0) : [0];
+const galaxyYValues =
+  allGalaxies.length > 0 ? allGalaxies.map((g) => g.y || 0) : [0];
+const minX = Math.min(...galaxyXValues);
+const maxX = Math.max(...galaxyXValues);
+const minY = Math.min(...galaxyYValues);
+const maxY = Math.max(...galaxyYValues);
 ---
 
 <GalaxyLayout
@@ -247,6 +259,17 @@ const projectData: ProjectInfoProps = {
       />
     )
   }
+
+  <AllStarsUniversePanel
+    slot="left"
+    client:only="react"
+    galaxyId={galaxyIdParam}
+    galaxyX={galaxy.x}
+    galaxyY={galaxy.y}
+    universeBounds={{ minX, maxX, minY, maxY }}
+    maintainerId={galaxy.maintainer}
+    currentUserId={currentUserId}
+  />
 
   <ProjectGoalPanel
     slot="right"

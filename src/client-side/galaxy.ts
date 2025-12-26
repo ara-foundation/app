@@ -138,3 +138,59 @@ export async function updateProjectReadme(
         return { success: false, error: 'An error occurred' };
     }
 }
+
+/**
+ * Update galaxy coordinates
+ */
+export async function updateGalaxyCoordinates(
+    galaxyId: string,
+    x?: number,
+    y?: number
+): Promise<{ success: boolean; txId?: string; order: number; x: number; y: number; error?: string }> {
+    try {
+        const session = await authClient.getSession();
+        const user = session?.data?.user as AuthUser | undefined;
+        if (!user?.id) {
+            return {
+                success: false,
+                x: 0,
+                y: 0,
+                order: 0,
+                error: 'User not logged in',
+            };
+        }
+
+        const result = await (actions as any).updateGalaxyCoordinates({
+            galaxyId,
+            userId: user.id,
+            x,
+            y,
+        });
+
+        if (result.data?.success) {
+            return {
+                success: true,
+                txId: result.data.txId,
+                order: result.data.order,
+                x: result.data.x,
+                y: result.data.y,
+            };
+        }
+        return {
+            success: false,
+            x: result.data?.x || 0,
+            y: result.data?.y || 0,
+            order: result.data?.order || 0,
+            error: result.data?.error || 'Failed to update galaxy coordinates',
+        };
+    } catch (error) {
+        console.error('Error updating galaxy coordinates:', error);
+        return {
+            success: false,
+            x: 0,
+            y: 0,
+            order: 0,
+            error: 'An error occurred',
+        };
+    }
+}

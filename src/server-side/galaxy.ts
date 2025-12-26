@@ -161,3 +161,21 @@ export async function getGalaxiesByMaintainer(userId: string | ObjectId): Promis
     }
 }
 
+/**
+ * Update galaxy position (x, y coordinates)
+ */
+export async function updateGalaxyPosition(galaxyId: string | ObjectId, x: number, y: number): Promise<boolean> {
+    try {
+        const collection = await getCollection<GalaxyModel>('galaxies')
+        const objectId = typeof galaxyId === 'string' ? new ObjectId(galaxyId) : galaxyId
+        const result = await collection.updateOne(
+            { _id: objectId },
+            { $set: { x, y } }
+        )
+        return result.modifiedCount > 0
+    } catch (error) {
+        console.error('Error updating galaxy position:', error)
+        return false
+    }
+}
+

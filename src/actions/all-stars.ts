@@ -599,5 +599,21 @@ export const server = {
             }
         },
     }),
+
+    getGalaxyPositionHistory: defineAction({
+        accept: 'json',
+        input: z.object({
+            galaxyId: z.string(),
+        }),
+        handler: async ({ galaxyId }) => {
+            try {
+                const history = await getGalaxyPositionHistory(galaxyId)
+                return { success: true, data: history }
+            } catch (error) {
+                console.error('Error getting galaxy position history:', error)
+                return { success: false, data: [], error: error instanceof Error ? error.message : 'Failed to get position history' }
+            }
+        },
+    }),
 }
 

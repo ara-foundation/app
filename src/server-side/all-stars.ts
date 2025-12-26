@@ -3,7 +3,7 @@ import { getCollection } from './db'
 import { getAllGalaxies } from './galaxy'
 import { getIssueById } from './issue'
 import { getAuthUserById } from './auth'
-import type { AllStarStats, SolarForgeModel, UserStar, SpaceTracer } from '@/types/all-stars'
+import type { AllStarStats, SolarForgeModel, UserStar, SpaceTracer, GalaxyPositionTracer } from '@/types/all-stars'
 import type { StarModel } from './star'
 import { getStarById } from './star'
 import { getCollection as getIssueCollection } from './db'
@@ -241,6 +241,49 @@ export async function updateIssueStars(
     } catch (error) {
         console.error('Error updating issue stars:', error)
         return false
+    }
+}
+
+interface GalaxyPositionTracerModel extends Omit<GalaxyPositionTracer, '_id'> {
+    _id?: ObjectId
+}
+
+async function getGalaxyPositionTracerCollection() {
+    return getCollection<GalaxyPositionTracerModel>('galaxy-position-tracer')
+}
+
+export async function createGalaxyPositionTracer(params: { galaxyId: string; x: number; y: number; txId?: string; order: number }): Promise<string> {
+    try {
+        const { galaxyId, x, y, txId, order } = params
+        const collection = await getGalaxyPositionTracerCollection()
+        const now = Math.floor(Date.now() / 1000)
+        const tracer: GalaxyPositionTracerModel = {
+            galaxyId,
+            x,
+            y,
+            txId,
+            order,
+            createdTime: now,
+        }
+        const result = await collection.insertOne(tracer as any)
+        return result.insertedId.toString()
+    } catch (error) {
+        console.error('Error creating galaxy position tracer:', error)
+        throw error
+    }
+}
+
+export async function getGalaxyPositionHistory(galaxyId: string): Promise<GalaxyPositionTracer[]> {
+    try {
+        const collection = await getGalaxyPositionTracerCollection()
+        const tracers = await collection.find({ galaxyId }).sort({ order: -1 }).toArray()
+        return tracers.map(tracer => ({
+            ...tracer,
+            _id: tracer._id?.toString(),
+        }))
+    } catch (error) {
+        console.error('Error getting galaxy position history:', error)
+        return []
     }
 }
 

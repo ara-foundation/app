@@ -84,6 +84,16 @@ export interface SpaceTracer {
     createdTime?: number;
 }
 
+export interface GalaxyPositionTracer {
+    _id?: string;
+    galaxyId: string;
+    x: number;
+    y: number;
+    txId?: string; // Blockchain transaction ID
+    order: number; // Sequential order number
+    createdTime?: number;
+}
+
 /**
  * Convert sunshines to stars using the formula: stars = sunshines / 180
  * @param sunshines - The amount of sunshines to convert
