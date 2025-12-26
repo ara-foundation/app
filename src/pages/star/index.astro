@@ -4,14 +4,14 @@ import GalaxyLayout from "@/layouts/GalaxyLayout.astro";
 import { MenuName } from "@/components/navbar/WorkNavbar.astro";
 import BackButton from "@/components/custom-ui/BackButton";
 import GalaxyAutoZoom from "@/components/all-stars/GalaxyAutoZoom";
-import ProfileWithBlogs from "@/components/user/ProfileWithBlogs";
+import StarProfileHero from "@/components/user/StarProfileHero";
 import CreateBlogCTA from "@/components/blog/CreateBlogCTA";
 import ConditionalSignOutButton from "@/components/auth/ConditionalSignOutButton";
+import UserAccountPanel from "@/components/user/UserAccountPanel";
 import { getStarById, getStarByUserId } from "@/server-side/star";
 import { getAuthUserById } from "@/server-side/auth";
 import { getGalaxiesByMaintainer } from "@/server-side/galaxy";
 import { getBlogsByAuthor } from "@/server-side/blog";
-import { mockUserStars } from "@/types/mock-data";
 import type { AuthUser } from "@/types/auth";
 
 // Get user identifier from query params
@@ -28,15 +28,6 @@ if (userIdParam) {
 } else if (userEmailParam) {
     user = await getStarByUserId(userEmailParam);
     console.log("star by email", user);
-} else {
-    // Try to get current star from demo cookies (server-side fallback)
-    const demoEmail = Astro.cookies.get("demo-email")?.value;
-    if (demoEmail) {
-        user = await getStarByUserId(demoEmail);
-        console.log("star by demo email", user);
-    } else {
-        console.log("no star found");
-    }
 }
 
 // If no user found, redirect to 404
@@ -50,46 +41,45 @@ const userGalaxies = await getGalaxiesByMaintainer(user._id!);
 // Get user's blogs
 const userBlogs = await getBlogsByAuthor(user._id!);
 
-// Prepare galaxies for display in the virtual screen
-const allGalaxies = userGalaxies.map((galaxy, index) => ({
-    x: galaxy.x,
-    y: galaxy.y,
-    projectName: galaxy.name,
-    projectId: galaxy._id?.toString() || "",
-    galaxyData: galaxy,
-    tags: galaxy.tags,
-    leaderboardPosition: index + 1,
-}));
+// Prepare galaxies for display in the virtual screen with random positions
+const allGalaxies = userGalaxies.map((galaxy, index) => {
+    // Generate random x, y for virtual screen display
+    // Avoid center area (middle 40% of screen width)
+    const seed = galaxy._id
+        ? galaxy._id
+              .split("")
+              .reduce((acc, char) => acc + char.charCodeAt(0), 0)
+        : index;
+    const randomX = ((seed * 9301 + 49297) % 233280) / 233280;
+    const randomY = (((seed * 9301 + 49297) * 9301 + 49297) % 233280) / 233280;
 
-// Calculate center position for user (average of their galaxies, or default to 0,0)
-const userX =
-    userGalaxies.length > 0
-        ? userGalaxies.reduce((sum, g) => sum + g.x, 0) / userGalaxies.length
-        : 0;
-const userY =
-    userGalaxies.length > 0
-        ? userGalaxies.reduce((sum, g) => sum + g.y, 0) / userGalaxies.length
-        : 0;
+    // Center area is 30% to 70% of screen width (avoiding middle 40%)
+    // Place galaxies in left 30% or right 30% of screen
+    const centerStart = 0.3; // 30% from left
+    const centerEnd = 0.7; // 70% from left
+    let x: number;
 
-// Get auth user from locals (set by middleware)
-const betterAuthUser = Astro.locals.user;
-const authUser: AuthUser | null = betterAuthUser
-    ? {
-          id: betterAuthUser.id,
-          email: betterAuthUser.email,
-          emailVerified: betterAuthUser.emailVerified || false,
-          username: (betterAuthUser as any).username as string | undefined,
-          displayUsername: (betterAuthUser as any).displayUsername as
-              | string
-              | undefined,
-          name: betterAuthUser.name,
-          image: betterAuthUser.image
-              ? (betterAuthUser.image as string)
-              : undefined,
-          createdAt: betterAuthUser.createdAt,
-          updatedAt: betterAuthUser.updatedAt,
-      }
-    : null;
+    if (randomX < 0.5) {
+        // Place in left region (0% to 30%)
+        x = randomX * centerStart * 1000;
+    } else {
+        // Place in right region (70% to 100%)
+        x = (centerEnd + (randomX - 0.5) * (1 - centerEnd)) * 1000;
+    }
+
+    // Y can be anywhere in the screen height
+    const y = randomY * 1000;
+
+    return {
+        x,
+        y,
+        projectName: galaxy.name,
+        projectId: galaxy._id?.toString() || "",
+        galaxyData: galaxy,
+        tags: galaxy.tags,
+        leaderboardPosition: index + 1,
+    };
+});
 
 // Get auth user for the star being viewed
 let starAuthUser: AuthUser | null = null;
@@ -110,10 +100,8 @@ if (user?.userId) {
     active={MenuName.ProjectName}
     hideLinks={Object.keys(MenuName)}
     projectName={displayName}
-    stars={mockUserStars}
-    projectGoal={1000}
-    projectX={userX}
-    projectY={userY}
+    projectX={0}
+    projectY={0}
     projectGalaxies={allGalaxies}
 >
     <BackButton slot="left" client:load />
@@ -124,7 +112,14 @@ if (user?.userId) {
         client:load
     />
 
-    <ProfileWithBlogs
+    <UserAccountPanel
+        slot="right"
+        user={user}
+        authUser={starAuthUser}
+        client:only="react"
+    />
+
+    <StarProfileHero
         slot="center"
         user={user}
         galaxies={userGalaxies}
@@ -135,7 +130,7 @@ if (user?.userId) {
 
     <CreateBlogCTA slot="center" authorId={user._id!} client:only="react" />
 
-    <GalaxyAutoZoom client:only="react" galaxyX={userX} galaxyY={userY} />
+    <GalaxyAutoZoom client:only="react" galaxyX={0} galaxyY={0} />
 </GalaxyLayout>
 
 <style is:global>

@@ -119,25 +119,9 @@ const ProfilePanel: React.FC<ProfilePanelProps> = ({ user, galaxies, authUser })
             <BasePanel className="max-w-2xl w-full shadow-lg">
                 <div className="space-y-8 p-6 md:p-8">
                     {/* Name and Role */}
-                    <div className="text-center space-y-3">
-                        <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">
-                            {displayName}
-                        </h1>
-                        {user.role && (
-                            <div className="inline-flex items-center">
-                                <span
-                                    className={cn(
-                                        "text-xs md:text-sm font-semibold px-4 py-1.5 rounded-full shadow-sm",
-                                        user.role === 'maintainer' && 'bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300 border border-blue-200 dark:border-blue-800',
-                                        user.role === 'contributor' && 'bg-purple-100 text-purple-700 dark:bg-purple-900/50 dark:text-purple-300 border border-purple-200 dark:border-purple-800',
-                                        user.role === 'user' && 'bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-300 border border-green-200 dark:border-green-800'
-                                    )}
-                                >
-                                    {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
-                                </span>
-                            </div>
-                        )}
-                    </div>
+                    <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-slate-900 dark:text-slate-100 tracking-tigh text-center">
+                        {displayName}
+                    </h1>
 
                     {/* Sunshines and Stars Display */}
                     <div className="flex items-center justify-center gap-12 py-6 border-t border-b border-slate-200 dark:border-slate-700/50">
