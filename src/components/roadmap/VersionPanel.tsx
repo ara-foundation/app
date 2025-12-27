@@ -88,6 +88,7 @@ const ProjectVersionPanel: React.FC<Version> = ({
   }, [maintainer])
 
   // Fetch sunshines from patches if patches is not empty
+  // Also update patches with sunshines if they don't have them
   useEffect(() => {
     if (patchesList.length === 0) {
       setTotalSunshines(0)
@@ -101,6 +102,32 @@ const ProjectVersionPanel: React.FC<Version> = ({
           getIssueById(patch.id)
         )
         const results = await Promise.all(issuePromises)
+
+        // Update patches with sunshines from issues if they're missing
+        const patchesNeedUpdate = patchesList.some((patch, index) => {
+          const issue = results[index]
+          return issue && (patch.sunshines === undefined || patch.sunshines === null || patch.sunshines !== issue.sunshines)
+        })
+
+        if (patchesNeedUpdate) {
+          setPatchesList(prevPatches => {
+            // Only update if there are actual changes to avoid infinite loops
+            const updatedPatches = prevPatches.map((patch, index) => {
+              const issue = results[index]
+              if (issue && (patch.sunshines === undefined || patch.sunshines === null || patch.sunshines !== issue.sunshines)) {
+                return {
+                  ...patch,
+                  sunshines: issue.sunshines || 0
+                }
+              }
+              return patch
+            })
+            // Only update if something actually changed
+            const hasChanges = updatedPatches.some((patch, index) => patch.sunshines !== prevPatches[index]?.sunshines)
+            return hasChanges ? updatedPatches : prevPatches
+          })
+        }
+
         const total = results.reduce((sum, issue) => {
           if (issue) {
             return sum + (issue.sunshines || 0)
@@ -376,7 +403,7 @@ const ProjectVersionPanel: React.FC<Version> = ({
         title: item.title,
         completed: completed,
         tested: false,
-        sunshines: item.sunshines,
+        sunshines: issue.sunshines || 0, // Use sunshines from the fetched issue, not from item
       };
       updatedPatches.push(newPatch);
 
