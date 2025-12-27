@@ -2,7 +2,6 @@ import { actions } from 'astro:actions';
 import type { Version, Patch, VersionReleasedEventDetail } from '@/types/roadmap';
 import { ROADMAP_EVENT_TYPES } from '@/types/roadmap';
 import { PATCH_EVENT_TYPES } from '@/types/patch';
-import { getDemo } from './demo';
 
 /**
  * Get versions by galaxy ID (read-only, no event)
@@ -150,13 +149,6 @@ export async function testPatch(params: {
         const result = await actions.testPatch(params);
         if (result.data?.success) {
             // Broadcast patch update event
-            // Step 6: Test Completed - when tested is true
-            if (params.tested) {
-                const demo = getDemo();
-                if (demo.email) {
-                    await incrementDemoStep({ email: demo.email, expectedStep: 6 });
-                }
-            }
             return true;
         }
         return false;
@@ -203,15 +195,8 @@ export async function releaseVersion(params: {
     galaxyId: string;
 }): Promise<boolean> {
     try {
-        const demo = getDemo();
-        if (!demo.email) {
-            console.error('No demo email found');
-            return false;
-        }
-
         const closeResult = await actions.closeIssuesByVersion({
             versionId: params.versionId,
-            email: demo.email,
         });
         if (!closeResult.data?.success) {
             console.error('Failed to close issues');
@@ -235,10 +220,6 @@ export async function releaseVersion(params: {
         window.dispatchEvent(new CustomEvent(ROADMAP_EVENT_TYPES.VERSION_RELEASED, {
             detail: eventDetail,
         }));
-
-        // Step 7: Release Version
-        console.log('incrementing demo step for the 7th step after release version')
-        await incrementDemoStep({ email: demo.email, expectedStep: 7 });
 
         return true;
     } catch (error) {

@@ -8,7 +8,9 @@ import { ROADMAP_EVENT_TYPES, type VersionReleasedEventDetail } from '@/types/ro
 import { solarForgeByVersion } from '@/client-side/all-stars'
 import type { SolarForgeByVersionResult, SolarUser } from '@/types/all-stars'
 import { getStarById } from '@/client-side/star'
+import { getAuthUserById } from '@/client-side/auth'
 import type { User } from '@/types/star'
+import type { AuthUser } from '@/types/auth'
 import AuthStar from '@/components/auth/AuthStar'
 import { cn } from '@/lib/utils'
 import confetti from 'canvas-confetti'
@@ -19,7 +21,7 @@ const VersionSolarForge: React.FC = () => {
     const [versionTag, setVersionTag] = useState<string>('')
     const [galaxyId, setGalaxyId] = useState<string>('')
     const [result, setResult] = useState<SolarForgeByVersionResult | null>(null)
-    const [users, setUsers] = useState<Array<User & { earnedStars: number; roles: string[] }>>([])
+    const [users, setUsers] = useState<Array<User & { earnedStars: number; roles: string[]; authUser?: AuthUser }>>([])
     const [currentStep, setCurrentStep] = useState<'loading' | 'summary' | 'users' | 'topUser' | 'complete'>('loading')
     const [visibleUserIndex, setVisibleUserIndex] = useState<number>(-1)
     const timeoutRefsRef = React.useRef<NodeJS.Timeout[]>([])
@@ -54,11 +56,19 @@ const VersionSolarForge: React.FC = () => {
                 // Fetch user data for each solar user
                 const userPromises = forgeResult.users.map(async (solarUser: SolarUser) => {
                     const user = await getStarById(solarUser.id)
-                    return user ? { ...user, earnedStars: solarUser.stars, roles: solarUser.roles } : null
+                    if (!user) return null
+                    
+                    // Fetch auth user data for display (nickname, image, email)
+                    let authUser: AuthUser | undefined
+                    if (user.userId) {
+                        authUser = await getAuthUserById(user.userId)
+                    }
+                    
+                    return { ...user, earnedStars: solarUser.stars, roles: solarUser.roles, authUser }
                 })
 
                 const fetchedUsers = (await Promise.all(userPromises)).filter(
-                    (u): u is User & { earnedStars: number; roles: string[] } => u !== null
+                    (u): u is User & { earnedStars: number; roles: string[]; authUser?: AuthUser } => u !== null
                 )
 
                 setUsers(fetchedUsers)
@@ -237,10 +247,14 @@ const VersionSolarForge: React.FC = () => {
                                             )}
                                         >
                                             <div className="flex items-center gap-3">
-                                                <AuthStar star={user} />
+                                                <AuthStar 
+                                                    star={user}
+                                                    src={user.authUser?.image}
+                                                    nickname={user.authUser?.name || user.authUser?.username || user.authUser?.email?.split('@')[0] || 'Unknown'}
+                                                />
                                                 <div>
                                                     <div className="font-medium text-slate-800 dark:text-slate-200">
-                                                        {user.nickname || user.email?.split('@')[0] || 'Unknown'}
+                                                        {user.authUser?.name || user.authUser?.username || user.authUser?.email?.split('@')[0] || 'Unknown'}
                                                     </div>
                                                     <div className="flex gap-1 mt-1">
                                                         {user.roles.map((role, roleIndex) => (
@@ -285,9 +299,13 @@ const VersionSolarForge: React.FC = () => {
                                     Top Receiver
                                 </div>
                                 <div className="flex flex-col items-center p-6 rounded-lg border-2 border-yellow-400 dark:border-yellow-500 bg-yellow-50/50 dark:bg-yellow-900/20">
-                                    <AuthStar star={topUser} />
+                                    <AuthStar 
+                                        star={topUser}
+                                        src={topUser.authUser?.image}
+                                        nickname={topUser.authUser?.name || topUser.authUser?.username || topUser.authUser?.email?.split('@')[0] || 'Unknown'}
+                                    />
                                     <div className="mt-4 font-bold text-xl text-slate-800 dark:text-slate-200">
-                                        {topUser.nickname || topUser.email?.split('@')[0] || 'Unknown'}
+                                        {topUser.authUser?.name || topUser.authUser?.username || topUser.authUser?.email?.split('@')[0] || 'Unknown'}
                                     </div>
                                     <div className="flex gap-2 mt-2">
                                         {topUser.roles.map((role, index) => (

@@ -740,15 +740,29 @@ export const server = {
         accept: 'json',
         input: z.object({
             versionId: z.string(),
-            email: z.string().email(),
         }),
-        handler: async ({ versionId, email }): Promise<{ success: boolean; error?: string }> => {
+        handler: async ({ versionId }, { request }): Promise<{ success: boolean; error?: string }> => {
             try {
-                const demo = await getDemoByEmail(email);
-                if (!demo) {
+                // Check authentication
+                const session = await auth.api.getSession({
+                    headers: request.headers,
+                });
+
+                if (!session || !session.user) {
                     return {
                         success: false,
-                        error: 'Demo not found',
+                        error: 'Authentication required. Please log in to release a version',
+                    };
+                }
+
+                const authenticatedUserId = session.user.id;
+
+                // Get the star for the authenticated user
+                const authenticatedUserStar = await getStarByUserId(authenticatedUserId);
+                if (!authenticatedUserStar || !authenticatedUserStar._id) {
+                    return {
+                        success: false,
+                        error: 'User profile not found. Please ensure your account is set up correctly.',
                     };
                 }
 
@@ -757,6 +771,15 @@ export const server = {
                     return {
                         success: false,
                         error: 'Version not found',
+                    };
+                }
+
+                // Verify that the authenticated user is the maintainer of the version
+                const authenticatedStarId = authenticatedUserStar._id.toString();
+                if (version.maintainer !== authenticatedStarId) {
+                    return {
+                        success: false,
+                        error: 'Only the maintainer can release this version',
                     };
                 }
 
