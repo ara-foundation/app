@@ -35,7 +35,7 @@ const initialGalaxies: Omit<Galaxy, '_id' | 'maintainer' | 'projectLink'>[] = [
         users: 0,
         donationAmount: 0,
         x: 1300,
-        y: 100,
+        y: 200,
         tags: ['Payment', 'Protocol', 'Blockchain', 'Solidity', 'P2P'],
     },
     {
@@ -81,6 +81,17 @@ const initialGalaxies: Omit<Galaxy, '_id' | 'maintainer' | 'projectLink'>[] = [
         x: 400,
         y: 500,
         tags: ['Graphics', 'WebGL', 'Visualization', '3D', 'Rendering'],
+    },
+    {
+        name: 'Ara Centre',
+        description: 'The central hub of the Ara universe',
+        stars: 0,
+        sunshines: 0,
+        users: 0,
+        donationAmount: 0,
+        x: 900,
+        y: 500,
+        tags: ['Centre', 'Hub', 'Ara', 'Central'],
     },
 ]
 

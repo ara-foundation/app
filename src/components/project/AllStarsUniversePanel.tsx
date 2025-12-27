@@ -83,16 +83,27 @@ const AllStarsUniversePanel: React.FC<AllStarsUniversePanelProps> = ({
     };
 
     const isNotVisible = currentX === 0 && currentY === 0;
-    const minX = universeBounds?.minX ?? 0;
-    const maxX = universeBounds?.maxX ?? 0;
-    const minY = universeBounds?.minY ?? 0;
-    const maxY = universeBounds?.maxY ?? 0;
+    const hasPosition = currentX !== 0 || currentY !== 0;
+    
+    // Fixed minimap bounds: x: 0-1800, y: 0-1000
+    const minimapMinX = 0;
+    const minimapMaxX = 1800;
+    const minimapMinY = 0;
+    const minimapMaxY = 1000;
+    
+    // Ara Centre position (center of minimap: 900 on x, 500 on y)
+    const araCentreX = 900;
+    const araCentreY = 500;
 
-    // Calculate relative position for visualization
-    const universeWidth = maxX - minX || 1;
-    const universeHeight = maxY - minY || 1;
-    const relativeX = universeWidth > 0 ? ((currentX - minX) / universeWidth) * 100 : 50;
-    const relativeY = universeHeight > 0 ? ((currentY - minY) / universeHeight) * 100 : 50;
+    // Calculate relative position for visualization using fixed minimap bounds
+    const minimapWidth = minimapMaxX - minimapMinX;
+    const minimapHeight = minimapMaxY - minimapMinY;
+    const relativeX = minimapWidth > 0 ? ((currentX - minimapMinX) / minimapWidth) * 100 : 50;
+    const relativeY = minimapHeight > 0 ? ((currentY - minimapMinY) / minimapHeight) * 100 : 50;
+    
+    // Calculate Ara Centre position on minimap
+    const araCentreRelativeX = minimapWidth > 0 ? ((araCentreX - minimapMinX) / minimapWidth) * 100 : 50;
+    const araCentreRelativeY = minimapHeight > 0 ? ((araCentreY - minimapMinY) / minimapHeight) * 100 : 50;
 
     return (
         <InfoPanel
@@ -127,11 +138,9 @@ const AllStarsUniversePanel: React.FC<AllStarsUniversePanelProps> = ({
                     <div className="text-sm text-slate-700 dark:text-slate-300">
                         <span className="font-semibold">x:</span> {currentX}, <span className="font-semibold">y:</span> {currentY}
                     </div>
-                    {universeBounds && (
-                        <div className="text-xs text-slate-600 dark:text-slate-400">
-                            X: {minX} to {maxX}, Y: {minY} to {maxY}
-                        </div>
-                    )}
+                    <div className="text-xs text-slate-600 dark:text-slate-400">
+                        Minimap: X: {minimapMinX} to {minimapMaxX}, Y: {minimapMinY} to {minimapMaxY}
+                    </div>
                 </div>
 
                 {/* Not Visible Message */}
@@ -150,16 +159,28 @@ const AllStarsUniversePanel: React.FC<AllStarsUniversePanelProps> = ({
                     </div>
                 )}
 
-                {/* Visual Coordinate Display */}
-                {!isNotVisible && universeBounds && (
+                {/* Visual Coordinate Display - Minimap */}
+                {!isNotVisible && (
                     <div className="w-full">
                         <div className="relative w-full h-48 rounded-lg border-2 border-slate-300/50 dark:border-slate-600/50 bg-slate-50/30 dark:bg-slate-800/30 overflow-hidden">
-                            {/* Universe bounds rectangle */}
+                            {/* Minimap bounds rectangle */}
                             <div className="absolute inset-0 border border-slate-400/30 dark:border-slate-500/30" />
+
+                            {/* Ara Centre marker */}
+                            <div
+                                className="absolute w-2 h-2 rounded-full bg-yellow-500 dark:bg-yellow-400 border border-yellow-600 dark:border-yellow-500 shadow-lg transform -translate-x-1/2 -translate-y-1/2 z-10"
+                                style={{
+                                    left: `${Math.max(0, Math.min(100, araCentreRelativeX))}%`,
+                                    top: `${Math.max(0, Math.min(100, araCentreRelativeY))}%`,
+                                }}
+                                title="Ara Centre (500, 900)"
+                            >
+                                <div className="absolute inset-0 rounded-full bg-yellow-400 dark:bg-yellow-500 animate-pulse opacity-50" />
+                            </div>
 
                             {/* Galaxy position marker */}
                             <div
-                                className="absolute w-3 h-3 rounded-full bg-blue-500 dark:bg-blue-400 border-2 border-white dark:border-slate-900 shadow-lg transform -translate-x-1/2 -translate-y-1/2"
+                                className="absolute w-3 h-3 rounded-full bg-blue-500 dark:bg-blue-400 border-2 border-white dark:border-slate-900 shadow-lg transform -translate-x-1/2 -translate-y-1/2 z-20"
                                 style={{
                                     left: `${Math.max(0, Math.min(100, relativeX))}%`,
                                     top: `${Math.max(0, Math.min(100, relativeY))}%`,
@@ -168,9 +189,9 @@ const AllStarsUniversePanel: React.FC<AllStarsUniversePanelProps> = ({
                                 <div className="absolute inset-0 rounded-full bg-blue-400 dark:bg-blue-500 animate-ping opacity-75" />
                             </div>
 
-                            {/* Position label */}
+                            {/* Galaxy position label */}
                             <div
-                                className="absolute text-xs font-mono text-slate-700 dark:text-slate-300 bg-white/80 dark:bg-slate-900/80 px-2 py-1 rounded shadow-sm transform -translate-x-1/2"
+                                className="absolute text-xs font-mono text-slate-700 dark:text-slate-300 bg-white/80 dark:bg-slate-900/80 px-2 py-1 rounded shadow-sm transform -translate-x-1/2 z-20"
                                 style={{
                                     left: `${Math.max(0, Math.min(100, relativeX))}%`,
                                     top: `${Math.max(0, Math.min(100, relativeY + 5))}%`,
@@ -178,20 +199,45 @@ const AllStarsUniversePanel: React.FC<AllStarsUniversePanelProps> = ({
                             >
                                 ({currentX}, {currentY})
                             </div>
+
+                            {/* Ara Centre label */}
+                            <div
+                                className="absolute text-[10px] font-mono text-yellow-700 dark:text-yellow-300 bg-yellow-100/80 dark:bg-yellow-900/80 px-1.5 py-0.5 rounded shadow-sm transform -translate-x-1/2 z-10"
+                                style={{
+                                    left: `${Math.max(0, Math.min(100, araCentreRelativeX))}%`,
+                                    top: `${Math.max(0, Math.min(100, araCentreRelativeY - 3))}%`,
+                                }}
+                            >
+                                Ara Centre
+                            </div>
                         </div>
                     </div>
                 )}
 
                 {/* Set Coordination Randomly Button */}
                 {isMaintainer ? (
-                    <Button
-                        onClick={handleSetRandomCoordinates}
-                        variant="primary"
-                        disabled={isLoading}
-                        className="w-full"
-                    >
-                        {isLoading ? 'Setting Coordinates...' : 'Set Galaxy Randomly'}
-                    </Button>
+                    hasPosition ? (
+                        <Tooltip content="Galaxy position is already set. It can only be set once.">
+                            <div className="w-full">
+                                <Button
+                                    variant="primary"
+                                    disabled={true}
+                                    className="w-full"
+                                >
+                                    Position Already Set
+                                </Button>
+                            </div>
+                        </Tooltip>
+                    ) : (
+                        <Button
+                            onClick={handleSetRandomCoordinates}
+                            variant="primary"
+                            disabled={isLoading}
+                            className="w-full"
+                        >
+                            {isLoading ? 'Setting Coordinates...' : 'Set Galaxy Randomly'}
+                        </Button>
+                    )
                 ) : (
                     <Tooltip content="Only Maintainer can call it, please sign in as the Galaxy Maintainer">
                         <div className="w-full">

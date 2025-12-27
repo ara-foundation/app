@@ -675,13 +675,20 @@ export const server = {
                 }
 
                 // Generate random coordinates if not provided
+                // Only set random position if galaxy doesn't already have one (x === 0 and y === 0)
                 let newX = x;
                 let newY = y;
                 if (newX === undefined || newY === undefined) {
-                    // Generate random coordinates within reasonable bounds
-                    // Using a range of -10000 to 10000 for now
-                    newX = Math.floor(Math.random() * 20000) - 10000;
-                    newY = Math.floor(Math.random() * 20000) - 10000;
+                    // Only set random position once - if galaxy already has a position, don't change it
+                    if (galaxy.x === 0 && galaxy.y === 0) {
+                        // Generate random coordinates within all-stars range (200-1800)
+                        newX = Math.floor(Math.random() * 1600) + 200; // 200 to 1800
+                        newY = Math.floor(Math.random() * 1600) + 200; // 200 to 1800
+                    } else {
+                        // Galaxy already has a position, use existing position
+                        newX = galaxy.x;
+                        newY = galaxy.y;
+                    }
                 }
 
                 // Get position history to determine next order number
