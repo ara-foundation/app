@@ -373,49 +373,56 @@ export const server = {
         input: z.object({
             issueId: z.string(),
             userId: z.string(),
-            email: z.string().email(),
         }),
-        handler: async ({ issueId, userId, email }): Promise<{ success: boolean; error?: string }> => {
+        handler: async ({ issueId, userId }, { request }): Promise<{ success: boolean; error?: string }> => {
             try {
-                // Get demo and validate
-                const demo = await getDemoByEmail(email);
-                if (!demo) {
+                // Check authentication
+                const session = await auth.api.getSession({
+                    headers: request.headers,
+                });
+
+                if (!session || !session.user) {
                     return {
                         success: false,
-                        error: 'Demo not found',
+                        error: 'Authentication required. Please log in to assign contributor',
                     };
                 }
 
-                // Get current user
-                const user = await getStarById(userId);
-                if (!user) {
+                const authenticatedUserId = session.user.id;
+
+                // Get authenticated user's star
+                const authenticatedStar = await getStarByUserId(authenticatedUserId);
+                if (!authenticatedStar || !authenticatedStar._id) {
                     return {
                         success: false,
-                        error: 'User not found',
+                        error: 'User profile not found. Please ensure your account is set up correctly.',
                     };
                 }
 
-                // Verify user is maintainer in demo
-                const demoUser = demo.users.find(id => id.toString() === userId);
-                if (!demoUser) {
-                    return {
-                        success: false,
-                        error: 'User not found in demo',
-                    };
-                }
-
-                // Check if user role is maintainer (we need to check the actual user role)
-                return {
-                    success: false,
-                    error: 'Only maintainers can assign contributors',
-                };
-
-                // Get issue
+                // Get issue to verify maintainer
                 const issue = await getIssueById(issueId);
                 if (!issue) {
                     return {
                         success: false,
                         error: 'Issue not found',
+                    };
+                }
+
+                // Verify authenticated user is the maintainer of the issue
+                const authenticatedStarId = authenticatedStar._id.toString();
+                if (issue.maintainer !== authenticatedStarId) {
+                    return {
+                        success: false,
+                        error: 'Only maintainers can assign contributors',
+                    };
+                }
+
+                // Get user to assign as contributor
+                const user = await getStarById(userId);
+                if (!user) {
+                    return {
+                        success: false,
+                        error: 'User not found',
                     };
                 }
 
@@ -452,16 +459,29 @@ export const server = {
         accept: 'json',
         input: z.object({
             issueId: z.string(),
-            email: z.string().email(),
         }),
-        handler: async ({ issueId, email }): Promise<{ success: boolean; error?: string }> => {
+        handler: async ({ issueId }, { request }): Promise<{ success: boolean; error?: string }> => {
             try {
-                // Get demo and validate
-                const demo = await getDemoByEmail(email);
-                if (!demo) {
+                // Check authentication
+                const session = await auth.api.getSession({
+                    headers: request.headers,
+                });
+
+                if (!session || !session.user) {
                     return {
                         success: false,
-                        error: 'Demo not found',
+                        error: 'Authentication required. Please log in to unset contributor',
+                    };
+                }
+
+                const authenticatedUserId = session.user.id;
+
+                // Get authenticated user's star
+                const authenticatedStar = await getStarByUserId(authenticatedUserId);
+                if (!authenticatedStar || !authenticatedStar._id) {
+                    return {
+                        success: false,
+                        error: 'User profile not found. Please ensure your account is set up correctly.',
                     };
                 }
 
@@ -474,18 +494,13 @@ export const server = {
                     };
                 }
 
-                // Verify star is maintainer (check if any demo star is maintainer)
-                const maintainerUser = await getStarById(issue.maintainer);
-                if (!maintainerUser || maintainerUser.role !== 'maintainer') {
-                    // Check if any demo star is maintainer
-                    const demoUsers = await getStarByIds(demo.users);
-                    const isMaintainer = demoUsers.some(u => u.role === 'maintainer');
-                    if (!isMaintainer) {
-                        return {
-                            success: false,
-                            error: 'Only maintainers can unset contributors',
-                        };
-                    }
+                // Verify authenticated user is the maintainer of the issue
+                const authenticatedStarId = authenticatedStar._id.toString();
+                if (issue.maintainer !== authenticatedStarId) {
+                    return {
+                        success: false,
+                        error: 'Only maintainers can unset contributors',
+                    };
                 }
 
                 // Unset contributor

@@ -21,8 +21,9 @@ import YourBadge from '../badge/YourBadge'
 import EditableBadge from '../badge/EditableBadge'
 import { actions as astroActions } from 'astro:actions'
 import type { Star } from '@/types/star'
-import { getDemo } from '@/client-side/demo'
-import { getStarById } from '@/client-side/star'
+import { authClient, getAuthUserById } from '@/client-side/auth'
+import { getStarById, getStarByUserId } from '@/client-side/star'
+import type { AuthUser } from '@/types/auth'
 import { ISSUE_EVENT_TYPES } from '@/types/issue'
 import { TheaterIcon } from 'lucide-react'
 
@@ -52,16 +53,22 @@ const IssueContentPanel: React.FC<IssueContentPanelProps> = ({
   // Check if this is a shining issue (has sunshines > 0)
   const isShiningIssue = issueData.sunshines > 0
 
+  // Get session for authentication
+  const { data: session, isPending } = authClient.useSession();
+
   // State for author star data
   const [authorUser, setAuthorUser] = useState<Star | null>(null)
+  const [authorAuthUser, setAuthorAuthUser] = useState<AuthUser | null>(null)
   const [isLoadingAuthor, setIsLoadingAuthor] = useState(false)
 
   // State for contributor star data
   const [contributorUser, setContributorUser] = useState<Star | null>(null)
+  const [contributorAuthUser, setContributorAuthUser] = useState<AuthUser | null>(null)
   const [isLoadingContributor, setIsLoadingContributor] = useState(false)
 
   // State for maintainer star data
   const [maintainerUser, setMaintainerUser] = useState<Star | null>(null)
+  const [maintainerAuthUser, setMaintainerAuthUser] = useState<AuthUser | null>(null)
   const [isLoadingMaintainer, setIsLoadingMaintainer] = useState(false)
 
   // State for current star
@@ -72,9 +79,16 @@ const IssueContentPanel: React.FC<IssueContentPanelProps> = ({
     if (issueData.author && typeof issueData.author === 'string') {
       setIsLoadingAuthor(true)
       astroActions.getStarById({ starId: issueData.author })
-        .then((result: { data?: { success?: boolean; data?: Star; error?: string } }) => {
-          if (result.data?.success && result.data.data) {
+        .then(async (result: { data?: { success?: boolean; data?: Star; error?: string } }) => {
+          if (result.data?.success && result.data) {
             setAuthorUser(result.data.data)
+            // Fetch auth user for image/nickname
+            if (result.data.data?.userId) {
+              const authUser = await getAuthUserById(result.data.data.userId)
+              if (authUser) {
+                setAuthorAuthUser(authUser)
+              }
+            }
           }
         })
         .catch((error: unknown) => {
@@ -85,6 +99,7 @@ const IssueContentPanel: React.FC<IssueContentPanelProps> = ({
         })
     } else {
       setAuthorUser(null)
+      setAuthorAuthUser(null)
     }
   }, [issueData.author])
 
@@ -93,9 +108,16 @@ const IssueContentPanel: React.FC<IssueContentPanelProps> = ({
     if (issueData.contributor && typeof issueData.contributor === 'string') {
       setIsLoadingContributor(true)
       astroActions.getStarById({ starId: issueData.contributor })
-        .then((result: { data?: { success?: boolean; data?: Star; error?: string } }) => {
+        .then(async (result: { data?: { success?: boolean; data?: Star; error?: string } }) => {
           if (result.data?.success && result.data.data) {
             setContributorUser(result.data.data)
+            // Fetch auth user for image/nickname
+            if (result.data.data?.userId) {
+              const authUser = await getAuthUserById(result.data.data.userId)
+              if (authUser) {
+                setContributorAuthUser(authUser)
+              }
+            }
           }
         })
         .catch((error: unknown) => {
@@ -106,6 +128,7 @@ const IssueContentPanel: React.FC<IssueContentPanelProps> = ({
         })
     } else {
       setContributorUser(null)
+      setContributorAuthUser(null)
     }
   }, [issueData.contributor])
 
@@ -114,9 +137,16 @@ const IssueContentPanel: React.FC<IssueContentPanelProps> = ({
     if (issueData.maintainer && typeof issueData.maintainer === 'string') {
       setIsLoadingMaintainer(true)
       astroActions.getStarById({ starId: issueData.maintainer })
-        .then((result: { data?: { success?: boolean; data?: Star; error?: string } }) => {
+        .then(async (result: { data?: { success?: boolean; data?: Star; error?: string } }) => {
           if (result.data?.success && result.data.data) {
             setMaintainerUser(result.data.data)
+            // Fetch auth user for image/nickname
+            if (result.data.data?.userId) {
+              const authUser = await getAuthUserById(result.data.data.userId)
+              if (authUser) {
+                setMaintainerAuthUser(authUser)
+              }
+            }
           }
         })
         .catch((error: unknown) => {
@@ -127,27 +157,31 @@ const IssueContentPanel: React.FC<IssueContentPanelProps> = ({
         })
     } else {
       setMaintainerUser(null)
+      setMaintainerAuthUser(null)
     }
   }, [issueData.maintainer])
 
-  // Fetch current user from demo
+  // Fetch current user from session
   useEffect(() => {
-    const demo = getDemo()
-    if (demo.email && demo.users && demo.role) {
-      const user = demo.users.find(u => u.role === demo.role) || demo.users[0]
-      if (user && user._id) {
-        getStarById(user._id.toString())
-          .then((userData) => {
-            if (userData) {
-              setCurrentUser(userData)
-            }
-          })
-          .catch((error) => {
-            console.error('Error fetching current user:', error)
-          })
-      }
+    if (isPending) {
+      return;
     }
-  }, [])
+
+    const user = session?.user as AuthUser | undefined;
+    if (user?.id) {
+      getStarByUserId(user.id)
+        .then((userData) => {
+          if (userData) {
+            setCurrentUser(userData)
+          }
+        })
+        .catch((error) => {
+          console.error('Error fetching current user:', error)
+        })
+    } else {
+      setCurrentUser(null)
+    }
+  }, [session, isPending])
 
   // Listen for issue-update events
   useEffect(() => {
@@ -164,7 +198,7 @@ const IssueContentPanel: React.FC<IssueContentPanelProps> = ({
 
   // Check if current user is author or maintainer
   const isAuthor = currentUser && issueData.author && currentUser._id === issueData.author
-  const isMaintainer = currentUser?.role === 'maintainer'
+  const isMaintainer = currentUser && issueData.maintainer && currentUser._id === issueData.maintainer
   const canEdit = isAuthor || isMaintainer
 
   // State management for editable content
@@ -413,7 +447,9 @@ const IssueContentPanel: React.FC<IssueContentPanelProps> = ({
                       <span className="text-xs text-gray-400">Loading...</span>
                     ) : (
                       <AuthStar
-                        src={contributorUser.src}
+                        star={contributorUser}
+                        src={contributorAuthUser?.image}
+                        nickname={contributorAuthUser?.name || contributorAuthUser?.username || contributorAuthUser?.email?.split('@')[0] || 'Unknown'}
                         className='w-7! h-7!'
                       />
                     )}
@@ -424,8 +460,10 @@ const IssueContentPanel: React.FC<IssueContentPanelProps> = ({
                       <span className="text-xs text-gray-400">Loading...</span>
                     ) : (
                       <AuthStar
-                        src={maintainerUser.src}
-                        uri={maintainerUser.uri}
+                        star={maintainerUser}
+                        src={maintainerAuthUser?.image}
+                        nickname={maintainerAuthUser?.name || maintainerAuthUser?.username || maintainerAuthUser?.email?.split('@')[0] || 'Unknown'}
+                        starId={maintainerUser?._id}
                         className='w-7! h-7!'
                       />
                     )}
@@ -440,7 +478,9 @@ const IssueContentPanel: React.FC<IssueContentPanelProps> = ({
                       <span className="text-xs text-gray-400">Loading...</span>
                     ) : (
                       <AuthStar
-                        src={authorUser.src}
+                        star={authorUser}
+                        src={authorAuthUser?.image}
+                        nickname={authorAuthUser?.name || authorAuthUser?.username || authorAuthUser?.email?.split('@')[0] || 'Unknown'}
                         className='w-7! h-7!'
                       />
                     )}

@@ -3,24 +3,27 @@ import Button from '@/components/custom-ui/Button';
 import Tooltip from '@/components/custom-ui/Tooltip';
 import AuthStar from '@/components/auth/AuthStar';
 import LoginRequireForPanel from '@/components/auth/login-require-for-panel';
-import { getDemo } from '@/client-side/demo';
-import { getStarById } from '@/client-side/star';
+import { authClient, getAuthUserById } from '@/client-side/auth';
+import { getStarById, getStarByUserId } from '@/client-side/star';
 import { getIssueById, setContributor, unsetContributor } from '@/client-side/issue';
 import { cn } from '@/lib/utils';
 import { ISSUE_EVENT_TYPES } from '@/types/issue';
 import type { Star } from '@/types/star';
 import type { Issue } from '@/types/issue';
+import type { AuthUser } from '@/types/auth';
 
 interface AssignToMeCTAProps {
     issueId: string;
 }
 
 const AssignToMeCTA: React.FC<AssignToMeCTAProps> = ({ issueId }) => {
+    const { data: session, isPending } = authClient.useSession();
     const [isMaintainer, setIsMaintainer] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
-    const [currentUser, setCurrentUser] = useState<User | null>(null);
+    const [currentUser, setCurrentUser] = useState<Star | null>(null);
     const [issue, setIssue] = useState<Issue | null>(null);
-    const [contributorUser, setContributorUser] = useState<User | null>(null);
+    const [contributorUser, setContributorUser] = useState<Star | null>(null);
+    const [contributorAuthUser, setContributorAuthUser] = useState<AuthUser | null>(null);
     const [isLoadingContributor, setIsLoadingContributor] = useState(false);
 
     // Fetch issue data
@@ -37,30 +40,46 @@ const AssignToMeCTA: React.FC<AssignToMeCTAProps> = ({ issueId }) => {
     // Check if current user is maintainer
     useEffect(() => {
         const checkUserRole = async () => {
-            const demo = getDemo();
-            if (demo.email && demo.users && demo.role) {
-                const user = demo.users.find(u => u.role === demo.role) || demo.users[0];
-                if (user && user._id) {
-                    const userData = await getStarById(user._id.toString());
-                    if (userData) {
-                        setCurrentUser(userData);
-                        setIsMaintainer(userData.role === 'maintainer');
-                    }
+            if (isPending) {
+                return;
+            }
+
+            const user = session?.user as AuthUser | undefined;
+            if (user?.id && issue) {
+                const userData = await getStarByUserId(user.id);
+                if (userData && userData._id) {
+                    setCurrentUser(userData);
+                    // Check if user's star ID matches the issue's maintainer
+                    const userStarId = userData._id.toString();
+                    setIsMaintainer(issue.maintainer === userStarId);
+                } else {
+                    setCurrentUser(null);
+                    setIsMaintainer(false);
                 }
+            } else {
+                setCurrentUser(null);
+                setIsMaintainer(false);
             }
         };
 
         checkUserRole();
-    }, []);
+    }, [session, isPending, issue]);
 
     // Fetch contributor user when issue.contributor changes
     useEffect(() => {
         if (issue?.contributor && typeof issue.contributor === 'string') {
             setIsLoadingContributor(true);
             getStarById(issue.contributor)
-                .then((userData) => {
+                .then(async (userData) => {
                     if (userData) {
                         setContributorUser(userData);
+                        // Fetch auth user for image/nickname
+                        if (userData.userId) {
+                            const authUser = await getAuthUserById(userData.userId);
+                            if (authUser) {
+                                setContributorAuthUser(authUser);
+                            }
+                        }
                     }
                 })
                 .catch((error) => {
@@ -71,6 +90,7 @@ const AssignToMeCTA: React.FC<AssignToMeCTAProps> = ({ issueId }) => {
                 });
         } else {
             setContributorUser(null);
+            setContributorAuthUser(null);
         }
     }, [issue?.contributor]);
 
@@ -90,14 +110,14 @@ const AssignToMeCTA: React.FC<AssignToMeCTAProps> = ({ issueId }) => {
     }, [issueId]);
 
     const handleAssign = async () => {
-        if (!currentUser || !currentUser._id) {
-            alert('User not found');
+        const user = session?.user as AuthUser | undefined;
+        if (!user?.id) {
+            alert('Please log in to assign contributor');
             return;
         }
 
-        const demo = getDemo();
-        if (!demo.email) {
-            alert('Please log in to assign contributor');
+        if (!currentUser || !currentUser._id) {
+            alert('User not found');
             return;
         }
 
@@ -106,7 +126,6 @@ const AssignToMeCTA: React.FC<AssignToMeCTAProps> = ({ issueId }) => {
             const success = await setContributor({
                 issueId,
                 userId: currentUser._id.toString(),
-                email: demo.email,
             });
 
             if (!success) {
@@ -121,8 +140,8 @@ const AssignToMeCTA: React.FC<AssignToMeCTAProps> = ({ issueId }) => {
     };
 
     const handleUnsetContributor = async () => {
-        const demo = getDemo();
-        if (!demo.email) {
+        const user = session?.user as AuthUser | undefined;
+        if (!user?.id) {
             alert('Please log in to unset contributor');
             return;
         }
@@ -131,7 +150,6 @@ const AssignToMeCTA: React.FC<AssignToMeCTAProps> = ({ issueId }) => {
         try {
             const success = await unsetContributor({
                 issueId,
-                email: demo.email,
             });
 
             if (!success) {
@@ -167,7 +185,9 @@ const AssignToMeCTA: React.FC<AssignToMeCTAProps> = ({ issueId }) => {
                             <span className="text-xs text-gray-400">Loading...</span>
                         ) : (
                             <AuthStar
-                                src={contributorUser.src}
+                                src={contributorAuthUser?.image}
+                                nickname={contributorAuthUser?.name || contributorAuthUser?.username || contributorAuthUser?.email?.split('@')[0] || 'Unknown'}
+                                star={contributorUser}
                                 className='w-6! h-6!'
                             />
                         )}

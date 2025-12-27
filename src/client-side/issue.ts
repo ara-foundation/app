@@ -225,7 +225,6 @@ export async function updateIssueSunshines(params: {
 export async function setContributor(params: {
     issueId: string;
     userId: string;
-    email: string;
 }): Promise<boolean> {
     try {
         const result = await actions.setContributor(params);
@@ -235,8 +234,6 @@ export async function setContributor(params: {
             if (updatedIssue) {
                 emitIssueUpdate(updatedIssue);
             }
-            // Increment demo step (step 2: Assign Contributor)
-            await incrementDemoStep({ email: params.email, expectedStep: 2 });
             return true;
         }
         return false;
@@ -251,7 +248,6 @@ export async function setContributor(params: {
  */
 export async function unsetContributor(params: {
     issueId: string;
-    email: string;
 }): Promise<boolean> {
     try {
         const result = await actions.unsetContributor(params);
