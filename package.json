@@ -18,7 +18,7 @@
     "db:down": "./scripts/check-docker.sh && docker compose down",
     "db:stats": "./scripts/check-docker.sh && docker compose ps",
     "db:sync": "tsx scripts/sync-db.ts",
-    "db:setup-auth": "tsx scripts/better-auth-setup.ts",
+    "db:setup-auth": "tsx scripts/setup-auth.ts",
     "db:setup-stars": "tsx scripts/setup-stars.ts"
   },
   "dependencies": {
@@ -51,6 +51,7 @@
     "@tiptap/starter-kit": "^3.10.1",
     "@types/canvas-confetti": "^1.9.0",
     "@types/react": "^19.2.2",
+    "@vercel/speed-insights": "^1.3.1",
     "astro": "^5.15.3",
     "autoprefixer": "^10.4.21",
     "better-auth": "^1.4.9",
