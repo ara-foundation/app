@@ -13,7 +13,7 @@ import {
 } from '@/server-side/git-repository';
 import { generateGalaxy } from '@/server-side/ai';
 import { getProjectById } from '@/server-side/project';
-import { createGalaxy, getGalaxyById, updateGalaxyPosition } from '@/server-side/galaxy';
+import { createGalaxy, getGalaxyById, updateGalaxyPosition, getGalaxiesByMaintainer } from '@/server-side/galaxy';
 import { getStarByUserId } from '@/server-side/star';
 import { createGalaxyPositionTracer, getGalaxyPositionHistory } from '@/server-side/all-stars';
 import { getCollection } from '@/server-side/db';
@@ -750,6 +750,30 @@ export const server = {
                     y: 0,
                     order: 0,
                     error: error instanceof Error ? error.message : 'Failed to update galaxy coordinates',
+                };
+            }
+        },
+    }),
+
+    /**
+     * Get galaxies by maintainer (star ID)
+     */
+    getGalaxiesByMaintainer: defineAction({
+        input: z.object({
+            maintainerId: z.string(),
+        }),
+        handler: async ({ maintainerId }): Promise<{ success: boolean; galaxies?: Galaxy[]; error?: string }> => {
+            try {
+                const galaxies = await getGalaxiesByMaintainer(maintainerId);
+                return {
+                    success: true,
+                    galaxies,
+                };
+            } catch (error) {
+                console.error('Error getting galaxies by maintainer:', error);
+                return {
+                    success: false,
+                    error: error instanceof Error ? error.message : 'Failed to get galaxies by maintainer',
                 };
             }
         },

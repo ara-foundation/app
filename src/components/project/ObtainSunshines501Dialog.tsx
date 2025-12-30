@@ -27,8 +27,7 @@ const ObtainSunshines501Dialog: React.FC<ObtainSunshines501DialogProps> = ({
       <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[101] flex items-center justify-center">
         <PageLikePanel title="Not Available Yet" titleCenter={true}>
           <p className="text-slate-600 dark:text-slate-400 mb-4 text-lg text-center">
-            You already got 100 sunshines. Additional sunshine will be available on mainnet beta. Stay with me to keep updated, I'm also glad for contributors
-          </p>
+            You’ve already earned 100 Sunshines! Additional Sunshines will become available on the mainnet beta. Stay tuned for updates, and I'm also grateful to all contributors.          </p>
 
           <div className="flex items-center justify-center gap-4 mb-6">
             <SocialLink link={socialLinks.github} className="flex rounded-sm w-10 h-10 items-center justify-center hover:opacity-80 transition-opacity" />
