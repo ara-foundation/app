@@ -9,6 +9,8 @@ type DraggableIssueProps = Issue & { actions?: ActionProps[]; patchable?: boolea
 const IssueCard: React.FC<DraggableIssueProps> = memo((props) => {
   const dragType = props.patchable ? 'patch' : 'issue';
 
+  // Only use drag if draggable prop is explicitly true
+  // This component should only be rendered when inside a DndProvider
   const [{ opacity }, drag] = useDrag(
     () => ({
       type: dragType,

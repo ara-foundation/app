@@ -81,7 +81,7 @@ const IssueListPanel: React.FC<Props> = ({ tabType, draggable = false, filterabl
       }
 
       const issueListHistory = updatedIssue.listHistory || [];
-      
+
       // If the issue has been patched (has PATCH_KEYWORD in listHistory), remove it from all lists
       // except SHINING and PUBLIC tabs which don't filter by PATCH_KEYWORD
       if (issueListHistory.includes(PATCH_KEYWORD)) {
@@ -328,16 +328,17 @@ const IssueListPanel: React.FC<Props> = ({ tabType, draggable = false, filterabl
   const ItemComponent: React.FC<Issue & { actions?: ActionProps[]; patchable?: boolean; draggable?: boolean; versionTag?: string; versionStatus?: 'complete' | 'testing' | 'release' | 'archived'; patchCompleted?: boolean; patchTested?: boolean }> = (itemProps) => {
     // Version-prefixed issues should never be draggable
     if (itemProps.versionTag) {
-      return <IssueLink {...itemProps} />
+      return <div className="mb-8"><IssueLink {...itemProps} /></div>
     }
     // Closed issues should never be draggable (no DndProvider for CLOSED tab)
     if (tabType === IssueTabKey.CLOSED) {
-      return <IssueLink {...itemProps} />
+      return <div className="mb-8"><IssueLink {...itemProps} /></div>
     }
-    if (itemProps.patchable || draggable) {
-      return <DraggableIssueLink {...itemProps} patchable={itemProps.patchable} draggable={true} />
+    // Only render DraggableIssueLink if draggable is true (which means DndProvider is present)
+    if (draggable && (itemProps.patchable || itemProps.draggable)) {
+      return <div className="mb-8"><DraggableIssueLink {...itemProps} patchable={itemProps.patchable} draggable={true} /></div>
     }
-    return <IssueLink {...itemProps} />
+    return <div className="mb-8"><IssueLink {...itemProps} /></div>
   }
 
   if (isLoading) {

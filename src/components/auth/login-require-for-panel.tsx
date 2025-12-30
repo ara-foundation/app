@@ -20,12 +20,12 @@ const LoginRequireForPanel: React.FC<LoginRequireForPanelProps> = ({ children, c
             {!isPending && !isLoggedIn && (
                 <div
                     className={cn(
-                        'absolute inset-0 left-1/2 -translate-x-1/2 top-0 right-0 bottom-0',
+                        'absolute inset-0',
                         'backdrop-blur-xs',
                         'bg-white/10 dark:bg-slate-900/10',
                         'flex items-center justify-center',
                         'rounded-lg',
-                        'pointer-events-none',
+                        'pointer-events-auto',
                         'z-10'
                     )}
                 >

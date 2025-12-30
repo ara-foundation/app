@@ -18,7 +18,7 @@ import { updateIssueSunshines } from '@/client-side/issue'
 import { getStarById, getStarByUserId } from '@/client-side/star'
 import type { AuthUser } from '@/types/auth'
 import Tooltip from '../custom-ui/Tooltip'
-import { TheaterIcon } from 'lucide-react'
+import { TheaterIcon, Eye } from 'lucide-react'
 
 interface IssueLinkProps extends Issue {
   actions?: ActionProps[];
@@ -139,32 +139,6 @@ const IssueLinkPanel4: React.FC<IssueLinkProps> = (issue) => {
 
   return (
     <div className='flex flex-row gap-1 items-start w-full'>
-      {/* Issue storage and number */}
-      <div className="flex items-center space-x-3 mt-0.5">
-
-        <Tooltip
-          content={
-            <div className="text-sm flex gap-1">
-              Got to see the  {getIcon({ iconType: 'arrow-right', className: 'w-4 h-4 mt-0.5' })}
-              <p className='flex-1 bg-slate-100/20 rounded-sm'>
-                {issue.title}
-              </p>
-              {getIcon({ iconType: 'arrow-left', className: 'w-4 h-4 mt-0.5' })}
-              issue page
-            </div>
-          }
-        >
-          <Link uri={`/issue?id=${issue._id!}&galaxy=${issue.galaxy}`} asNewTab={false}>
-            <Badge variant='info' static={true}>
-              <div className="flex items-center space-x-1">
-                {getIcon('ara')}
-                <span className="text-xs font-medium underline">...</span>
-              </div>
-            </Badge>
-          </Link>
-        </Tooltip>
-      </div>
-
       <div className='w-full'>
         {/* Issue title and description */}
         <div className='flex justify-between items-center mb-1 ml-0.5'>
@@ -240,6 +214,25 @@ const IssueLinkPanel4: React.FC<IssueLinkProps> = (issue) => {
                 </Badge>
               </Tooltip>
             )}
+            {!hasVersionInfo && !isPatchable && !issue.contributor && (
+              <Tooltip
+                content={
+                  <div className="text-sm max-w-xs leading-snug">
+                    This issue has no contributor who takes responsibility yet. Let's wait until maintainer assigns a contributor.
+                  </div>
+                }
+              >
+                <Badge
+                  variant='warning'
+                  static={true}
+                  className="cursor-pointer select-none shadow-sm"
+                >
+                  <span className="flex items-center gap-1">
+                    Unassigned {getIcon('info')}
+                  </span>
+                </Badge>
+              </Tooltip>
+            )}
           </div>
           {primaryTag && (
             <Badge variant={
@@ -283,8 +276,15 @@ const IssueLinkPanel4: React.FC<IssueLinkProps> = (issue) => {
         {/* Issue status and actions */}
         {(issue.stats || issue.actions || issue.sunshines >= 0) &&
           <PanelFooter className='flex flex-row justify-between items-center mt-2'>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-4">
               {issue.actions && <PanelAction className='' actions={issue.actions} />}
+              {/* View Details button */}
+              <Link uri={`/issue?id=${issue._id!}&galaxy=${issue.galaxy}`} asNewTab={false}>
+                <button className="inline-flex items-center gap-1 text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors cursor-pointer hyperlink">
+                  <Eye className="w-4 h-4" />
+                  View Details
+                </button>
+              </Link>
               {/* Solar forge button/link */}
               {issue.solarForgeTxid ? (
                 <Tooltip

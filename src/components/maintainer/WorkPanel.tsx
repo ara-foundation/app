@@ -143,7 +143,7 @@ const C: React.FC<WorkPanelProps> = ({ galaxyId }) => {
     {
       label: <DndProvider backend={HTML5Backend}><DropTarget id={IssueTabKey.CLOSED} accept={["issue", "patch"]} onDrop={(item) => changeIssueList(item.id, IssueTabKey.CLOSED)}><span className="flex items-center gap-1.5">{getIcon({ iconType: 'lock', className: 'w-4 h-4' })}Closed</span></DropTarget></DndProvider>,
       key: IssueTabKey.CLOSED,
-      content: <IssueListPanel tabType={IssueTabKey.CLOSED} galaxyId={galaxyId} />
+      content: <IssueListPanel tabType={IssueTabKey.CLOSED} draggable={false} galaxyId={galaxyId} />
     },
   ] : [
     {
