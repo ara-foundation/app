@@ -6,7 +6,7 @@ let isConnected = false
 
 const DB_NAME = 'Ara'
 
-async function getClient(): Promise<MongoClient> {
+export async function getClient(): Promise<MongoClient> {
     if (!client) {
         const uri = import.meta.env.MONGODB_URI
         if (!uri) {

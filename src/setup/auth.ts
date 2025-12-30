@@ -135,9 +135,29 @@ async function createSessionCollection(db: Db) {
     console.log('📦 Creating session collection...');
     const collection = db.collection<AuthSessionModel>('session');
 
+    // First, try to drop the old sessionToken_unique index if it exists (to recreate it as sparse)
+    try {
+        await collection.dropIndex('sessionToken_unique');
+        console.log('   🔄 Dropped old sessionToken_unique index (will recreate as sparse)');
+    } catch (error: any) {
+        if (error.codeName !== 'IndexNotFound') {
+            console.log(`   ℹ️  Could not drop sessionToken_unique index: ${error.message}`);
+        }
+    }
+
+    // Clean up any sessions with null sessionToken (they shouldn't exist but clean up just in case)
+    try {
+        const result = await collection.deleteMany({ sessionToken: null });
+        if (result.deletedCount > 0) {
+            console.log(`   🧹 Cleaned up ${result.deletedCount} sessions with null sessionToken`);
+        }
+    } catch (error: any) {
+        console.log(`   ℹ️  Could not clean up null sessions: ${error.message}`);
+    }
+
     // Create indexes
     const indexes = [
-        { key: { sessionToken: 1 }, unique: true, name: 'sessionToken_unique' },
+        { key: { sessionToken: 1 }, unique: true, sparse: true, name: 'sessionToken_unique' }, // Sparse index allows multiple nulls
         { key: { userId: 1 }, name: 'userId_index' },
         { key: { expiresAt: 1 }, name: 'expiresAt_index' },
         { key: { expiresAt: 1 }, name: 'expiresAt_ttl', expireAfterSeconds: 0 }, // TTL index
@@ -155,6 +175,7 @@ async function createSessionCollection(db: Db) {
             } else {
                 await collection.createIndex(index.key, {
                     unique: index.unique || false,
+                    sparse: index.sparse || false, // Sparse index allows multiple null values
                     name: index.name,
                 });
                 console.log(`   ✅ Created index: ${index.name}`);

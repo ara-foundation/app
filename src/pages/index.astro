@@ -50,6 +50,7 @@ import OwnershipTransferDiagram from "@/components/diagrams/OwnershipTransferDia
 import AraLayerStack from "@/components/diagrams/AraLayerStack";
 import TokenSupplyComparison from "@/components/diagrams/TokenSupplyComparison";
 import TokenSupplyProgress from "@/components/diagrams/TokenSupplyProgress";
+import AddProjectButton from "@/components/auth/AddProjectButton";
 
 // Create a mock Galaxy object for the hero panel
 const mockGalaxy: Galaxy = {
@@ -499,81 +500,82 @@ const mockGalaxy: Galaxy = {
             class="mt-8 pt-8 border-t border-slate-300/40 dark:border-slate-700/40"
           >
             <h5
-              class="text-xl md:text-2xl font-bold text-slate-800 dark:text-slate-200 text-center mb-6"
+              class="text-xl md:text-2xl font-bold text-slate-800 dark:text-slate-200 text-center mb-8"
             >
               MAINTAINER SAFETY
             </h5>
 
             <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
               <div
-                class="backdrop-blur-md bg-white/30 dark:bg-slate-900/30 border border-slate-300/40 dark:border-slate-700/40 rounded-xl p-6 text-center"
+                class="backdrop-blur-md bg-white/30 dark:bg-slate-900/30 border border-slate-300/40 dark:border-slate-700/40 rounded-xl p-6 flex flex-col items-center justify-center min-h-[160px] transition-all hover:shadow-lg hover:scale-[1.02]"
               >
-                <div class="mb-4">
+                <div class="mb-5 flex items-center justify-center">
                   <LockIcon
-                    class="w-8 h-8 text-blue-500 dark:text-blue-400 mx-auto"
+                    class="w-10 h-10 text-blue-500 dark:text-blue-400"
                   />
                 </div>
                 <h4
-                  class="text-lg font-bold text-slate-800 dark:text-slate-200 mb-2"
+                  class="text-base md:text-lg font-semibold text-slate-800 dark:text-slate-200 text-center leading-tight"
                 >
                   Control by default
                 </h4>
               </div>
 
               <div
-                class="backdrop-blur-md bg-white/30 dark:bg-slate-900/30 border border-slate-300/40 dark:border-slate-700/40 rounded-xl p-6 text-center"
+                class="backdrop-blur-md bg-white/30 dark:bg-slate-900/30 border border-slate-300/40 dark:border-slate-700/40 rounded-xl p-6 flex flex-col items-center justify-center min-h-[160px] transition-all hover:shadow-lg hover:scale-[1.02]"
               >
-                <div class="mb-4">
+                <div class="mb-5 flex items-center justify-center">
                   <CheckmarkCircleIcon
-                    class="w-8 h-8 text-green-500 dark:text-green-400 mx-auto"
+                    class="w-10 h-10 text-green-500 dark:text-green-400"
                   />
                 </div>
                 <h4
-                  class="text-lg font-bold text-slate-800 dark:text-slate-200 mb-2"
+                  class="text-base md:text-lg font-semibold text-slate-800 dark:text-slate-200 text-center leading-tight"
                 >
                   Only accepted work creates tokens
                 </h4>
               </div>
 
               <div
-                class="backdrop-blur-md bg-white/30 dark:bg-slate-900/30 border border-slate-300/40 dark:border-slate-700/40 rounded-xl p-6 text-center"
+                class="backdrop-blur-md bg-white/30 dark:bg-slate-900/30 border border-slate-300/40 dark:border-slate-700/40 rounded-xl p-6 flex flex-col items-center justify-center min-h-[160px] transition-all hover:shadow-lg hover:scale-[1.02]"
               >
-                <div class="mb-4">
+                <div class="mb-5 flex items-center justify-center">
                   <WarningTriangleIcon
-                    class="w-8 h-8 text-yellow-500 dark:text-yellow-400 mx-auto"
+                    class="w-10 h-10 text-yellow-500 dark:text-yellow-400"
                   />
                 </div>
                 <h4
-                  class="text-lg font-bold text-slate-800 dark:text-slate-200 mb-2"
+                  class="text-base md:text-lg font-semibold text-slate-800 dark:text-slate-200 text-center leading-tight"
                 >
                   No early governance
                 </h4>
               </div>
 
               <div
-                class="backdrop-blur-md bg-white/30 dark:bg-slate-900/30 border border-slate-300/40 dark:border-slate-700/40 rounded-xl p-6 text-center"
+                class="backdrop-blur-md bg-white/30 dark:bg-slate-900/30 border border-slate-300/40 dark:border-slate-700/40 rounded-xl p-6 flex flex-col items-center justify-center min-h-[160px] transition-all hover:shadow-lg hover:scale-[1.02]"
               >
-                <div class="mb-4">
+                <div class="mb-5 flex items-center justify-center">
                   <BookIcon
-                    class="w-8 h-8 text-purple-500 dark:text-purple-400 mx-auto"
+                    class="w-10 h-10 text-purple-500 dark:text-purple-400"
                   />
                 </div>
                 <h4
-                  class="text-lg font-bold text-slate-800 dark:text-slate-200 mb-2"
+                  class="text-base md:text-lg font-semibold text-slate-800 dark:text-slate-200 text-center leading-tight"
                 >
                   Repo & license untouched
                 </h4>
               </div>
 
               <div
-                class="backdrop-blur-md bg-white/30 dark:bg-slate-900/30 border border-slate-300/40 dark:border-slate-700/40 rounded-xl p-6 text-center md:col-span-2 lg:col-span-1"
+                class="backdrop-blur-md bg-white/30 dark:bg-slate-900/30 border border-slate-300/40 dark:border-slate-700/40 rounded-xl p-6 flex flex-col items-center justify-center min-h-[160px] transition-all hover:shadow-lg hover:scale-[1.02] md:col-span-2 lg:col-span-1"
               >
-                <div class="mb-4">
+                <div class="mb-5 flex items-center justify-center">
                   <svg
-                    class="w-8 h-8 text-red-500 dark:text-red-400 mx-auto"
+                    class="w-10 h-10 text-red-500 dark:text-red-400"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
                   >
                     <path
                       stroke-linecap="round"
@@ -583,7 +585,7 @@ const mockGalaxy: Galaxy = {
                   </svg>
                 </div>
                 <h4
-                  class="text-lg font-bold text-slate-800 dark:text-slate-200 mb-2"
+                  class="text-base md:text-lg font-semibold text-slate-800 dark:text-slate-200 text-center leading-tight"
                 >
                   Leave anytime
                 </h4>
@@ -608,17 +610,13 @@ const mockGalaxy: Galaxy = {
         Grow projects without losing control
       </h2>
       <div class="flex justify-center">
-        <button
-          class="px-8 py-4 bg-blue-600 dark:bg-blue-500 text-white font-semibold rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors text-lg"
-        >
-          Add your project
-        </button>
+        <AddProjectButton client:only="react" />
       </div>
     </section>
 
     <!-- Social Links -->
     <section class="text-center space-y-4">
-      <p class="text-lg text-slate-600 dark:text-slate-400">
+      <p class="text-lg text-slate-600 dark:text-slate-400 mt-2">
         Also, let's stay connected!
       </p>
       <div class="flex items-center justify-center gap-6 flex-wrap">
@@ -647,6 +645,25 @@ const mockGalaxy: Galaxy = {
             </a>
           ))
         }
+      </div>
+    </section>
+
+    <!-- Notice Section -->
+    <section class="text-center space-y-4 mt-8">
+      <div
+        class="backdrop-blur-md bg-white/30 dark:bg-slate-900/30 border border-slate-300/40 dark:border-slate-700/40 rounded-xl p-6 max-w-2xl mx-auto"
+      >
+        <p class="text-base md:text-lg text-slate-700 dark:text-slate-300">
+          Ara is currently a solo-dev work. Try out the Testnet version. Become
+          one of early pioneers with me. More about me is on{" "}
+          <a
+            href="/people"
+            class="text-blue-600 dark:text-blue-400 hover:underline font-semibold"
+          >
+            /people
+          </a>
+          .
+        </p>
       </div>
     </section>
   </div>
