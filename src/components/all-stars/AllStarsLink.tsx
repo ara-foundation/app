@@ -52,7 +52,14 @@ const AllStarsLink: React.FC<AllStarsLinkProps> = ({
             <Tooltip
                 content={
                     <PageLikePanel title="All Stars" icon="info" className="flex items-center gap-2 text-sm bg-transparent dark:bg-transparent border-none dark:border-none">
-                        <span>All Stars page represents the universe of open-source projects. Browse and create your project there.</span>
+                        <div className="space-y-2">
+                            <span>All Stars page represents the universe of open-source projects. Browse and create your project there.</span>
+                            {isLoggedIn && (
+                                <div className="font-bold text-blue-500 dark:text-blue-400 mt-2">
+                                    Visit All-Stars, and add your open-source project
+                                </div>
+                            )}
+                        </div>
                     </PageLikePanel>
                 }
             >
