@@ -57,25 +57,31 @@ const AuthDialog: React.FC<AuthDialogProps> = ({ isOpen, onClose, className }) =
         console.error('Sign-in error:', result.error)
         alert(`Failed to sign in: ${result.error.message || 'Please try again.'}`)
         setIsSigningIn(false)
-      } else if (result.url) {
+        return
+      }
+
+      // Check if result.data has a url property (OAuth redirect)
+      if (result.data && 'url' in result.data && result.data.url) {
         // If there's a redirect URL, navigate to it (OAuth flow)
         // This is the normal flow for OAuth - redirect to GitHub
-        window.location.href = result.url
-        // Don't set isSigningIn to false here - let the redirect happen
-        // Don't close dialog - redirect will navigate away
-      } else {
-        // Check if result.data indicates success
-        if (result.data) {
-          // Sign-in completed successfully (shouldn't happen with OAuth redirect, but handle it)
-          onClose?.()
-          setIsSigningIn(false)
-        } else {
-          // Unexpected response - log and show error
-          console.error('Unexpected sign-in response:', result)
-          alert('Unexpected response from sign-in. Please try again.')
-          setIsSigningIn(false)
-        }
+        // Close dialog before redirecting
+        onClose?.()
+        window.location.href = result.data.url
+        return
       }
+
+      // Check if result.data indicates success (shouldn't happen with OAuth, but handle it)
+      if (result.data && 'user' in result.data) {
+        // Sign-in completed successfully
+        onClose?.()
+        setIsSigningIn(false)
+        return
+      }
+
+      // Unexpected response - log and show error
+      console.error('Unexpected sign-in response:', result)
+      alert('Unexpected response from sign-in. Please try again.')
+      setIsSigningIn(false)
     } catch (error) {
       console.error('Sign-in error:', error)
       alert(`An error occurred during sign-in: ${error instanceof Error ? error.message : 'Please try again.'}`)

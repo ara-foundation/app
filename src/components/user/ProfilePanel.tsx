@@ -33,7 +33,7 @@ const ProfilePanel: React.FC<ProfilePanelProps> = ({ user, galaxies, authUser })
     const displayName = authUser?.name || authUser?.username || authUser?.email?.split('@')[0] || 'Unknown User'
     const displayImage = authUser?.image || defaultSrc
     const displayNickname = authUser?.username || authUser?.displayUsername || authUser?.name || authUser?.email?.split('@')[0]
-    const [accounts, setAccounts] = useState<Array<{ providerId: string; providerAccountId: string }>>([])
+    const [accounts, setAccounts] = useState<Array<{ providerId: string; accountId: string }>>([])
     const [isLoadingAccounts, setIsLoadingAccounts] = useState(false)
 
     // Fetch accounts if viewing own profile
@@ -45,7 +45,7 @@ const ProfilePanel: React.FC<ProfilePanelProps> = ({ user, galaxies, authUser })
                     const fetchedAccounts = await getAccountsByUserId(authUser.id)
                     setAccounts(fetchedAccounts.map(acc => ({
                         providerId: acc.providerId,
-                        providerAccountId: acc.providerAccountId,
+                        accountId: acc.accountId,
                     })))
                 } catch (error) {
                     console.error('Error fetching accounts:', error)
@@ -63,7 +63,7 @@ const ProfilePanel: React.FC<ProfilePanelProps> = ({ user, galaxies, authUser })
     if (githubAccount) {
         socialLinks.push({
             type: 'github',
-            url: `https://github.com/${githubAccount.providerAccountId}`,
+            url: `https://github.com/${githubAccount.accountId}`,
         })
     }
 
@@ -201,7 +201,7 @@ const ProfilePanel: React.FC<ProfilePanelProps> = ({ user, galaxies, authUser })
                                             {getSocialIcon(social.type)}
                                             <span className="text-sm text-slate-700 dark:text-slate-300">
                                                 {social.type === 'github' && githubAccount && (
-                                                    <>GitHub ({githubAccount.providerAccountId})</>
+                                                    <>GitHub ({githubAccount.accountId})</>
                                                 )}
                                             </span>
                                         </Link>

@@ -36,7 +36,7 @@ export interface AuthAccount {
     id: string // Unique account identifier
     userId: string // Reference to AuthUser id
     providerId: string // OAuth provider ID (e.g., 'github', 'google')
-    providerAccountId: string // Provider's account ID
+    accountId: string // Provider's account ID
     accessToken?: string // OAuth access token
     refreshToken?: string // OAuth refresh token
     expiresAt?: Date // Token expiration timestamp

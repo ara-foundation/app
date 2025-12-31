@@ -98,11 +98,45 @@ async function createUserCollection(db: Db) {
     console.log('📦 Creating user collection...');
     const collection = db.collection<AuthUserModel>('user');
 
+    // First, try to drop the old id_unique and username_unique indexes if they exist (to recreate them as sparse)
+    try {
+        await collection.dropIndex('id_unique');
+        console.log('   🔄 Dropped old id_unique index (will recreate as sparse)');
+    } catch (error: any) {
+        if (error.codeName !== 'IndexNotFound') {
+            console.log(`   ℹ️  Could not drop id_unique index: ${error.message}`);
+        }
+    }
+
+    try {
+        await collection.dropIndex('username_unique');
+        console.log('   🔄 Dropped old username_unique index (will recreate as sparse)');
+    } catch (error: any) {
+        if (error.codeName !== 'IndexNotFound') {
+            console.log(`   ℹ️  Could not drop username_unique index: ${error.message}`);
+        }
+    }
+
+    // Clean up any users with null id or missing id (they shouldn't exist but clean up just in case)
+    try {
+        const result = await collection.deleteMany({
+            $or: [
+                { id: null as any },
+                { id: { $exists: false } }
+            ]
+        });
+        if (result.deletedCount > 0) {
+            console.log(`   🧹 Cleaned up ${result.deletedCount} users with null or missing id`);
+        }
+    } catch (error: any) {
+        console.log(`   ℹ️  Could not clean up null id users: ${error.message}`);
+    }
+
     // Create indexes
-    const indexes = [
-        { key: { email: 1 }, unique: true, name: 'email_unique' },
-        { key: { id: 1 }, unique: true, name: 'id_unique' },
-        { key: { username: 1 }, unique: true, name: 'username_unique' }, // Username plugin field
+    const indexes: Array<{ key: Record<string, 1 | -1>, unique?: boolean, sparse?: boolean, name: string }> = [
+        { key: { email: 1 }, unique: true, sparse: false, name: 'email_unique' },
+        { key: { id: 1 }, unique: true, sparse: true, name: 'id_unique' }, // Sparse index allows multiple nulls
+        { key: { username: 1 }, unique: true, sparse: true, name: 'username_unique' }, // Sparse index allows multiple nulls
         { key: { emailVerified: 1 }, name: 'emailVerified_index' },
         { key: { createdAt: 1 }, name: 'createdAt_index' },
     ];
@@ -111,13 +145,14 @@ async function createUserCollection(db: Db) {
         try {
             await collection.createIndex(index.key, {
                 unique: index.unique || false,
+                sparse: index.sparse || false, // Sparse index allows multiple null values
                 name: index.name,
             });
-            console.log(`   ✅ Created index: ${index.name}`);
+            console.log(`   ✅ Created index: ${index.name}${index.sparse ? ' (sparse)' : ''}`);
         } catch (error: any) {
             if (error.code === 85) {
                 // Index already exists with different options
-                console.log(`   ⚠️  Index ${index.name} already exists`);
+                console.log(`   ⚠️  Index ${index.name} already exists with different options`);
             } else if (error.code === 86) {
                 // Index already exists
                 console.log(`   ℹ️  Index ${index.name} already exists`);
@@ -147,7 +182,7 @@ async function createSessionCollection(db: Db) {
 
     // Clean up any sessions with null sessionToken (they shouldn't exist but clean up just in case)
     try {
-        const result = await collection.deleteMany({ sessionToken: null });
+        const result = await collection.deleteMany({ sessionToken: null as any });
         if (result.deletedCount > 0) {
             console.log(`   🧹 Cleaned up ${result.deletedCount} sessions with null sessionToken`);
         }
@@ -156,7 +191,7 @@ async function createSessionCollection(db: Db) {
     }
 
     // Create indexes
-    const indexes = [
+    const indexes: Array<{ key: Record<string, 1 | -1>, unique?: boolean, sparse?: boolean, name: string, expireAfterSeconds?: number }> = [
         { key: { sessionToken: 1 }, unique: true, sparse: true, name: 'sessionToken_unique' }, // Sparse index allows multiple nulls
         { key: { userId: 1 }, name: 'userId_index' },
         { key: { expiresAt: 1 }, name: 'expiresAt_index' },
@@ -199,9 +234,31 @@ async function createAccountCollection(db: Db) {
     console.log('📦 Creating account collection...');
     const collection = db.collection<AuthAccountModel>('account');
 
+    // First, try to drop the old provider_unique index if it exists (to recreate it as sparse)
+    try {
+        await collection.dropIndex('provider_unique');
+        console.log('   🔄 Dropped old provider_unique index (will recreate as sparse)');
+    } catch (error: any) {
+        if (error.codeName !== 'IndexNotFound') {
+            console.log(`   ℹ️  Could not drop provider_unique index: ${error.message}`);
+        }
+    }
+
+    // Clean up any accounts with null accountId (they shouldn't exist but clean up just in case)
+    try {
+        const result = await collection.deleteMany({
+            accountId: null as any
+        });
+        if (result.deletedCount > 0) {
+            console.log(`   🧹 Cleaned up ${result.deletedCount} accounts with null accountId`);
+        }
+    } catch (error: any) {
+        console.log(`   ℹ️  Could not clean up null accountId accounts: ${error.message}`);
+    }
+
     // Create indexes
-    const indexes = [
-        { key: { providerId: 1, providerAccountId: 1 }, unique: true, name: 'provider_unique' },
+    const indexes: Array<{ key: Record<string, 1 | -1>, unique?: boolean, sparse?: boolean, name: string }> = [
+        { key: { providerId: 1, accountId: 1 }, unique: true, sparse: true, name: 'provider_unique' }, // Sparse index allows multiple nulls
         { key: { userId: 1 }, name: 'userId_index' },
         { key: { providerId: 1 }, name: 'providerId_index' },
     ];
@@ -210,9 +267,10 @@ async function createAccountCollection(db: Db) {
         try {
             await collection.createIndex(index.key, {
                 unique: index.unique || false,
+                sparse: index.sparse || false, // Sparse index allows multiple null values
                 name: index.name,
             });
-            console.log(`   ✅ Created index: ${index.name}`);
+            console.log(`   ✅ Created index: ${index.name}${index.sparse ? ' (sparse)' : ''}`);
         } catch (error: any) {
             if (error.code === 85) {
                 console.log(`   ⚠️  Index ${index.name} already exists`);
@@ -233,7 +291,7 @@ async function createVerificationCollection(db: Db) {
     const collection = db.collection<AuthVerificationModel>('verification');
 
     // Create indexes
-    const indexes = [
+    const indexes: Array<{ key: Record<string, 1 | -1>, unique?: boolean, name: string, expireAfterSeconds?: number }> = [
         { key: { identifier: 1, token: 1 }, unique: true, name: 'identifier_token_unique' },
         { key: { token: 1 }, unique: true, name: 'token_unique' },
         { key: { identifier: 1 }, name: 'identifier_index' },
