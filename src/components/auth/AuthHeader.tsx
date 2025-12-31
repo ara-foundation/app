@@ -318,7 +318,7 @@ const AuthHeader: React.FC<Props> = ({ className }) => {
                     {isSignUpMode && (
                       <>
                         <div>
-                          <Label>Nickname (optional)</Label>
+                          <Label>Nickname (e.g: siteuser777, vitalik)</Label>
                           <Input
                             id="nickname"
                             type="text"
@@ -331,7 +331,7 @@ const AuthHeader: React.FC<Props> = ({ className }) => {
                         </div>
 
                         <div>
-                          <Label>Display Name (optional)</Label>
+                          <Label>Display Name (e.g: John Doe, Satoshi Nakamoto)</Label>
                           <Input
                             id="displayName"
                             type="text"
